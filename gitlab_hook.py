@@ -287,7 +287,7 @@ def _process_easyconfigs_for_jobs(easyconfigs):
                 'module': module_name,
                 'easyconfig_path': spec,
                 'dependencies': dep_mod_names,  # All deps for reference
-                'job_dependencies': job_deps,   # Only deps being built in this pipeline
+                'job_dependencies': job_deps   # Only deps being built in this pipeline
                 'toolchain': ec.toolchain,
                 'version': ec.version,
                 'cores': build_option('job_cores') or 1,
@@ -365,14 +365,8 @@ def _generate_gitlab_pipeline():
     job_stages = {}
     stages = []
     
-    # Create stages list using easyconfig names
-    for module_name, job_info in PIPELINE_JOBS.items():
-        stage_name = _sanitize_job_name(job_info['name'].replace('.eb', ''))
-        job_stages[module_name] = stage_name
-        if stage_name not in stages:
-            stages.append(stage_name)
-    
-    # Create minimal pipeline structure - only essential variables
+    # Build stages list from all sanitized job names
+    stages = [ _sanitize_job_name(module_name) for module_name in PIPELINE_JOBS ]
     pipeline = {
         'stages': stages,
         'variables': {
