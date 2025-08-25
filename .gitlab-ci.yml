@@ -1,0 +1,86 @@
+# GitLab CI configuration for EasyBuild GPU package builds
+# This pipeline generates and executes child pipelines for GPU-accelerated software
+
+stages:
+  - generate
+  - build
+
+variables:
+  # EasyBuild configuration
+  patheb: "/bigdata/rz/sudhar46/eb_hopper_test"
+  architecture_rosi: "hopper"
+  EASYBUILD_GITLAB_CI_GENERATE: "1"
+  
+  # GPU-specific configuration
+  SBATCH_PARTITION: "gpu-h100"
+  CUDA_COMPUTE_CAPABILITIES: "9.0"
+  
+  # Jacamar CI Batch configuration
+  SCHEDULER_PARAMETERS: "--partition=gpu-h100 --gres=gpu:1"
+
+# Default configuration for all jobs
+default:
+  tags:
+    - [rosi-admin-shell]
+  before_script:
+    - ml python
+    - source /data/rosi/shared/eb/easybuild_environments/rome/eb_env/bin/activate
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - job_execution_timeout
+  timeout: 96h
+  interruptible: true
+  id_tokens:
+    CI_JOB_JWT:
+      aud: "https://codebase.helmholtz.cloud"
+
+# Generate EasyBuild pipeline for GPU packages
+generate_gpu_pipeline:
+  stage: generate
+  script:
+    - echo "Generating EasyBuild GitLab CI pipeline for GPU packages"
+    - |
+      eb --hooks=gitlab_hook.py \
+         --installpath=${patheb}/${architecture_rosi} \
+         --installpath-modules=${patheb}/${architecture_rosi}/modules \
+         --tmp-logdir=/tmp/eblog \
+         --buildpath=/tmp/ebbuild \
+         --sourcepath=/data/rosi/shared/eb/easybuild_source \
+         --cuda-compute-capabilities=9.0 \
+         --job-cores=16 \
+         --job-max-walltime=96 \
+
+         Blender-4.3.2-GCCcore-13.3.0-linux-x86_64-CUDA-12.6.0.eb \
+         CUDA-Python-12.4.0-gfbf-2023b-CUDA-12.4.0.eb \
+         CUTLASS-3.4.0-foss-2023a-CUDA-12.1.1.eb \
+         Clang-18.1.8-GCCcore-13.3.0-CUDA-12.6.0.eb \
+         
+         --robot --job --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
+         --ignore-checksums \
+         --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
+         --trace
+    - echo "Injecting default configuration into pipeline"
+    - python inject_defaults.py easybuild-child-pipeline.yml
+    - echo "Pipeline generation completed"
+  artifacts:
+    paths:
+      - easybuild-child-pipeline.yml
+    expire_in: 1 week
+
+# Execute the generated EasyBuild pipeline
+execute_gpu_builds:
+  stage: build
+  trigger:
+    include:
+      - artifact: easybuild-child-pipeline.yml
+        job: generate_gpu_pipeline
+    strategy: depend
+  variables:
+    # Pass variables to child pipeline
+    patheb: $patheb
+    architecture_rosi: $architecture_rosi
+    SBATCH_PARTITION: $SBATCH_PARTITION
+    CUDA_COMPUTE_CAPABILITIES: $CUDA_COMPUTE_CAPABILITIES
