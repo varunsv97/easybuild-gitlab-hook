@@ -25,14 +25,6 @@ default:
   before_script:
     - ml python
     - source /data/rosi/shared/eb/easybuild_environments/rome/eb_env/bin/activate
-  retry:
-    max: 2
-    when:
-      - runner_system_failure
-      - stuck_or_timeout_failure
-      - job_execution_timeout
-  timeout: 96h
-  interruptible: true
   id_tokens:
     CI_JOB_JWT:
       aud: "https://codebase.helmholtz.cloud"
