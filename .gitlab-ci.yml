@@ -33,10 +33,10 @@ generate_gpu_pipeline:
   stage: generate
   script:
     - echo "Generating EasyBuild GitLab CI pipeline for GPU packages"
-    - echo "DEBUG: Environment variables:"
+    - echo "DEBUG Environment variables:"
     - echo "GITLAB_CI_GENERATE=$GITLAB_CI_GENERATE"
-    - echo "Current directory: $(pwd)"
-    - echo "Hook file exists: $(ls -la gitlab_hook.py || echo 'NOT FOUND')"
+    - echo "Current directory is $(pwd)"
+    - ls -la gitlab_hook.py || echo "Hook file NOT FOUND"
     - |
       eb --hooks=gitlab_hook.py \
          --installpath=${patheb}/${architecture_rosi} \
