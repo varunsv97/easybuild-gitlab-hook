@@ -198,64 +198,83 @@ def _process_easyconfigs_for_jobs(easyconfigs):
     # Keep track of which job builds which module (like SLURM backend)
     module_to_job = {}
     
+    log.info("[GitLab CI Hook] Processing %d easyconfigs", len(easyconfigs))
+    
     # Process each easyconfig linearly
-    for easyconfig in easyconfigs:
-        # Handle both formats: post_ready_hook format and original format
-        if isinstance(easyconfig, dict) and 'ec' in easyconfig:
-            # post_ready_hook format
-            ec = easyconfig['ec']
-            easyconfig_name = f"{easyconfig['name']}-{easyconfig['version']}.eb"
-            spec = easyconfig.get('spec', easyconfig_name)
-        else:
-            # Original format
-            ec = easyconfig.get('ec') if isinstance(easyconfig, dict) else easyconfig
-            easyconfig_name = os.path.basename(easyconfig.get('spec', '')) if isinstance(easyconfig, dict) else f"{ec.name}-{ec.version}.eb"
-            spec = easyconfig.get('spec', easyconfig_name) if isinstance(easyconfig, dict) else f"{ec.name}-{ec.version}.eb"
-        
-        # Get module name
+    for i, easyconfig in enumerate(easyconfigs):
         try:
-            module_name = ActiveMNS().det_full_module_name(ec)
-        except Exception as err:
-            log.warning("Could not determine module name for %s: %s", spec, err)
-            continue
-        
-        # Get dependencies that are not external modules (like SLURM backend)
-        deps = [d for d in ec.all_dependencies if not d.get('external_module', False)]
-        
-        # Map dependency module names to job names
-        dep_mod_names = []
-        job_deps = []
-        for dep in deps:
+            # Handle different easyconfig formats
+            if isinstance(easyconfig, dict):
+                if 'ec' in easyconfig:
+                    # post_ready_hook format
+                    ec = easyconfig['ec']
+                    easyconfig_name = f"{easyconfig['name']}-{easyconfig['version']}.eb"
+                    spec = easyconfig.get('spec', easyconfig_name)
+                else:
+                    # Standard EasyBuild dict format
+                    ec = easyconfig.get('ec')
+                    if ec is None:
+                        log.warning("Skipping easyconfig %d: no 'ec' key found", i)
+                        continue
+                    easyconfig_name = f"{ec.name}-{ec.version}.eb"
+                    spec = easyconfig.get('spec', easyconfig_name)
+            else:
+                # Direct easyconfig object
+                ec = easyconfig
+                easyconfig_name = f"{ec.name}-{ec.version}.eb"
+                spec = getattr(ec, 'path', easyconfig_name)
+            
+            # Get module name
             try:
-                dep_mod_name = ActiveMNS().det_full_module_name(dep)
-                dep_mod_names.append(dep_mod_name)
-                # Only include dependencies that are being built in this pipeline
-                if dep_mod_name in module_to_job:
-                    job_deps.append(dep_mod_name)
+                module_name = ActiveMNS().det_full_module_name(ec)
             except Exception as err:
-                log.warning("Could not determine module name for dependency %s: %s", dep, err)
+                log.warning("Could not determine module name for %s: %s", spec, err)
+                continue
+            
+            # Get dependencies that are not external modules (like SLURM backend)
+            deps = [d for d in ec.all_dependencies if not d.get('external_module', False)]
+            
+            # Map dependency module names to job names
+            dep_mod_names = []
+            job_deps = []
+            for dep in deps:
+                try:
+                    dep_mod_name = ActiveMNS().det_full_module_name(dep)
+                    dep_mod_names.append(dep_mod_name)
+                    # Only include dependencies that are being built in this pipeline
+                    if dep_mod_name in module_to_job:
+                        job_deps.append(dep_mod_name)
+                except Exception as err:
+                    log.warning("Could not determine module name for dependency %s: %s", dep, err)
+            
+            # Create job entry
+            job_info = {
+                'name': easyconfig_name,
+                'module': module_name,
+                'easyconfig_path': spec,
+                'dependencies': dep_mod_names,  # All deps for reference
+                'job_dependencies': job_deps,   # Only deps being built in this pipeline
+                'toolchain': ec.toolchain,
+                'version': ec.version,
+                'cores': build_option('job_cores') or 1,
+                'walltime': build_option('job_max_walltime') or 24,
+            }
+            
+            PIPELINE_JOBS[module_name] = job_info
+            JOB_DEPENDENCIES[module_name] = job_deps  # Only pipeline dependencies for GitLab CI
+            
+            # Update module-to-job mapping (like SLURM backend)
+            module_to_job[module_name] = job_info
+            
+            log.debug("[GitLab CI Hook] Added job '%s' with %d total deps, %d pipeline deps", 
+                     module_name, len(dep_mod_names), len(job_deps))
         
-        # Create job entry
-        job_info = {
-            'name': easyconfig_name,
-            'module': module_name,
-            'easyconfig_path': spec,
-            'dependencies': dep_mod_names,  # All deps for reference
-            'job_dependencies': job_deps,   # Only deps being built in this pipeline
-            'toolchain': ec.toolchain,
-            'version': ec.version,
-            'cores': build_option('job_cores') or 1,
-            'walltime': build_option('job_max_walltime') or 24,
-        }
-        
-        PIPELINE_JOBS[module_name] = job_info
-        JOB_DEPENDENCIES[module_name] = job_deps  # Only pipeline dependencies for GitLab CI
-        
-        # Update module-to-job mapping (like SLURM backend)
-        module_to_job[module_name] = job_info
-        
-        log.debug("[GitLab CI Hook] Added job '%s' with %d total deps, %d pipeline deps", 
-                 module_name, len(dep_mod_names), len(job_deps))
+        except Exception as err:
+            log.error("[GitLab CI Hook] Error processing easyconfig %d: %s", i, err)
+            log.error("[GitLab CI Hook] Easyconfig type: %s", type(easyconfig))
+            if isinstance(easyconfig, dict):
+                log.error("[GitLab CI Hook] Easyconfig keys: %s", list(easyconfig.keys()))
+            continue
     
     log.info("[GitLab CI Hook] Processed %d easyconfigs for GitLab CI jobs", len(PIPELINE_JOBS))
 
