@@ -158,31 +158,49 @@ def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
     
     # Debug logging
     print("*** PRE_BUILD_AND_INSTALL_LOOP_HOOK CALLED ***")
+    print(f"*** Received {len(ecs)} easyconfigs ***")
     log.info("[GitLab CI Hook] pre_build_and_install_loop_hook called with %d easyconfigs", len(ecs))
     log.info("[GitLab CI Hook] DEBUG: build_option('gitlab_ci_generate'): %s", build_option('gitlab_ci_generate'))
     
     # Check if GitLab CI generation is enabled (no longer require --job)
     if not build_option('gitlab_ci_generate'):
+        print("*** GitLab CI mode not enabled - exiting ***")
         log.info("[GitLab CI Hook] GitLab CI mode not enabled in pre_build_and_install_loop_hook - exiting")
         return
     
+    print("*** GitLab CI mode enabled - proceeding ***")
     log.info("[GitLab CI Hook] Processing %d easyconfigs for GitLab CI pipeline generation", len(ecs))
     
-    # Use the ready easyconfigs if available, otherwise use the provided ones
-    global READY_ECS
-    if 'READY_ECS' in globals() and READY_ECS:
-        log.info("[GitLab CI Hook] Using %d ready easyconfigs from post_ready_hook", len(READY_ECS))
-        _process_easyconfigs_for_jobs(READY_ECS)
-    else:
-        log.info("[GitLab CI Hook] Using %d easyconfigs from pre_build_and_install_loop_hook", len(ecs))
-        _process_easyconfigs_for_jobs(ecs)
-    
-    # Generate pipeline YAML
-    _generate_gitlab_pipeline()
-    
-    # Stop EasyBuild execution after pipeline generation
-    log.info("[GitLab CI Hook] GitLab CI pipeline generated. Stopping EasyBuild execution.")
-    raise SystemExit(0)
+    try:
+        # Use the ready easyconfigs if available, otherwise use the provided ones
+        global READY_ECS
+        if 'READY_ECS' in globals() and READY_ECS:
+            print(f"*** Using {len(READY_ECS)} ready easyconfigs ***")
+            log.info("[GitLab CI Hook] Using %d ready easyconfigs from post_ready_hook", len(READY_ECS))
+            _process_easyconfigs_for_jobs(READY_ECS)
+        else:
+            print(f"*** Using {len(ecs)} provided easyconfigs ***")
+            log.info("[GitLab CI Hook] Using %d easyconfigs from pre_build_and_install_loop_hook", len(ecs))
+            _process_easyconfigs_for_jobs(ecs)
+        
+        print("*** Processing complete - generating pipeline ***")
+        # Generate pipeline YAML
+        _generate_gitlab_pipeline()
+        
+        print("*** Pipeline generated - exiting ***")
+        # Stop EasyBuild execution after pipeline generation
+        log.info("[GitLab CI Hook] GitLab CI pipeline generated. Stopping EasyBuild execution.")
+        raise SystemExit(0)
+        
+    except SystemExit:
+        # Re-raise SystemExit
+        raise
+    except Exception as e:
+        print(f"*** ERROR in hook: {e} ***")
+        log.error("[GitLab CI Hook] Error in pre_build_and_install_loop_hook: %s", e)
+        import traceback
+        traceback.print_exc()
+        raise
 
 
 def _process_easyconfigs_for_jobs(easyconfigs):
@@ -322,10 +340,14 @@ def _generate_gitlab_pipeline():
     """Generate the complete GitLab CI pipeline YAML."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
+    print(f"*** Generating pipeline for {len(PIPELINE_JOBS)} jobs ***")
+    
     if not PIPELINE_JOBS:
+        print("*** No jobs to generate pipeline for ***")
         log.warning("[GitLab CI Hook] No jobs to generate pipeline for")
         return
     
+    print("*** Creating pipeline structure ***")
     # Calculate stages - each job gets its own stage named after the easyconfig
     job_stages = {}
     stages = []
@@ -336,6 +358,8 @@ def _generate_gitlab_pipeline():
         job_stages[module_name] = stage_name
         if stage_name not in stages:
             stages.append(stage_name)
+    
+    print(f"*** Created {len(stages)} stages ***")
     
     # Create minimal pipeline structure - only essential variables
     pipeline = {
@@ -355,6 +379,7 @@ def _generate_gitlab_pipeline():
         },
     }
     
+    print("*** Adding jobs to pipeline ***")
     # Add jobs
     for module_name, job_info in PIPELINE_JOBS.items():
         stage_name = job_stages[module_name]
@@ -372,14 +397,18 @@ def _generate_gitlab_pipeline():
             if pipeline_deps:
                 pipeline[sanitized_name]['needs'] = pipeline_deps
     
+    print("*** Writing pipeline file ***")
     # Write pipeline file
     output_dir = build_option('job_output_dir') or os.getcwd()
+    print(f"*** Output directory: {output_dir} ***")
     mkdir(output_dir, parents=True)
     
     pipeline_file = os.path.join(output_dir, 'easybuild-child-pipeline.yml')
+    print(f"*** Pipeline file path: {pipeline_file} ***")
     pipeline_yaml = yaml.dump(pipeline, default_flow_style=False, width=120, sort_keys=False)
     
     write_file(pipeline_file, pipeline_yaml)
+    print(f"*** Pipeline file written: {pipeline_file} ***")
     
     log.info("[GitLab CI Hook] Generated GitLab CI pipeline: %s", pipeline_file)
     
@@ -442,12 +471,6 @@ def _create_gitlab_job(job_info, stage_name):
         'stage': stage_name,
         'tags': ['batch'],  # Jacamar CI Batch tag
         'script': [
-            '# Create required directories',
-            'mkdir -p $EASYBUILD_PREFIX',
-            'mkdir -p /data/rosi/shared/eb/${architecture_rosi}_tmplog',
-            'mkdir -p /data/rosi/shared/eb/${architecture_rosi}_tmpbuild',
-            'mkdir -p /data/rosi/shared/eb/easybuild_source',
-            '# Run EasyBuild installation',
             eb_command
         ],
         'variables': {
@@ -487,8 +510,12 @@ def _generate_pipeline_summary(pipeline_file, job_stages):
     """Generate and display pipeline summary."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
+    print("*** Starting pipeline summary generation ***")
+    
     total_jobs = len(PIPELINE_JOBS)
     total_stages = len(set(job_stages.values()))
+    
+    print(f"*** Summary stats - jobs: {total_jobs}, stages: {total_stages} ***")
     
     print_msg("\n" + "="*80, log=log)
     print_msg("GitLab CI Pipeline Generated Successfully!", log=log)
@@ -518,6 +545,8 @@ def _generate_pipeline_summary(pipeline_file, job_stages):
         sample_job = next(iter(PIPELINE_JOBS.values()))
         print_msg("Example job command:", log=log)
         print_msg("  eb --robot %s" % os.path.basename(sample_job['easyconfig_path']), log=log)
+    
+    print("*** Pipeline summary generation complete ***")
     
     print_msg("="*80, log=log)
 
