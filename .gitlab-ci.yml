@@ -9,7 +9,7 @@ variables:
   # EasyBuild configuration
   patheb: "/bigdata/rz/sudhar46/eb_hopper_test"
   GITLAB_CI_GENERATE: "1"
-  DRYRUN: "true"  # Set to "true" for dry run, "false" or unset for actual builds
+  DRYRUN: "false"  # Set to "true" for dry run, "false" or unset for actual builds
   
   # GPU-specific configuration
   CUDA_COMPUTE_CAPABILITIES: "9.0"
@@ -48,7 +48,6 @@ generate_gpu_pipeline:
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
          --trace \
-         Blender-4.3.2-GCCcore-13.3.0-linux-x86_64-CUDA-12.6.0.eb \
          CUDA-Python-12.4.0-gfbf-2023b-CUDA-12.4.0.eb \
          CUTLASS-3.4.0-foss-2023a-CUDA-12.1.1.eb \
          Clang-18.1.8-GCCcore-13.3.0-CUDA-12.6.0.eb
