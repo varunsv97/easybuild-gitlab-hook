@@ -20,8 +20,7 @@ variables:
 
 # Default configuration for all jobs
 default:
-  tags:
-    - ['rosi-admin-shell']
+  tags: ['rosi-admin-shell']
   before_script:
     - ml python
     - source /data/rosi/shared/eb/easybuild_environments/rome/eb_env/bin/activate

@@ -58,10 +58,18 @@ def inject_pipeline_metadata(data):
     
     default['after_script'] = after_script
     
-    # Merge tags - add easybuild-runner tag
+    # Merge 'tags'
     tags = set(default.get('tags', []))
     tags.add('rosi-admin-slurm')
     default['tags'] = list(tags)
+
+    # Merge 'id_tokens'
+    default.setdefault('id_tokens', {})
+    default['id_tokens']['CI_JOB_JWT'] = {
+        'aud': 'https://codebase.helmholtz.cloud'
+    }
+    data['default'] = default
+
     
     # Add retry configuration
     default['retry'] = {
@@ -69,12 +77,6 @@ def inject_pipeline_metadata(data):
         'when': ['runner_system_failure', 'stuck_or_timeout_failure', 'job_execution_timeout']
     }
     
-    # Add id_tokens for authentication
-    default.setdefault('id_tokens', {})
-    default['id_tokens']['CI_JOB_JWT'] = {
-        'aud': 'https://codebase.helmholtz.cloud'
-    }
-   
     # Update the data with our modified default section
     data['default'] = default
     
