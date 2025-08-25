@@ -289,7 +289,7 @@ def _process_easyconfigs_for_jobs(easyconfigs):
                 'module': module_name,
                 'easyconfig_path': spec,
                 'dependencies': dep_mod_names,  # All deps for reference
-                'job_dependencies': job_deps,   # Only deps being built in this pipeline
+                'job_dependencies': job_deps   # Only deps being built in this pipeline
                 'toolchain': ec.toolchain,
                 'version': ec.version,
                 'cores': build_option('job_cores') or 1,
@@ -422,9 +422,8 @@ def _generate_gitlab_pipeline():
     log.info("[GitLab CI Hook] Generated GitLab CI pipeline: %s", pipeline_file)
     log.info("[GitLab CI Hook] Pipeline contains %d jobs with %d total dependencies", 
              len(PIPELINE_JOBS), sum(len(deps) for deps in JOB_DEPENDENCIES.values()))
-    
     # Generate summary
-    _generate_pipeline_summary(pipeline_file, job_stages)
+    _generate_pipeline_summary(pipeline_file)
 
 
 def _create_gitlab_job(job_info, stage_name):
@@ -535,7 +534,7 @@ def _sanitize_job_name(name):
     return sanitized or 'unknown-job'
 
 
-def _generate_pipeline_summary(pipeline_file, job_stages):
+def _generate_pipeline_summary(pipeline_file):
     """Generate and display pipeline summary."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
