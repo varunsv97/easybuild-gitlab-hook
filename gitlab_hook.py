@@ -257,19 +257,26 @@ def _process_easyconfigs_for_jobs(easyconfigs):
                 log.warning("Could not determine module name for %s: %s", spec, err)
                 continue
             
-            # Get dependencies that are not external modules (like SLURM backend)
-            deps = [d for d in ec.all_dependencies if not d.get('external_module', False)]
+            # Use the same dependency logic as EasyBuild's SLURM backend
+            # Get all dependencies, filter out external modules, then only include
+            # dependencies that are being built in this pipeline
+            all_deps = [d for d in ec.all_dependencies if not d.get('external_module', False)]
             
             # Map dependency module names to job names
             dep_mod_names = []
             job_deps = []
-            for dep in deps:
+            
+            # Process all dependencies (same as SLURM backend)
+            for dep in all_deps:
                 try:
                     dep_mod_name = ActiveMNS().det_full_module_name(dep)
                     dep_mod_names.append(dep_mod_name)
-                    # Only include dependencies that are being built in this pipeline
+                    # Only include dependencies that are being built in this pipeline (same as SLURM backend)
                     if dep_mod_name in module_to_job:
                         job_deps.append(dep_mod_name)
+                        log.debug("[GitLab CI Hook] Added dependency to job '%s': %s", easyconfig_name, dep_mod_name)
+                    else:
+                        log.debug("[GitLab CI Hook] Skipped dependency for job '%s' (not in pipeline): %s", easyconfig_name, dep_mod_name)
                 except Exception as err:
                     log.warning("Could not determine module name for dependency %s: %s", dep, err)
             
@@ -402,11 +409,13 @@ def _generate_gitlab_pipeline():
                 if dep in PIPELINE_JOBS:
                     sanitized_dep = _sanitize_job_name(dep)
                     pipeline_deps.append(sanitized_dep)
+                    log.debug("[GitLab CI Hook] Added dependency '%s' -> '%s' for job '%s'", dep, sanitized_dep, module_name)
                 else:
                     log.debug("[GitLab CI Hook] Skipping dependency '%s' for job '%s' - not in pipeline", dep, module_name)
             
             if pipeline_deps:
                 pipeline[sanitized_name]['needs'] = pipeline_deps
+                log.debug("[GitLab CI Hook] Job '%s' needs: %s", sanitized_name, pipeline_deps)
     
     # Write pipeline file
     output_dir = build_option('job_output_dir') or os.getcwd()
