@@ -207,6 +207,8 @@ def _process_easyconfigs_for_jobs(easyconfigs):
     """Process easyconfigs linearly like SLURM backend, building job dependency map."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
+    print(f"*** _process_easyconfigs_for_jobs called with {len(easyconfigs)} easyconfigs ***")
+    
     global PIPELINE_JOBS, JOB_DEPENDENCIES
     
     # Reset global state
@@ -220,37 +222,48 @@ def _process_easyconfigs_for_jobs(easyconfigs):
     
     # Process each easyconfig linearly
     for i, easyconfig in enumerate(easyconfigs):
+        print(f"*** Processing easyconfig {i+1}/{len(easyconfigs)} ***")
         try:
             # Handle different easyconfig formats
             if isinstance(easyconfig, dict):
+                print(f"*** Easyconfig is dict with keys: {list(easyconfig.keys())} ***")
                 if 'ec' in easyconfig:
                     # post_ready_hook format
                     ec = easyconfig['ec']
                     easyconfig_name = f"{easyconfig['name']}-{easyconfig['version']}.eb"
                     spec = easyconfig.get('spec', easyconfig_name)
+                    print(f"*** Using post_ready_hook format: {easyconfig_name} ***")
                 else:
                     # Standard EasyBuild dict format
                     ec = easyconfig.get('ec')
                     if ec is None:
+                        print(f"*** Skipping easyconfig {i}: no 'ec' key found ***")
                         log.warning("Skipping easyconfig %d: no 'ec' key found", i)
                         continue
                     easyconfig_name = f"{ec.name}-{ec.version}.eb"
                     spec = easyconfig.get('spec', easyconfig_name)
+                    print(f"*** Using standard dict format: {easyconfig_name} ***")
             else:
                 # Direct easyconfig object
                 ec = easyconfig
                 easyconfig_name = f"{ec.name}-{ec.version}.eb"
                 spec = getattr(ec, 'path', easyconfig_name)
+                print(f"*** Using direct object format: {easyconfig_name} ***")
             
+            print(f"*** Getting module name for {easyconfig_name} ***")
             # Get module name
             try:
                 module_name = ActiveMNS().det_full_module_name(ec)
+                print(f"*** Module name: {module_name} ***")
             except Exception as err:
+                print(f"*** ERROR getting module name for {spec}: {err} ***")
                 log.warning("Could not determine module name for %s: %s", spec, err)
                 continue
             
+            print(f"*** Getting dependencies for {easyconfig_name} ***")
             # Get dependencies that are not external modules (like SLURM backend)
             deps = [d for d in ec.all_dependencies if not d.get('external_module', False)]
+            print(f"*** Found {len(deps)} dependencies ***")
             
             # Map dependency module names to job names
             dep_mod_names = []
@@ -263,8 +276,10 @@ def _process_easyconfigs_for_jobs(easyconfigs):
                     if dep_mod_name in module_to_job:
                         job_deps.append(dep_mod_name)
                 except Exception as err:
+                    print(f"*** ERROR getting dep module name for {dep}: {err} ***")
                     log.warning("Could not determine module name for dependency %s: %s", dep, err)
             
+            print(f"*** Creating job for {module_name} ***")
             # Create job entry
             job_info = {
                 'name': easyconfig_name,
@@ -284,16 +299,21 @@ def _process_easyconfigs_for_jobs(easyconfigs):
             # Update module-to-job mapping (like SLURM backend)
             module_to_job[module_name] = job_info
             
+            print(f"*** Added job {len(PIPELINE_JOBS)}: {module_name} ***")
             log.debug("[GitLab CI Hook] Added job '%s' with %d total deps, %d pipeline deps", 
                      module_name, len(dep_mod_names), len(job_deps))
         
         except Exception as err:
+            print(f"*** EXCEPTION processing easyconfig {i}: {err} ***")
             log.error("[GitLab CI Hook] Error processing easyconfig %d: %s", i, err)
             log.error("[GitLab CI Hook] Easyconfig type: %s", type(easyconfig))
             if isinstance(easyconfig, dict):
                 log.error("[GitLab CI Hook] Easyconfig keys: %s", list(easyconfig.keys()))
+            import traceback
+            traceback.print_exc()
             continue
     
+    print(f"*** Finished processing - created {len(PIPELINE_JOBS)} jobs ***")
     log.info("[GitLab CI Hook] Processed %d easyconfigs for GitLab CI jobs", len(PIPELINE_JOBS))
 
 
