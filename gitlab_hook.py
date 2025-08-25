@@ -539,21 +539,12 @@ def _generate_pipeline_summary(pipeline_file):
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
     total_jobs = len(PIPELINE_JOBS)
-    total_stages = len(set(job_stages.values()))
     
     print_msg("\n" + "="*80, log=log)
     print_msg("GitLab CI Pipeline Generated Successfully!", log=log)
     print_msg("="*80, log=log)
     print_msg("Pipeline file: %s" % pipeline_file, log=log)
     print_msg("Total jobs: %d" % total_jobs, log=log)
-    print_msg("Total stages: %d (named after easyconfigs)" % total_stages, log=log)
-    
-    # Show some example stages
-    example_stages = list(set(job_stages.values()))[:5]
-    print_msg("Example stages: %s" % ', '.join(example_stages), log=log)
-    if len(job_stages) > 5:
-        print_msg("  ... and %d more" % (len(job_stages) - 5), log=log)
-    
     print_msg("\nTo trigger this pipeline, add to your .gitlab-ci.yml:", log=log)
     print_msg("", log=log)
     print_msg("easybuild_pipeline:", log=log)
