@@ -207,8 +207,6 @@ def _process_easyconfigs_for_jobs(easyconfigs):
     """Process easyconfigs linearly like SLURM backend, building job dependency map."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
-    print(f"*** _process_easyconfigs_for_jobs called with {len(easyconfigs)} easyconfigs ***")
-    
     global PIPELINE_JOBS, JOB_DEPENDENCIES
     
     # Reset global state
@@ -222,48 +220,45 @@ def _process_easyconfigs_for_jobs(easyconfigs):
     
     # Process each easyconfig linearly
     for i, easyconfig in enumerate(easyconfigs):
-        print(f"*** Processing easyconfig {i+1}/{len(easyconfigs)} ***")
         try:
             # Handle different easyconfig formats
             if isinstance(easyconfig, dict):
-                print(f"*** Easyconfig is dict with keys: {list(easyconfig.keys())} ***")
                 if 'ec' in easyconfig:
-                    # post_ready_hook format
+                    # This is the format we're getting: {'ec': <EasyConfig>, 'spec': '...', ...}
                     ec = easyconfig['ec']
-                    easyconfig_name = f"{easyconfig['name']}-{easyconfig['version']}.eb"
-                    spec = easyconfig.get('spec', easyconfig_name)
-                    print(f"*** Using post_ready_hook format: {easyconfig_name} ***")
-                else:
-                    # Standard EasyBuild dict format
+                    spec = easyconfig.get('spec', 'unknown')
+                    easyconfig_name = f"{ec.name}-{ec.version}.eb"
+                elif 'name' in easyconfig and 'version' in easyconfig:
+                    # post_ready_hook format (fallback)
                     ec = easyconfig.get('ec')
                     if ec is None:
-                        print(f"*** Skipping easyconfig {i}: no 'ec' key found ***")
+                        log.warning("Skipping easyconfig %d: no 'ec' object found", i)
+                        continue
+                    easyconfig_name = f"{easyconfig['name']}-{easyconfig['version']}.eb"
+                    spec = easyconfig.get('spec', easyconfig_name)
+                else:
+                    # Try to get ec anyway
+                    ec = easyconfig.get('ec')
+                    if ec is None:
                         log.warning("Skipping easyconfig %d: no 'ec' key found", i)
                         continue
                     easyconfig_name = f"{ec.name}-{ec.version}.eb"
                     spec = easyconfig.get('spec', easyconfig_name)
-                    print(f"*** Using standard dict format: {easyconfig_name} ***")
             else:
                 # Direct easyconfig object
                 ec = easyconfig
                 easyconfig_name = f"{ec.name}-{ec.version}.eb"
                 spec = getattr(ec, 'path', easyconfig_name)
-                print(f"*** Using direct object format: {easyconfig_name} ***")
             
-            print(f"*** Getting module name for {easyconfig_name} ***")
             # Get module name
             try:
                 module_name = ActiveMNS().det_full_module_name(ec)
-                print(f"*** Module name: {module_name} ***")
             except Exception as err:
-                print(f"*** ERROR getting module name for {spec}: {err} ***")
                 log.warning("Could not determine module name for %s: %s", spec, err)
                 continue
             
-            print(f"*** Getting dependencies for {easyconfig_name} ***")
             # Get dependencies that are not external modules (like SLURM backend)
             deps = [d for d in ec.all_dependencies if not d.get('external_module', False)]
-            print(f"*** Found {len(deps)} dependencies ***")
             
             # Map dependency module names to job names
             dep_mod_names = []
@@ -276,10 +271,8 @@ def _process_easyconfigs_for_jobs(easyconfigs):
                     if dep_mod_name in module_to_job:
                         job_deps.append(dep_mod_name)
                 except Exception as err:
-                    print(f"*** ERROR getting dep module name for {dep}: {err} ***")
                     log.warning("Could not determine module name for dependency %s: %s", dep, err)
             
-            print(f"*** Creating job for {module_name} ***")
             # Create job entry
             job_info = {
                 'name': easyconfig_name,
@@ -299,18 +292,14 @@ def _process_easyconfigs_for_jobs(easyconfigs):
             # Update module-to-job mapping (like SLURM backend)
             module_to_job[module_name] = job_info
             
-            print(f"*** Added job {len(PIPELINE_JOBS)}: {module_name} ***")
             log.debug("[GitLab CI Hook] Added job '%s' with %d total deps, %d pipeline deps", 
                      module_name, len(dep_mod_names), len(job_deps))
         
         except Exception as err:
-            print(f"*** EXCEPTION processing easyconfig {i}: {err} ***")
             log.error("[GitLab CI Hook] Error processing easyconfig %d: %s", i, err)
             log.error("[GitLab CI Hook] Easyconfig type: %s", type(easyconfig))
             if isinstance(easyconfig, dict):
                 log.error("[GitLab CI Hook] Easyconfig keys: %s", list(easyconfig.keys()))
-            import traceback
-            traceback.print_exc()
             continue
     
     print(f"*** Finished processing - created {len(PIPELINE_JOBS)} jobs ***")
@@ -360,14 +349,10 @@ def _generate_gitlab_pipeline():
     """Generate the complete GitLab CI pipeline YAML."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
-    print(f"*** Generating pipeline for {len(PIPELINE_JOBS)} jobs ***")
-    
     if not PIPELINE_JOBS:
-        print("*** No jobs to generate pipeline for ***")
         log.warning("[GitLab CI Hook] No jobs to generate pipeline for")
         return
     
-    print("*** Creating pipeline structure ***")
     # Calculate stages - each job gets its own stage named after the easyconfig
     job_stages = {}
     stages = []
@@ -379,27 +364,20 @@ def _generate_gitlab_pipeline():
         if stage_name not in stages:
             stages.append(stage_name)
     
-    print(f"*** Created {len(stages)} stages ***")
-    
     # Create minimal pipeline structure - only essential variables
     pipeline = {
         'stages': stages,
         'variables': {
             # Essential EasyBuild variables
-            'EASYBUILD_PREFIX': '/tmp/easybuild',
             'EASYBUILD_MODULES_TOOL': 'Lmod',
             # Inherit Jacamar CI Batch parameters
             'SCHEDULER_PARAMETERS': '$SCHEDULER_PARAMETERS',
-            'SBATCH_ACCOUNT': '$SBATCH_ACCOUNT',
-            'SBATCH_PARTITION': '$SBATCH_PARTITION',
-            'SBATCH_QOS': '$SBATCH_QOS',
             # Preserve architecture and path variables if set
             'patheb': '${patheb:-/tmp/easybuild}',
             'architecture_rosi': '${architecture_rosi:-x86_64}',
         },
     }
     
-    print("*** Adding jobs to pipeline ***")
     # Add jobs
     for module_name, job_info in PIPELINE_JOBS.items():
         stage_name = job_stages[module_name]
@@ -417,18 +395,14 @@ def _generate_gitlab_pipeline():
             if pipeline_deps:
                 pipeline[sanitized_name]['needs'] = pipeline_deps
     
-    print("*** Writing pipeline file ***")
     # Write pipeline file
     output_dir = build_option('job_output_dir') or os.getcwd()
-    print(f"*** Output directory: {output_dir} ***")
     mkdir(output_dir, parents=True)
     
     pipeline_file = os.path.join(output_dir, 'easybuild-child-pipeline.yml')
-    print(f"*** Pipeline file path: {pipeline_file} ***")
     pipeline_yaml = yaml.dump(pipeline, default_flow_style=False, width=120, sort_keys=False)
     
     write_file(pipeline_file, pipeline_yaml)
-    print(f"*** Pipeline file written: {pipeline_file} ***")
     
     log.info("[GitLab CI Hook] Generated GitLab CI pipeline: %s", pipeline_file)
     
@@ -489,28 +463,28 @@ def _create_gitlab_job(job_info, stage_name):
     # Create minimal job definition - only essential elements
     job = {
         'stage': stage_name,
-        'tags': ['batch'],  # Jacamar CI Batch tag
         'script': [
             eb_command
         ],
         'variables': {
             'EB_MODULE_NAME': job_info['module'],
-            'SLURM_CPUS_PER_TASK': str(job_info['cores']),
+            'SCHEDULER_PARAMETERS': '$SCHEDULER_PARAMETERS',
         },
-        'timeout': '%dh' % job_info['walltime'],
         'artifacts': {
             'when': 'always',
-            'paths': ['*.log', '*.out', '*.err'],
+            'paths': [],
             'expire_in': '1 week',
         }
     }
     
-    # Add Jacamar CI Batch specific configuration
-    if job_info['cores'] > 1:
-        job['variables']['SBATCH_CPUS_PER_TASK'] = str(job_info['cores'])
-    
-    if job_info['walltime'] > 1:
-        job['variables']['SBATCH_TIME'] = '%d:00:00' % job_info['walltime']
+    # Add log files from tmplogdir as artifacts
+    tmplogdir = build_option('tmp_logdir')
+    if tmplogdir:
+        # Add path for log files in the specified tmplogdir
+        job['artifacts']['paths'].append(f'{tmplogdir}/*.log')
+    else:
+        # Fallback to current directory log files if no tmplogdir specified
+        job['artifacts']['paths'].extend(['*.log', '*.out', '*.err'])
     
     return job
 
@@ -530,12 +504,8 @@ def _generate_pipeline_summary(pipeline_file, job_stages):
     """Generate and display pipeline summary."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
-    print("*** Starting pipeline summary generation ***")
-    
     total_jobs = len(PIPELINE_JOBS)
     total_stages = len(set(job_stages.values()))
-    
-    print(f"*** Summary stats - jobs: {total_jobs}, stages: {total_stages} ***")
     
     print_msg("\n" + "="*80, log=log)
     print_msg("GitLab CI Pipeline Generated Successfully!", log=log)
@@ -565,8 +535,6 @@ def _generate_pipeline_summary(pipeline_file, job_stages):
         sample_job = next(iter(PIPELINE_JOBS.values()))
         print_msg("Example job command:", log=log)
         print_msg("  eb --robot %s" % os.path.basename(sample_job['easyconfig_path']), log=log)
-    
-    print("*** Pipeline summary generation complete ***")
     
     print_msg("="*80, log=log)
 
