@@ -3,7 +3,9 @@ GitLab CI Hook for EasyBuild
 
 This hook generates GitLab CI child pipelines with job dependencies instead of 
 submitting to SLURM directly. It works exactly like the SLURM backend but creates
-GitLab CI jobs that run via Jacamar CI Batch.
+
+a hierarchical pipeline structure with dependent jobs, enabling more efficient
+execution of EasyBuild jobs on the Jacamar CI Batch infrastructure.
 
 Usage:
   # Enable GitLab CI generation and set environment variable
@@ -361,12 +363,8 @@ def _generate_gitlab_pipeline():
         log.warning("[GitLab CI Hook] No jobs to generate pipeline for")
         return
     
-    # Calculate stages - each job gets its own stage named after the easyconfig
-    job_stages = {}
-    stages = []
-    
-    # Build stages list from all sanitized job names
-    stages = [ _sanitize_job_name(module_name) for module_name in PIPELINE_JOBS ]
+    # Set all jobs to a single stage for parallel execution
+    stages = ['build']
     pipeline = {
         'stages': stages,
         'variables': {
@@ -386,8 +384,8 @@ def _generate_gitlab_pipeline():
     # Add jobs
     for module_name, job_info in PIPELINE_JOBS.items():
         sanitized_name = _sanitize_job_name(module_name)
-        job_yaml = _create_gitlab_job(job_info, sanitized_name)  # Set stage to sanitized job name
-        job_yaml['stage'] = sanitized_name
+        job_yaml = _create_gitlab_job(job_info, 'build')  # All jobs use 'build' stage
+        job_yaml['stage'] = 'build'
         pipeline[sanitized_name] = job_yaml
 
         log.debug("[GitLab CI Hook] Created job '%s' for module '%s'", sanitized_name, module_name)
@@ -483,7 +481,16 @@ def _create_gitlab_job(job_info, stage_name):
     # Add EULA acceptance
     accept_eula = build_option('accept_eula_for')
     if accept_eula:
-        eb_command += f' --accept-eula-for={accept_eula}'
+        # If it's a list or string with brackets/quotes, format as comma-separated
+        if isinstance(accept_eula, (list, tuple)):
+            accept_eula_str = ','.join(str(x) for x in accept_eula)
+        else:
+            accept_eula_str = str(accept_eula).strip()
+            if accept_eula_str.startswith('[') and accept_eula_str.endswith(']'):
+                accept_eula_str = accept_eula_str[1:-1]
+            accept_eula_str = accept_eula_str.replace("'", "").replace('"', "")
+            accept_eula_str = ','.join([x.strip() for x in accept_eula_str.split(',')])
+        eb_command += f' --accept-eula-for={accept_eula_str}'
     
     # Add the easyconfig
     eb_command += ' ' + os.path.basename(job_info['easyconfig_path'])
