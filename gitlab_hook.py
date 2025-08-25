@@ -38,6 +38,10 @@ from easybuild.tools.filetools import write_file, mkdir
 from easybuild.framework.easyconfig.easyconfig import ActiveMNS
 from easybuild.tools.module_naming_scheme.utilities import det_full_ec_version
 
+# Print a message when the hook module is loaded
+print("*** GITLAB HOOK LOADED ***")
+log = fancylogger.getLogger('gitlab_hook', fname=False)
+log.info("GitLab CI Hook module loaded successfully")
 
 # Global variables to track pipeline state
 PIPELINE_JOBS = {}
@@ -50,22 +54,23 @@ def start_hook(*args, **kwargs):
     
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
+    # Always print this to help with debugging
+    print("*** START_HOOK CALLED ***")
+    log.info("*** START_HOOK CALLED ***")
+    
     # Debug: Print environment and option detection
     gitlab_ci_env = os.environ.get('GITLAB_CI_GENERATE', '')
-    job_option = '--job' in (sys.argv if hasattr(sys, 'argv') else [])
     
     log.info("[GitLab CI Hook] DEBUG: GITLAB_CI_GENERATE env var: '%s'", gitlab_ci_env)
-    log.info("[GitLab CI Hook] DEBUG: --job in argv: %s", job_option)
     log.info("[GitLab CI Hook] DEBUG: build_option('gitlab_ci_generate'): %s", build_option('gitlab_ci_generate'))
-    log.info("[GitLab CI Hook] DEBUG: build_option('job'): %s", build_option('job'))
     
-    # Check if GitLab CI generation is enabled
-    if not (build_option('gitlab_ci_generate') and build_option('job')):
+    # Check if GitLab CI generation is enabled (no longer require --job)
+    if not build_option('gitlab_ci_generate'):
         log.info("[GitLab CI Hook] GitLab CI mode not enabled - exiting hook")
         return
     
     log.info("[GitLab CI Hook] Initializing GitLab CI pipeline generation")
-    log.info("[GitLab CI Hook] Running in GitLab CI mode (equivalent to --job with SLURM backend)")
+    log.info("[GitLab CI Hook] Running in GitLab CI mode (will intercept before builds)")
     
     # Reset global state
     PIPELINE_JOBS = {}
@@ -85,15 +90,27 @@ def start_hook(*args, **kwargs):
     
     log.info("[GitLab CI Hook] GitLab environment detected: %s", 
              'Yes' if os.environ.get('GITLAB_CI') else 'No')
-    log.info("[GitLab CI Hook] Will process multiple easyconfigs just like SLURM backend")
+
+
+def pre_configure_hook(*args, **kwargs):
+    """Hook called early in the process - try to intercept here."""
+    log = fancylogger.getLogger('gitlab_hook', fname=False)
+    print("*** PRE_CONFIGURE_HOOK CALLED ***")
+    log.info("*** PRE_CONFIGURE_HOOK CALLED ***")
+    
+    # Check if GitLab CI generation is enabled (no longer require --job)
+    if not build_option('gitlab_ci_generate'):
+        return
+    
+    log.info("[GitLab CI Hook] GitLab CI mode detected in pre_configure_hook")
 
 
 def parse_hook(ec_dict):
     """Hook called when parsing easyconfig files - collect them for GitLab CI pipeline generation."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
-    # Check if GitLab CI generation is enabled
-    if not (build_option('gitlab_ci_generate') and build_option('job')):
+    # Check if GitLab CI generation is enabled (no longer require --job)
+    if not build_option('gitlab_ci_generate'):
         return ec_dict
     
     # Store easyconfig for pipeline generation
@@ -108,11 +125,11 @@ def parse_hook(ec_dict):
 
 
 def post_ready_hook(ec, *args, **kwargs):
-    """Hook called when easyconfig is ready - use this to collect dependency info during dry run."""
+    """Hook called when easyconfig is ready - use this to collect dependency info."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
-    # Check if GitLab CI generation is enabled
-    if not (build_option('gitlab_ci_generate') and build_option('job')):
+    # Check if GitLab CI generation is enabled (no longer require --job)
+    if not build_option('gitlab_ci_generate'):
         return
     
     # Store easyconfig in our global list for pipeline generation
@@ -140,12 +157,12 @@ def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
     # Debug logging
+    print("*** PRE_BUILD_AND_INSTALL_LOOP_HOOK CALLED ***")
     log.info("[GitLab CI Hook] pre_build_and_install_loop_hook called with %d easyconfigs", len(ecs))
     log.info("[GitLab CI Hook] DEBUG: build_option('gitlab_ci_generate'): %s", build_option('gitlab_ci_generate'))
-    log.info("[GitLab CI Hook] DEBUG: build_option('job'): %s", build_option('job'))
     
-    # Check if GitLab CI generation is enabled and job mode is enabled
-    if not (build_option('gitlab_ci_generate') and build_option('job')):
+    # Check if GitLab CI generation is enabled (no longer require --job)
+    if not build_option('gitlab_ci_generate'):
         log.info("[GitLab CI Hook] GitLab CI mode not enabled in pre_build_and_install_loop_hook - exiting")
         return
     
@@ -490,7 +507,7 @@ def end_hook(*args, **kwargs):
     """Cleanup hook called when EasyBuild finishes."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
-    if build_option('gitlab_ci_generate') and build_option('job'):
+    if build_option('gitlab_ci_generate'):
         log.info("[GitLab CI Hook] GitLab CI pipeline generation completed")
 
 
@@ -536,6 +553,7 @@ def build_option(option_name):
         elif option_name == 'robot':
             return '--robot' in (sys.argv if hasattr(sys, 'argv') else [])
         elif option_name == 'job':
+            # We don't actually need --job for GitLab CI mode
             return '--job' in (sys.argv if hasattr(sys, 'argv') else [])
         elif option_name == 'force':
             return '--force' in (sys.argv if hasattr(sys, 'argv') else [])
