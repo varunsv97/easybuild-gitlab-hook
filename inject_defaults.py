@@ -28,7 +28,7 @@ def inject_pipeline_metadata(data):
     
     # Add EasyBuild environment activation to before_script
     before_script = default.get('before_script', [])
-    eb_env_activate = 'source /data/rosi/shared/eb/easybuild_environments/rome/eb_env/bin/activate'
+    eb_env_activate = f'ml python && source /data/rosi/shared/eb/easybuild_environments/rome/eb_env/bin/activate'
     
     if eb_env_activate not in before_script:
         before_script.insert(0, eb_env_activate)
@@ -60,8 +60,7 @@ def inject_pipeline_metadata(data):
     
     # Merge tags - add easybuild-runner tag
     tags = set(default.get('tags', []))
-    tags.add('easybuild-runner')
-    tags.add('gpu-h100')  # For Hopper H100 GPUs
+    tags.add('rosi-admin-slurm')
     default['tags'] = list(tags)
     
     # Add retry configuration
@@ -69,12 +68,6 @@ def inject_pipeline_metadata(data):
         'max': 2,
         'when': ['runner_system_failure', 'stuck_or_timeout_failure', 'job_execution_timeout']
     }
-    
-    # Add interruptible setting
-    default['interruptible'] = True
-    
-    # Add timeout
-    default['timeout'] = '96h'
     
     # Add id_tokens for authentication
     default.setdefault('id_tokens', {})

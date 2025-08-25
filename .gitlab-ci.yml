@@ -21,7 +21,7 @@ variables:
 # Default configuration for all jobs
 default:
   tags:
-    - [rosi-admin-shell]
+    - ['rosi-admin-shell']
   before_script:
     - ml python
     - source /data/rosi/shared/eb/easybuild_environments/rome/eb_env/bin/activate
@@ -57,6 +57,7 @@ generate_gpu_pipeline:
     - echo "Injecting default configuration into pipeline"
     - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
+    - cat easybuild-child-pipeline.yml
   artifacts:
     paths:
       - easybuild-child-pipeline.yml
