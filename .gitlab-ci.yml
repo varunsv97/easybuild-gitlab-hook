@@ -34,24 +34,24 @@ generate_gpu_pipeline:
   script:
     - echo "Generating EasyBuild GitLab CI pipeline for GPU packages"
     - |
-      eb --hooks=gitlab_hook.py \
-         --installpath=${patheb}/${architecture_rosi} \
-         --installpath-modules=${patheb}/${architecture_rosi}/modules \
-         --tmp-logdir=/tmp/eblog \
-         --buildpath=/tmp/ebbuild \
-         --sourcepath=/data/rosi/shared/eb/easybuild_source \
-         --cuda-compute-capabilities=9.0 \
-         --job-cores=16 \
-         --job-max-walltime=96 \
+      eb --hooks=gitlab_hook.py
+         --installpath=${patheb}/${architecture_rosi}
+         --installpath-modules=${patheb}/${architecture_rosi}/modules 
+         --tmp-logdir=/tmp/eblog 
+         --buildpath=/tmp/ebbuild 
+         --sourcepath=/data/rosi/shared/eb/easybuild_source 
+         --cuda-compute-capabilities=9.0 
+         --job-cores=16 
+         --job-max-walltime=96 
 
-         Blender-4.3.2-GCCcore-13.3.0-linux-x86_64-CUDA-12.6.0.eb \
-         CUDA-Python-12.4.0-gfbf-2023b-CUDA-12.4.0.eb \
-         CUTLASS-3.4.0-foss-2023a-CUDA-12.1.1.eb \
-         Clang-18.1.8-GCCcore-13.3.0-CUDA-12.6.0.eb \
+         Blender-4.3.2-GCCcore-13.3.0-linux-x86_64-CUDA-12.6.0.eb 
+         CUDA-Python-12.4.0-gfbf-2023b-CUDA-12.4.0.eb 
+         CUTLASS-3.4.0-foss-2023a-CUDA-12.1.1.eb 
+         Clang-18.1.8-GCCcore-13.3.0-CUDA-12.6.0.eb 
          
-         --robot --job --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
-         --ignore-checksums \
-         --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
+         --robot --job --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases 
+         --ignore-checksums 
+         --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force 
          --trace
     - echo "Injecting default configuration into pipeline"
     - python inject_defaults.py easybuild-child-pipeline.yml
