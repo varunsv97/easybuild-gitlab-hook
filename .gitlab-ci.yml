@@ -9,7 +9,7 @@ variables:
   # EasyBuild configuration
   patheb: "/bigdata/rz/sudhar46/eb_hopper_test"
   architecture_rosi: "hopper"
-  EASYBUILD_GITLAB_CI_GENERATE: "1"
+  GITLAB_CI_GENERATE: "1"
   
   # GPU-specific configuration
   SBATCH_PARTITION: "gpu-h100"

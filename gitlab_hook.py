@@ -7,7 +7,7 @@ GitLab CI jobs that run via Jacamar CI Batch.
 
 Usage:
   # Enable GitLab CI generation and set environment variable
-  export EASYBUILD_GITLAB_CI_GENERATE=1
+  export GITLAB_CI_GENERATE=1
   
   # Run just like you would with SLURM backend
   eb --hooks=gitlab_hook.py --robot --job pkg1.eb pkg2.eb
@@ -439,7 +439,7 @@ def build_option(option_name):
         # Handle custom GitLab CI options
         if option_name == 'gitlab_ci_generate':
             # Check environment variable or command line flag
-            return (os.environ.get('EASYBUILD_GITLAB_CI_GENERATE', '').lower() in ['1', 'true', 'yes'] or
+            return (os.environ.get('GITLAB_CI_GENERATE', '').lower() in ['1', 'true', 'yes'] or
                     '--gitlab-ci-generate' in (sys.argv if hasattr(sys, 'argv') else []) or
                     any('gitlab-ci' in arg.lower() for arg in (sys.argv if hasattr(sys, 'argv') else [])))
         
@@ -447,14 +447,14 @@ def build_option(option_name):
     except:
         # Fallback for options that might not exist
         if option_name == 'gitlab_ci_generate':
-            return (os.environ.get('EASYBUILD_GITLAB_CI_GENERATE', '').lower() in ['1', 'true', 'yes'] or
+            return (os.environ.get('GITLAB_CI_GENERATE', '').lower() in ['1', 'true', 'yes'] or
                     any('gitlab-ci' in arg.lower() for arg in (sys.argv if hasattr(sys, 'argv') else [])))
         elif option_name == 'job_output_dir':
-            return os.environ.get('EASYBUILD_JOB_OUTPUT_DIR', os.getcwd())
+            return os.environ.get('JOB_OUTPUT_DIR', os.getcwd())
         elif option_name == 'job_cores':
-            return int(os.environ.get('EASYBUILD_JOB_CORES', '1'))
+            return int(os.environ.get('JOB_CORES', '1'))
         elif option_name == 'job_max_walltime':
-            return int(os.environ.get('EASYBUILD_JOB_MAX_WALLTIME', '24'))
+            return int(os.environ.get('JOB_MAX_WALLTIME', '24'))
         elif option_name == 'robot':
             return '--robot' in (sys.argv if hasattr(sys, 'argv') else [])
         elif option_name == 'job':

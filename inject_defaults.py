@@ -89,7 +89,7 @@ def inject_pipeline_metadata(data):
         'architecture_rosi': 'hopper',
         'SBATCH_PARTITION': 'gpu-h100',
         'CUDA_COMPUTE_CAPABILITIES': '9.0',
-        'EASYBUILD_CUDA_COMPUTE_CAPABILITIES': '9.0',
+        # Note: EASYBUILD_CUDA_COMPUTE_CAPABILITIES will be set via command line options
     }
     
     for key, value in hopper_vars.items():

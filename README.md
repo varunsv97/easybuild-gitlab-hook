@@ -22,7 +22,7 @@ export patheb=/data/rosi/shared/eb
 export architecture_rosi=hopper
 
 # Enable GitLab CI pipeline generation
-export EASYBUILD_GITLAB_CI_GENERATE=1
+export GITLAB_CI_GENERATE=1
 ```
 
 ### 2. Usage
