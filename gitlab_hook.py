@@ -273,6 +273,7 @@ def _process_easyconfigs_for_jobs(easyconfigs):
                     dep_mod_names.append(dep_mod_name)
                     # Only include dependencies that are being built in this pipeline (same as SLURM backend)
                     if dep_mod_name in module_to_job:
+                        # Store the dependency module name (not job name) for consistency with PIPELINE_JOBS keys
                         job_deps.append(dep_mod_name)
                         log.debug("[GitLab CI Hook] Added dependency to job '%s': %s", easyconfig_name, dep_mod_name)
                     else:
@@ -479,6 +480,11 @@ def _create_gitlab_job(job_info, stage_name):
     # Add dry-run option only if DRYRUN variable is set to true
     if os.environ.get('DRYRUN', '').lower() in ['1', 'true', 'yes']:
         eb_command += ' --dry-run'
+    
+    # Add CUDA compute capabilities if set
+    cuda_capabilities = os.environ.get('CUDA_COMPUTE_CAPABILITIES')
+    if cuda_capabilities:
+        eb_command += f' --cuda-compute-capabilities={cuda_capabilities}'
     
     # Add EULA acceptance
     accept_eula = build_option('accept_eula_for')
