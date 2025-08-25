@@ -50,8 +50,18 @@ def start_hook(*args, **kwargs):
     
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
+    # Debug: Print environment and option detection
+    gitlab_ci_env = os.environ.get('GITLAB_CI_GENERATE', '')
+    job_option = '--job' in (sys.argv if hasattr(sys, 'argv') else [])
+    
+    log.info("[GitLab CI Hook] DEBUG: GITLAB_CI_GENERATE env var: '%s'", gitlab_ci_env)
+    log.info("[GitLab CI Hook] DEBUG: --job in argv: %s", job_option)
+    log.info("[GitLab CI Hook] DEBUG: build_option('gitlab_ci_generate'): %s", build_option('gitlab_ci_generate'))
+    log.info("[GitLab CI Hook] DEBUG: build_option('job'): %s", build_option('job'))
+    
     # Check if GitLab CI generation is enabled
     if not (build_option('gitlab_ci_generate') and build_option('job')):
+        log.info("[GitLab CI Hook] GitLab CI mode not enabled - exiting hook")
         return
     
     log.info("[GitLab CI Hook] Initializing GitLab CI pipeline generation")
@@ -78,19 +88,77 @@ def start_hook(*args, **kwargs):
     log.info("[GitLab CI Hook] Will process multiple easyconfigs just like SLURM backend")
 
 
+def parse_hook(ec_dict):
+    """Hook called when parsing easyconfig files - collect them for GitLab CI pipeline generation."""
+    log = fancylogger.getLogger('gitlab_hook', fname=False)
+    
+    # Check if GitLab CI generation is enabled
+    if not (build_option('gitlab_ci_generate') and build_option('job')):
+        return ec_dict
+    
+    # Store easyconfig for pipeline generation
+    global PARSED_ECS
+    if 'PARSED_ECS' not in globals():
+        PARSED_ECS = []
+    
+    PARSED_ECS.append(ec_dict)
+    log.debug("[GitLab CI Hook] Collected easyconfig: %s", ec_dict.get('spec', 'unknown'))
+    
+    return ec_dict
+
+
+def post_ready_hook(ec, *args, **kwargs):
+    """Hook called when easyconfig is ready - use this to collect dependency info during dry run."""
+    log = fancylogger.getLogger('gitlab_hook', fname=False)
+    
+    # Check if GitLab CI generation is enabled
+    if not (build_option('gitlab_ci_generate') and build_option('job')):
+        return
+    
+    # Store easyconfig in our global list for pipeline generation
+    global READY_ECS
+    if 'READY_ECS' not in globals():
+        READY_ECS = []
+    
+    # Create a dict with the info we need
+    ec_info = {
+        'ec': ec,
+        'spec': getattr(ec, 'path', 'unknown'),
+        'name': ec.name,
+        'version': ec.version,
+        'toolchain': ec.toolchain,
+        'dependencies': ec.dependencies,
+        'builddependencies': getattr(ec, 'builddependencies', []),
+    }
+    
+    READY_ECS.append(ec_info)
+    log.debug("[GitLab CI Hook] Collected ready easyconfig: %s-%s", ec.name, ec.version)
+
+
 def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
     """Hook called before starting the build and install loop with all easyconfigs."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     
+    # Debug logging
+    log.info("[GitLab CI Hook] pre_build_and_install_loop_hook called with %d easyconfigs", len(ecs))
+    log.info("[GitLab CI Hook] DEBUG: build_option('gitlab_ci_generate'): %s", build_option('gitlab_ci_generate'))
+    log.info("[GitLab CI Hook] DEBUG: build_option('job'): %s", build_option('job'))
+    
     # Check if GitLab CI generation is enabled and job mode is enabled
     if not (build_option('gitlab_ci_generate') and build_option('job')):
+        log.info("[GitLab CI Hook] GitLab CI mode not enabled in pre_build_and_install_loop_hook - exiting")
         return
     
     log.info("[GitLab CI Hook] Processing %d easyconfigs for GitLab CI pipeline generation", len(ecs))
     
-    # Process easyconfigs linearly like SLURM backend does
-    # Dependencies have already been resolved by --robot
-    _process_easyconfigs_for_jobs(ecs)
+    # Use the ready easyconfigs if available, otherwise use the provided ones
+    global READY_ECS
+    if 'READY_ECS' in globals() and READY_ECS:
+        log.info("[GitLab CI Hook] Using %d ready easyconfigs from post_ready_hook", len(READY_ECS))
+        _process_easyconfigs_for_jobs(READY_ECS)
+    else:
+        log.info("[GitLab CI Hook] Using %d easyconfigs from pre_build_and_install_loop_hook", len(ecs))
+        _process_easyconfigs_for_jobs(ecs)
     
     # Generate pipeline YAML
     _generate_gitlab_pipeline()
@@ -115,17 +183,27 @@ def _process_easyconfigs_for_jobs(easyconfigs):
     
     # Process each easyconfig linearly
     for easyconfig in easyconfigs:
+        # Handle both formats: post_ready_hook format and original format
+        if isinstance(easyconfig, dict) and 'ec' in easyconfig:
+            # post_ready_hook format
+            ec = easyconfig['ec']
+            easyconfig_name = f"{easyconfig['name']}-{easyconfig['version']}.eb"
+            spec = easyconfig.get('spec', easyconfig_name)
+        else:
+            # Original format
+            ec = easyconfig.get('ec') if isinstance(easyconfig, dict) else easyconfig
+            easyconfig_name = os.path.basename(easyconfig.get('spec', '')) if isinstance(easyconfig, dict) else f"{ec.name}-{ec.version}.eb"
+            spec = easyconfig.get('spec', easyconfig_name) if isinstance(easyconfig, dict) else f"{ec.name}-{ec.version}.eb"
+        
         # Get module name
         try:
-            module_name = ActiveMNS().det_full_module_name(easyconfig['ec'])
+            module_name = ActiveMNS().det_full_module_name(ec)
         except Exception as err:
-            log.warning("Could not determine module name for %s: %s", easyconfig.get('spec', 'unknown'), err)
+            log.warning("Could not determine module name for %s: %s", spec, err)
             continue
         
-        easyconfig_name = os.path.basename(easyconfig.get('spec', ''))
-        
         # Get dependencies that are not external modules (like SLURM backend)
-        deps = [d for d in easyconfig['ec'].all_dependencies if not d.get('external_module', False)]
+        deps = [d for d in ec.all_dependencies if not d.get('external_module', False)]
         
         # Map dependency module names to job names
         dep_mod_names = []
@@ -144,11 +222,11 @@ def _process_easyconfigs_for_jobs(easyconfigs):
         job_info = {
             'name': easyconfig_name,
             'module': module_name,
-            'easyconfig_path': easyconfig.get('spec', ''),
+            'easyconfig_path': spec,
             'dependencies': dep_mod_names,  # All deps for reference
             'job_dependencies': job_deps,   # Only deps being built in this pipeline
-            'toolchain': easyconfig['ec']['toolchain'],
-            'version': easyconfig['ec']['version'],
+            'toolchain': ec.toolchain,
+            'version': ec.version,
             'cores': build_option('job_cores') or 1,
             'walltime': build_option('job_max_walltime') or 24,
         }
