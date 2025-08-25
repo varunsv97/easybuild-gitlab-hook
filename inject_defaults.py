@@ -28,14 +28,11 @@ def inject_pipeline_metadata(data):
     
     # Add EasyBuild environment activation to before_script
     before_script = default.get('before_script', [])
-    eb_env_activate = f'ml python && source /data/rosi/shared/eb/easybuild_environments/rome/eb_env/bin/activate'
-    
+    eb_env_activate = f'source /data/rosi/shared/eb/easybuild_environments/rome/eb_env/bin/activate'
+    if 'ml python' not in before_script:
+        before_script.insert(0, 'ml python')
     if eb_env_activate not in before_script:
-        before_script.insert(0, eb_env_activate)
-    
-    # Add module purge if not already present
-    if 'ml purge' not in before_script:
-        before_script.insert(1, 'ml purge')
+        before_script.insert(1, eb_env_activate)
     
     # Add environment setup
     if 'echo "Starting EasyBuild job: $CI_JOB_NAME"' not in before_script:

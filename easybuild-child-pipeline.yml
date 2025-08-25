@@ -1,0 +1,3503 @@
+stages:
+- CUDA-12.6.0
+- CUDA-12.4.0
+- CUDA-12.1.1
+- cuDNN-8.9.2.26
+- M4-1.4.19
+- Bison-3.8.2
+- flex-2.6.4
+- binutils-2.42
+- GCCcore-13.3.0
+- zlib-1.3.1
+- help2man-1.49.3
+- pkgconf-2.2.0
+- bzip2-1.0.8
+- UnZip-6.0
+- Perl-5.38.2
+- ncurses-6.5
+- libreadline-8.2
+- libffi-3.4.5
+- zlib-1.2.13
+- Tcl-8.6.14
+- pkgconf-1.8.0
+- Autoconf-2.72
+- binutils-2.40
+- GCCcore-12.3.0
+- GCCcore-13.2.0
+- SQLite-3.45.3
+- OpenSSL-1.1
+- pkgconf-1.9.5
+- cURL-8.0.1
+- GCC-13.2.0
+- GCC-12.3.0
+- FFTW-3.3.10
+- Tcl-8.6.13
+- ncurses-6.4
+- pkgconf-2.0.3
+- SQLite-3.42.0
+- libffi-3.4.4
+- Perl-5.38.0
+- Automake-1.16.5
+- cURL-8.3.0
+- Perl-5.36.1
+- libiconv-1.17
+- OpenSSL-3
+- gettext-0.22.5
+- cURL-8.7.1
+- XZ-5.4.5
+- Python-3.12.3
+- libxml2-2.12.7
+- Ninja-1.12.1
+- libarchive-3.7.4
+- CMake-3.29.3
+- Meson-1.4.0
+- Doxygen-1.11.0
+- libtool-2.4.7
+- expat-2.5.0
+- ncurses-6.3
+- Autotools-20231222
+- xorg-macros-1.20.1
+- gettext-0.21.1
+- Autoconf-2.71
+- numactl-2.0.18
+- GMP-6.3.0
+- libpciaccess-0.18.1
+- Z3-4.13.0
+- XZ-5.4.2
+- Python-3.11.3
+- hwloc-2.10.0
+- libarchive-3.6.2
+- BLIS-0.9.0
+- Clang-18.1.8
+- CMake-3.26.3
+- make-4.4.1
+- groff-1.23.0
+- Autotools-20220317
+- SQLite-3.43.1
+- expat-2.6.2
+- gperf-3.1
+- numactl-2.0.16
+- Perl-bundle-CPAN-5.38.2
+- OpenBLAS-0.3.23
+- FlexiBLAS-3.3.1
+- intltool-0.51.0
+- util-linux-2.40
+- libpng-1.6.43
+- patchelf-0.18.0
+- UCX-1.14.1
+- libfabric-1.18.0
+- gettext-0.22
+- UCC-1.2.0
+- OpenMPI-4.1.5
+- XZ-5.4.4
+- gompi-2023a
+- libxml2-2.11.5
+- Python-3.11.5
+- Ninja-1.11.1
+- Cython-3.0.10
+- hatchling-1.18.0
+- scikit-build-0.17.6
+- OpenBLAS-0.3.24
+- libarchive-3.7.2
+- FFTW.MPI-3.3.10
+- flit-3.9.0
+- ScaLAPACK-2.2.0
+- virtualenv-20.24.6
+- setuptools-rust-1.8.0
+- foss-2023a
+- Meson-1.2.3
+- git-2.42.0
+- CMake-3.27.6
+- Eigen-3.4.0
+- Catch2-2.13.9
+- Rust-1.73.0
+- CUTLASS-3.4.0
+- gfbf-2023b
+- cffi-1.15.1
+- Brotli-1.1.0
+- cryptography-41.0.5
+- freetype-2.13.2
+- poetry-1.6.1
+- fontconfig-2.15.0
+- Python-bundle-PyPI-2023.10
+- X11-20240607
+- meson-python-0.15.0
+- pybind11-2.11.1
+- libdrm-2.4.122
+- hypothesis-6.90.0
+- Blender-4.3.2
+- SciPy-bundle-2023.11
+- CUDA-Python-12.4.0
+variables:
+  EASYBUILD_MODULES_TOOL: Lmod
+  SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  patheb: ${patheb:-/tmp/easybuild}
+  architecture_rosi: ${architecture_rosi:-x86_64}
+  SBATCH_PARTITION: gpu-h100
+  CUDA_COMPUTE_CAPABILITIES: '9.0'
+CUDA-12.6.0:
+  stage: CUDA-12.6.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] CUDA-12.6.0.eb
+  variables:
+    EB_MODULE_NAME: CUDA/12.6.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+CUDA-12.4.0:
+  stage: CUDA-12.4.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] CUDA-12.4.0.eb
+  variables:
+    EB_MODULE_NAME: CUDA/12.4.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+CUDA-12.1.1:
+  stage: CUDA-12.1.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] CUDA-12.1.1.eb
+  variables:
+    EB_MODULE_NAME: CUDA/12.1.1
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+cuDNN-8.9.2.26-CUDA-12.1.1:
+  stage: cuDNN-8.9.2.26
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] cuDNN-8.9.2.26-CUDA-12.1.1.eb
+  variables:
+    EB_MODULE_NAME: cuDNN/8.9.2.26-CUDA-12.1.1
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - CUDA-12.1.1
+M4-1.4.19:
+  stage: M4-1.4.19
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] M4-1.4.19.eb
+  variables:
+    EB_MODULE_NAME: M4/1.4.19
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+Bison-3.8.2:
+  stage: Bison-3.8.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Bison-3.8.2.eb
+  variables:
+    EB_MODULE_NAME: Bison/3.8.2
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - M4-1.4.19
+flex-2.6.4:
+  stage: flex-2.6.4
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] flex-2.6.4.eb
+  variables:
+    EB_MODULE_NAME: flex/2.6.4
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - Bison-3.8.2
+  - M4-1.4.19
+binutils-2.42:
+  stage: binutils-2.42
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] binutils-2.42.eb
+  variables:
+    EB_MODULE_NAME: binutils/2.42
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - flex-2.6.4
+  - Bison-3.8.2
+GCCcore-13.3.0:
+  stage: GCCcore-13.3.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: GCCcore/13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - M4-1.4.19
+  - binutils-2.42
+zlib-1.3.1-GCCcore-13.3.0:
+  stage: zlib-1.3.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] zlib-1.3.1-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: zlib/1.3.1-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42
+  - GCCcore-13.3.0
+help2man-1.49.3-GCCcore-13.3.0:
+  stage: help2man-1.49.3
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] help2man-1.49.3-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: help2man/1.49.3-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42
+  - GCCcore-13.3.0
+M4-1.4.19-GCCcore-13.3.0:
+  stage: M4-1.4.19
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] M4-1.4.19-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: M4/1.4.19-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42
+  - GCCcore-13.3.0
+Bison-3.8.2-GCCcore-13.3.0:
+  stage: Bison-3.8.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Bison-3.8.2-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Bison/3.8.2-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - M4-1.4.19-GCCcore-13.3.0
+  - binutils-2.42
+  - GCCcore-13.3.0
+flex-2.6.4-GCCcore-13.3.0:
+  stage: flex-2.6.4
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] flex-2.6.4-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: flex/2.6.4-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - Bison-3.8.2-GCCcore-13.3.0
+  - help2man-1.49.3-GCCcore-13.3.0
+  - binutils-2.42
+  - M4-1.4.19-GCCcore-13.3.0
+  - GCCcore-13.3.0
+binutils-2.42-GCCcore-13.3.0:
+  stage: binutils-2.42
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] binutils-2.42-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: binutils/2.42-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - flex-2.6.4-GCCcore-13.3.0
+  - Bison-3.8.2-GCCcore-13.3.0
+  - binutils-2.42
+  - zlib-1.3.1-GCCcore-13.3.0
+  - GCCcore-13.3.0
+pkgconf-2.2.0-GCCcore-13.3.0:
+  stage: pkgconf-2.2.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] pkgconf-2.2.0-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: pkgconf/2.2.0-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - GCCcore-13.3.0
+bzip2-1.0.8-GCCcore-13.3.0:
+  stage: bzip2-1.0.8
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] bzip2-1.0.8-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: bzip2/1.0.8-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - GCCcore-13.3.0
+UnZip-6.0-GCCcore-13.3.0:
+  stage: UnZip-6.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] UnZip-6.0-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: UnZip/6.0-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - bzip2-1.0.8-GCCcore-13.3.0
+  - GCCcore-13.3.0
+Perl-5.38.2-GCCcore-13.3.0:
+  stage: Perl-5.38.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Perl-5.38.2-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Perl/5.38.2-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - zlib-1.3.1-GCCcore-13.3.0
+  - GCCcore-13.3.0
+ncurses-6.5-GCCcore-13.3.0:
+  stage: ncurses-6.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] ncurses-6.5-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: ncurses/6.5-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - pkgconf-2.2.0-GCCcore-13.3.0
+  - GCCcore-13.3.0
+libreadline-8.2-GCCcore-13.3.0:
+  stage: libreadline-8.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libreadline-8.2-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: libreadline/8.2-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - ncurses-6.5-GCCcore-13.3.0
+  - GCCcore-13.3.0
+libffi-3.4.5-GCCcore-13.3.0:
+  stage: libffi-3.4.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libffi-3.4.5-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: libffi/3.4.5-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - GCCcore-13.3.0
+zlib-1.2.13:
+  stage: zlib-1.2.13
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] zlib-1.2.13.eb
+  variables:
+    EB_MODULE_NAME: zlib/1.2.13
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+Tcl-8.6.14-GCCcore-13.3.0:
+  stage: Tcl-8.6.14
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Tcl-8.6.14-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Tcl/8.6.14-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - zlib-1.3.1-GCCcore-13.3.0
+  - GCCcore-13.3.0
+pkgconf-1.8.0:
+  stage: pkgconf-1.8.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] pkgconf-1.8.0.eb
+  variables:
+    EB_MODULE_NAME: pkgconf/1.8.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+Autoconf-2.72-GCCcore-13.3.0:
+  stage: Autoconf-2.72
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Autoconf-2.72-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Autoconf/2.72-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - M4-1.4.19-GCCcore-13.3.0
+  - Perl-5.38.2-GCCcore-13.3.0
+  - GCCcore-13.3.0
+binutils-2.40:
+  stage: binutils-2.40
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] binutils-2.40.eb
+  variables:
+    EB_MODULE_NAME: binutils/2.40
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - flex-2.6.4
+  - Bison-3.8.2
+  - zlib-1.2.13
+GCCcore-12.3.0:
+  stage: GCCcore-12.3.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: GCCcore/12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - M4-1.4.19
+  - binutils-2.40
+help2man-1.49.3-GCCcore-12.3.0:
+  stage: help2man-1.49.3
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] help2man-1.49.3-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: help2man/1.49.3-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40
+  - GCCcore-12.3.0
+GCCcore-13.2.0:
+  stage: GCCcore-13.2.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: GCCcore/13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - M4-1.4.19
+  - binutils-2.40
+M4-1.4.19-GCCcore-12.3.0:
+  stage: M4-1.4.19
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] M4-1.4.19-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: M4/1.4.19-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40
+  - GCCcore-12.3.0
+zlib-1.2.13-GCCcore-13.2.0:
+  stage: zlib-1.2.13
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] zlib-1.2.13-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: zlib/1.2.13-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40
+  - GCCcore-13.2.0
+SQLite-3.45.3-GCCcore-13.3.0:
+  stage: SQLite-3.45.3
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] SQLite-3.45.3-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: SQLite/3.45.3-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - libreadline-8.2-GCCcore-13.3.0
+  - Tcl-8.6.14-GCCcore-13.3.0
+  - GCCcore-13.3.0
+OpenSSL-1.1:
+  stage: OpenSSL-1.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] OpenSSL-1.1.eb
+  variables:
+    EB_MODULE_NAME: OpenSSL/1.1
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - pkgconf-1.8.0
+help2man-1.49.3-GCCcore-13.2.0:
+  stage: help2man-1.49.3
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] help2man-1.49.3-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: help2man/1.49.3-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40
+  - GCCcore-13.2.0
+M4-1.4.19-GCCcore-13.2.0:
+  stage: M4-1.4.19
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] M4-1.4.19-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: M4/1.4.19-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40
+  - GCCcore-13.2.0
+zlib-1.2.13-GCCcore-12.3.0:
+  stage: zlib-1.2.13
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] zlib-1.2.13-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: zlib/1.2.13-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40
+  - GCCcore-12.3.0
+Bison-3.8.2-GCCcore-12.3.0:
+  stage: Bison-3.8.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Bison-3.8.2-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: Bison/3.8.2-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - M4-1.4.19-GCCcore-12.3.0
+  - binutils-2.40
+  - GCCcore-12.3.0
+Bison-3.8.2-GCCcore-13.2.0:
+  stage: Bison-3.8.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Bison-3.8.2-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Bison/3.8.2-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - M4-1.4.19-GCCcore-13.2.0
+  - binutils-2.40
+  - GCCcore-13.2.0
+flex-2.6.4-GCCcore-12.3.0:
+  stage: flex-2.6.4
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] flex-2.6.4-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: flex/2.6.4-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - Bison-3.8.2-GCCcore-12.3.0
+  - help2man-1.49.3-GCCcore-12.3.0
+  - binutils-2.40
+  - M4-1.4.19-GCCcore-12.3.0
+  - GCCcore-12.3.0
+flex-2.6.4-GCCcore-13.2.0:
+  stage: flex-2.6.4
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] flex-2.6.4-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: flex/2.6.4-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - Bison-3.8.2-GCCcore-13.2.0
+  - help2man-1.49.3-GCCcore-13.2.0
+  - binutils-2.40
+  - M4-1.4.19-GCCcore-13.2.0
+  - GCCcore-13.2.0
+binutils-2.40-GCCcore-12.3.0:
+  stage: binutils-2.40
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] binutils-2.40-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: binutils/2.40-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - flex-2.6.4-GCCcore-12.3.0
+  - Bison-3.8.2-GCCcore-12.3.0
+  - binutils-2.40
+  - zlib-1.2.13-GCCcore-12.3.0
+  - GCCcore-12.3.0
+pkgconf-1.9.5-GCCcore-12.3.0:
+  stage: pkgconf-1.9.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] pkgconf-1.9.5-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: pkgconf/1.9.5-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - GCCcore-12.3.0
+binutils-2.40-GCCcore-13.2.0:
+  stage: binutils-2.40
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] binutils-2.40-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: binutils/2.40-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - flex-2.6.4-GCCcore-13.2.0
+  - Bison-3.8.2-GCCcore-13.2.0
+  - binutils-2.40
+  - zlib-1.2.13-GCCcore-13.2.0
+  - GCCcore-13.2.0
+bzip2-1.0.8-GCCcore-12.3.0:
+  stage: bzip2-1.0.8
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] bzip2-1.0.8-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: bzip2/1.0.8-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - GCCcore-12.3.0
+cURL-8.0.1-GCCcore-12.3.0:
+  stage: cURL-8.0.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] cURL-8.0.1-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: cURL/8.0.1-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - zlib-1.2.13-GCCcore-12.3.0
+  - OpenSSL-1.1
+  - GCCcore-12.3.0
+bzip2-1.0.8-GCCcore-13.2.0:
+  stage: bzip2-1.0.8
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] bzip2-1.0.8-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: bzip2/1.0.8-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - GCCcore-13.2.0
+GCC-13.2.0:
+  stage: GCC-13.2.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] GCC-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: GCC/13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - GCCcore-13.2.0
+  - binutils-2.40-GCCcore-13.2.0
+GCC-12.3.0:
+  stage: GCC-12.3.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] GCC-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: GCC/12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - GCCcore-12.3.0
+  - binutils-2.40-GCCcore-12.3.0
+FFTW-3.3.10-GCC-13.2.0:
+  stage: FFTW-3.3.10
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] FFTW-3.3.10-GCC-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: FFTW/3.3.10-GCC-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - GCC-13.2.0
+Tcl-8.6.13-GCCcore-12.3.0:
+  stage: Tcl-8.6.13
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Tcl-8.6.13-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: Tcl/8.6.13-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - zlib-1.2.13-GCCcore-12.3.0
+  - GCCcore-12.3.0
+ncurses-6.4-GCCcore-12.3.0:
+  stage: ncurses-6.4
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] ncurses-6.4-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: ncurses/6.4-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - pkgconf-1.9.5-GCCcore-12.3.0
+  - GCCcore-12.3.0
+UnZip-6.0-GCCcore-13.2.0:
+  stage: UnZip-6.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] UnZip-6.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: UnZip/6.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - bzip2-1.0.8-GCCcore-13.2.0
+  - GCCcore-13.2.0
+UnZip-6.0-GCCcore-12.3.0:
+  stage: UnZip-6.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] UnZip-6.0-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: UnZip/6.0-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - bzip2-1.0.8-GCCcore-12.3.0
+  - GCCcore-12.3.0
+pkgconf-2.0.3-GCCcore-13.2.0:
+  stage: pkgconf-2.0.3
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] pkgconf-2.0.3-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: pkgconf/2.0.3-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - GCCcore-13.2.0
+libreadline-8.2-GCCcore-12.3.0:
+  stage: libreadline-8.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libreadline-8.2-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: libreadline/8.2-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - ncurses-6.4-GCCcore-12.3.0
+  - GCCcore-12.3.0
+SQLite-3.42.0-GCCcore-12.3.0:
+  stage: SQLite-3.42.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] SQLite-3.42.0-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: SQLite/3.42.0-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - libreadline-8.2-GCCcore-12.3.0
+  - Tcl-8.6.13-GCCcore-12.3.0
+  - GCCcore-12.3.0
+ncurses-6.4-GCCcore-13.2.0:
+  stage: ncurses-6.4
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] ncurses-6.4-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: ncurses/6.4-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - pkgconf-2.0.3-GCCcore-13.2.0
+  - GCCcore-13.2.0
+libffi-3.4.4-GCCcore-12.3.0:
+  stage: libffi-3.4.4
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libffi-3.4.4-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: libffi/3.4.4-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - GCCcore-12.3.0
+Perl-5.38.0:
+  stage: Perl-5.38.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Perl-5.38.0.eb
+  variables:
+    EB_MODULE_NAME: Perl/5.38.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40
+  - zlib-1.2.13
+Automake-1.16.5-GCCcore-13.3.0:
+  stage: Automake-1.16.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Automake-1.16.5-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Automake/1.16.5-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - Autoconf-2.72-GCCcore-13.3.0
+  - Perl-5.38.2-GCCcore-13.3.0
+  - GCCcore-13.3.0
+cURL-8.3.0-GCCcore-13.2.0:
+  stage: cURL-8.3.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] cURL-8.3.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: cURL/8.3.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - zlib-1.2.13-GCCcore-13.2.0
+  - OpenSSL-1.1
+  - GCCcore-13.2.0
+Perl-5.36.1-GCCcore-12.3.0:
+  stage: Perl-5.36.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Perl-5.36.1-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: Perl/5.36.1-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - zlib-1.2.13-GCCcore-12.3.0
+  - GCCcore-12.3.0
+libiconv-1.17-GCCcore-13.3.0:
+  stage: libiconv-1.17
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libiconv-1.17-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: libiconv/1.17-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - GCCcore-13.3.0
+ncurses-6.5:
+  stage: ncurses-6.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] ncurses-6.5.eb
+  variables:
+    EB_MODULE_NAME: ncurses/6.5
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+OpenSSL-3:
+  stage: OpenSSL-3
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] OpenSSL-3.eb
+  variables:
+    EB_MODULE_NAME: OpenSSL/3
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - pkgconf-1.8.0
+  - Perl-5.38.0
+libreadline-8.2-GCCcore-13.2.0:
+  stage: libreadline-8.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libreadline-8.2-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: libreadline/8.2-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - ncurses-6.4-GCCcore-13.2.0
+  - GCCcore-13.2.0
+gettext-0.22.5:
+  stage: gettext-0.22.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] gettext-0.22.5.eb
+  variables:
+    EB_MODULE_NAME: gettext/0.22.5
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - ncurses-6.5
+cURL-8.7.1-GCCcore-13.3.0:
+  stage: cURL-8.7.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] cURL-8.7.1-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: cURL/8.7.1-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - zlib-1.3.1-GCCcore-13.3.0
+  - OpenSSL-3
+  - GCCcore-13.3.0
+XZ-5.4.5-GCCcore-13.3.0:
+  stage: XZ-5.4.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] XZ-5.4.5-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: XZ/5.4.5-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - gettext-0.22.5
+  - binutils-2.42-GCCcore-13.3.0
+  - GCCcore-13.3.0
+Python-3.12.3-GCCcore-13.3.0:
+  stage: Python-3.12.3
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Python-3.12.3-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Python/3.12.3-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - UnZip-6.0-GCCcore-13.3.0
+  - pkgconf-2.2.0-GCCcore-13.3.0
+  - binutils-2.42-GCCcore-13.3.0
+  - bzip2-1.0.8-GCCcore-13.3.0
+  - zlib-1.3.1-GCCcore-13.3.0
+  - libreadline-8.2-GCCcore-13.3.0
+  - ncurses-6.5-GCCcore-13.3.0
+  - SQLite-3.45.3-GCCcore-13.3.0
+  - XZ-5.4.5-GCCcore-13.3.0
+  - libffi-3.4.5-GCCcore-13.3.0
+  - OpenSSL-3
+  - GCCcore-13.3.0
+libxml2-2.12.7-GCCcore-13.3.0:
+  stage: libxml2-2.12.7
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libxml2-2.12.7-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: libxml2/2.12.7-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - XZ-5.4.5-GCCcore-13.3.0
+  - zlib-1.3.1-GCCcore-13.3.0
+  - GCCcore-13.3.0
+Ninja-1.12.1-GCCcore-13.3.0:
+  stage: Ninja-1.12.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Ninja-1.12.1-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Ninja/1.12.1-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - Python-3.12.3-GCCcore-13.3.0
+  - GCCcore-13.3.0
+libarchive-3.7.4-GCCcore-13.3.0:
+  stage: libarchive-3.7.4
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libarchive-3.7.4-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: libarchive/3.7.4-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - zlib-1.3.1-GCCcore-13.3.0
+  - XZ-5.4.5-GCCcore-13.3.0
+  - OpenSSL-3
+  - GCCcore-13.3.0
+gettext-0.22.5-GCCcore-13.3.0:
+  stage: gettext-0.22.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] gettext-0.22.5-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: gettext/0.22.5-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - libxml2-2.12.7-GCCcore-13.3.0
+  - ncurses-6.5-GCCcore-13.3.0
+  - libiconv-1.17-GCCcore-13.3.0
+  - GCCcore-13.3.0
+CMake-3.29.3-GCCcore-13.3.0:
+  stage: CMake-3.29.3
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] CMake-3.29.3-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: CMake/3.29.3-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - ncurses-6.5-GCCcore-13.3.0
+  - zlib-1.3.1-GCCcore-13.3.0
+  - bzip2-1.0.8-GCCcore-13.3.0
+  - cURL-8.7.1-GCCcore-13.3.0
+  - libarchive-3.7.4-GCCcore-13.3.0
+  - OpenSSL-3
+  - GCCcore-13.3.0
+Meson-1.4.0-GCCcore-13.3.0:
+  stage: Meson-1.4.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Meson-1.4.0-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Meson/1.4.0-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - Python-3.12.3-GCCcore-13.3.0
+  - Ninja-1.12.1-GCCcore-13.3.0
+  - GCCcore-13.3.0
+FFTW-3.3.10-GCC-12.3.0:
+  stage: FFTW-3.3.10
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] FFTW-3.3.10-GCC-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: FFTW/3.3.10-GCC-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - GCC-12.3.0
+Doxygen-1.11.0-GCCcore-13.3.0:
+  stage: Doxygen-1.11.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Doxygen-1.11.0-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Doxygen/1.11.0-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - Bison-3.8.2-GCCcore-13.3.0
+  - CMake-3.29.3-GCCcore-13.3.0
+  - flex-2.6.4-GCCcore-13.3.0
+  - pkgconf-2.2.0-GCCcore-13.3.0
+  - Python-3.12.3-GCCcore-13.3.0
+  - libiconv-1.17-GCCcore-13.3.0
+  - GCCcore-13.3.0
+libtool-2.4.7-GCCcore-13.3.0:
+  stage: libtool-2.4.7
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libtool-2.4.7-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: libtool/2.4.7-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - M4-1.4.19-GCCcore-13.3.0
+  - GCCcore-13.3.0
+expat-2.5.0-GCCcore-13.2.0:
+  stage: expat-2.5.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] expat-2.5.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: expat/2.5.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - GCCcore-13.2.0
+Perl-5.38.0-GCCcore-13.2.0:
+  stage: Perl-5.38.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Perl-5.38.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Perl/5.38.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - zlib-1.2.13-GCCcore-13.2.0
+  - GCCcore-13.2.0
+ncurses-6.3:
+  stage: ncurses-6.3
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] ncurses-6.3.eb
+  variables:
+    EB_MODULE_NAME: ncurses/6.3
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+Autotools-20231222-GCCcore-13.3.0:
+  stage: Autotools-20231222
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Autotools-20231222-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Autotools/20231222-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - Autoconf-2.72-GCCcore-13.3.0
+  - Automake-1.16.5-GCCcore-13.3.0
+  - libtool-2.4.7-GCCcore-13.3.0
+  - GCCcore-13.3.0
+xorg-macros-1.20.1-GCCcore-13.3.0:
+  stage: xorg-macros-1.20.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] xorg-macros-1.20.1-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: xorg-macros/1.20.1-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - Autotools-20231222-GCCcore-13.3.0
+  - GCCcore-13.3.0
+gettext-0.21.1:
+  stage: gettext-0.21.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] gettext-0.21.1.eb
+  variables:
+    EB_MODULE_NAME: gettext/0.21.1
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - ncurses-6.3
+Autoconf-2.71-GCCcore-13.2.0:
+  stage: Autoconf-2.71
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Autoconf-2.71-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Autoconf/2.71-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - M4-1.4.19-GCCcore-13.2.0
+  - Perl-5.38.0-GCCcore-13.2.0
+  - GCCcore-13.2.0
+Automake-1.16.5-GCCcore-13.2.0:
+  stage: Automake-1.16.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Automake-1.16.5-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Automake/1.16.5-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - Autoconf-2.71-GCCcore-13.2.0
+  - Perl-5.38.0-GCCcore-13.2.0
+  - GCCcore-13.2.0
+numactl-2.0.18-GCCcore-13.3.0:
+  stage: numactl-2.0.18
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] numactl-2.0.18-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: numactl/2.0.18-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - Autotools-20231222-GCCcore-13.3.0
+  - GCCcore-13.3.0
+GMP-6.3.0-GCCcore-13.3.0:
+  stage: GMP-6.3.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] GMP-6.3.0-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: GMP/6.3.0-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - Autotools-20231222-GCCcore-13.3.0
+  - binutils-2.42-GCCcore-13.3.0
+  - GCCcore-13.3.0
+libpciaccess-0.18.1-GCCcore-13.3.0:
+  stage: libpciaccess-0.18.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libpciaccess-0.18.1-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: libpciaccess/0.18.1-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - Meson-1.4.0-GCCcore-13.3.0
+  - Ninja-1.12.1-GCCcore-13.3.0
+  - xorg-macros-1.20.1-GCCcore-13.3.0
+  - GCCcore-13.3.0
+Z3-4.13.0-GCCcore-13.3.0:
+  stage: Z3-4.13.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Z3-4.13.0-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Z3/4.13.0-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - CMake-3.29.3-GCCcore-13.3.0
+  - binutils-2.42-GCCcore-13.3.0
+  - Python-3.12.3-GCCcore-13.3.0
+  - GMP-6.3.0-GCCcore-13.3.0
+  - GCCcore-13.3.0
+XZ-5.4.2-GCCcore-12.3.0:
+  stage: XZ-5.4.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] XZ-5.4.2-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: XZ/5.4.2-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - gettext-0.21.1
+  - binutils-2.40-GCCcore-12.3.0
+  - GCCcore-12.3.0
+Python-3.11.3-GCCcore-12.3.0:
+  stage: Python-3.11.3
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Python-3.11.3-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: Python/3.11.3-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - UnZip-6.0-GCCcore-12.3.0
+  - pkgconf-1.9.5-GCCcore-12.3.0
+  - binutils-2.40-GCCcore-12.3.0
+  - bzip2-1.0.8-GCCcore-12.3.0
+  - zlib-1.2.13-GCCcore-12.3.0
+  - libreadline-8.2-GCCcore-12.3.0
+  - ncurses-6.4-GCCcore-12.3.0
+  - SQLite-3.42.0-GCCcore-12.3.0
+  - XZ-5.4.2-GCCcore-12.3.0
+  - libffi-3.4.4-GCCcore-12.3.0
+  - OpenSSL-1.1
+  - GCCcore-12.3.0
+hwloc-2.10.0-GCCcore-13.3.0:
+  stage: hwloc-2.10.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] hwloc-2.10.0-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: hwloc/2.10.0-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - numactl-2.0.18-GCCcore-13.3.0
+  - libxml2-2.12.7-GCCcore-13.3.0
+  - libpciaccess-0.18.1-GCCcore-13.3.0
+  - GCCcore-13.3.0
+libarchive-3.6.2-GCCcore-12.3.0:
+  stage: libarchive-3.6.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libarchive-3.6.2-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: libarchive/3.6.2-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - zlib-1.2.13-GCCcore-12.3.0
+  - XZ-5.4.2-GCCcore-12.3.0
+  - OpenSSL-1.1
+  - GCCcore-12.3.0
+BLIS-0.9.0-GCC-12.3.0:
+  stage: BLIS-0.9.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] BLIS-0.9.0-GCC-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: BLIS/0.9.0-GCC-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - Python-3.11.3-GCCcore-12.3.0
+  - Perl-5.36.1-GCCcore-12.3.0
+  - GCC-12.3.0
+Clang-18.1.8-GCCcore-13.3.0-CUDA-12.6.0:
+  stage: Clang-18.1.8
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Clang-18.1.8-GCCcore-13.3.0-CUDA-12.6.0.eb
+  variables:
+    EB_MODULE_NAME: Clang/18.1.8-GCCcore-13.3.0-CUDA-12.6.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - CMake-3.29.3-GCCcore-13.3.0
+  - Perl-5.38.2-GCCcore-13.3.0
+  - Python-3.12.3-GCCcore-13.3.0
+  - binutils-2.42-GCCcore-13.3.0
+  - hwloc-2.10.0-GCCcore-13.3.0
+  - libxml2-2.12.7-GCCcore-13.3.0
+  - ncurses-6.5-GCCcore-13.3.0
+  - GMP-6.3.0-GCCcore-13.3.0
+  - Z3-4.13.0-GCCcore-13.3.0
+  - CUDA-12.6.0
+  - GCCcore-13.3.0
+CMake-3.26.3-GCCcore-12.3.0:
+  stage: CMake-3.26.3
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] CMake-3.26.3-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: CMake/3.26.3-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - ncurses-6.4-GCCcore-12.3.0
+  - zlib-1.2.13-GCCcore-12.3.0
+  - bzip2-1.0.8-GCCcore-12.3.0
+  - cURL-8.0.1-GCCcore-12.3.0
+  - libarchive-3.6.2-GCCcore-12.3.0
+  - OpenSSL-1.1
+  - GCCcore-12.3.0
+libtool-2.4.7-GCCcore-13.2.0:
+  stage: libtool-2.4.7
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libtool-2.4.7-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: libtool/2.4.7-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - M4-1.4.19-GCCcore-13.2.0
+  - GCCcore-13.2.0
+Tcl-8.6.13-GCCcore-13.2.0:
+  stage: Tcl-8.6.13
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Tcl-8.6.13-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Tcl/8.6.13-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - zlib-1.2.13-GCCcore-13.2.0
+  - GCCcore-13.2.0
+make-4.4.1-GCCcore-13.2.0:
+  stage: make-4.4.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] make-4.4.1-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: make/4.4.1-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - GCCcore-13.2.0
+Autoconf-2.71-GCCcore-12.3.0:
+  stage: Autoconf-2.71
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Autoconf-2.71-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: Autoconf/2.71-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - M4-1.4.19-GCCcore-12.3.0
+  - Perl-5.36.1-GCCcore-12.3.0
+  - GCCcore-12.3.0
+groff-1.23.0-GCCcore-13.3.0:
+  stage: groff-1.23.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] groff-1.23.0-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: groff/1.23.0-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - M4-1.4.19-GCCcore-13.3.0
+  - Perl-5.38.2-GCCcore-13.3.0
+  - GCCcore-13.3.0
+Autotools-20220317-GCCcore-13.2.0:
+  stage: Autotools-20220317
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Autotools-20220317-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Autotools/20220317-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - Autoconf-2.71-GCCcore-13.2.0
+  - Automake-1.16.5-GCCcore-13.2.0
+  - libtool-2.4.7-GCCcore-13.2.0
+  - GCCcore-13.2.0
+SQLite-3.43.1-GCCcore-13.2.0:
+  stage: SQLite-3.43.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] SQLite-3.43.1-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: SQLite/3.43.1-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - libreadline-8.2-GCCcore-13.2.0
+  - Tcl-8.6.13-GCCcore-13.2.0
+  - GCCcore-13.2.0
+libffi-3.4.4-GCCcore-13.2.0:
+  stage: libffi-3.4.4
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libffi-3.4.4-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: libffi/3.4.4-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - GCCcore-13.2.0
+Automake-1.16.5-GCCcore-12.3.0:
+  stage: Automake-1.16.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Automake-1.16.5-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: Automake/1.16.5-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - Autoconf-2.71-GCCcore-12.3.0
+  - Perl-5.36.1-GCCcore-12.3.0
+  - GCCcore-12.3.0
+expat-2.6.2-GCCcore-13.3.0:
+  stage: expat-2.6.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] expat-2.6.2-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: expat/2.6.2-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - GCCcore-13.3.0
+gperf-3.1-GCCcore-13.3.0:
+  stage: gperf-3.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] gperf-3.1-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: gperf/3.1-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - GCCcore-13.3.0
+numactl-2.0.16-GCCcore-12.3.0:
+  stage: numactl-2.0.16
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] numactl-2.0.16-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: numactl/2.0.16-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - GCCcore-12.3.0
+make-4.4.1-GCCcore-12.3.0:
+  stage: make-4.4.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] make-4.4.1-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: make/4.4.1-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - GCCcore-12.3.0
+Perl-bundle-CPAN-5.38.2-GCCcore-13.3.0:
+  stage: Perl-bundle-CPAN-5.38.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Perl-bundle-CPAN-5.38.2-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Perl-bundle-CPAN/5.38.2-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - groff-1.23.0-GCCcore-13.3.0
+  - Perl-5.38.2-GCCcore-13.3.0
+  - zlib-1.3.1-GCCcore-13.3.0
+  - expat-2.6.2-GCCcore-13.3.0
+  - ncurses-6.5-GCCcore-13.3.0
+  - libreadline-8.2-GCCcore-13.3.0
+  - OpenSSL-3
+  - GCCcore-13.3.0
+OpenBLAS-0.3.23-GCC-12.3.0:
+  stage: OpenBLAS-0.3.23
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] OpenBLAS-0.3.23-GCC-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: OpenBLAS/0.3.23-GCC-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - make-4.4.1-GCCcore-12.3.0
+  - Python-3.11.3-GCCcore-12.3.0
+  - GCC-12.3.0
+FlexiBLAS-3.3.1-GCC-12.3.0:
+  stage: FlexiBLAS-3.3.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] FlexiBLAS-3.3.1-GCC-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: FlexiBLAS/3.3.1-GCC-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - CMake-3.26.3-GCCcore-12.3.0
+  - Python-3.11.3-GCCcore-12.3.0
+  - BLIS-0.9.0-GCC-12.3.0
+  - OpenBLAS-0.3.23-GCC-12.3.0
+  - GCC-12.3.0
+intltool-0.51.0-GCCcore-13.3.0:
+  stage: intltool-0.51.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] intltool-0.51.0-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: intltool/0.51.0-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - Perl-bundle-CPAN-5.38.2-GCCcore-13.3.0
+  - GCCcore-13.3.0
+libtool-2.4.7-GCCcore-12.3.0:
+  stage: libtool-2.4.7
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libtool-2.4.7-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: libtool/2.4.7-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - M4-1.4.19-GCCcore-12.3.0
+  - GCCcore-12.3.0
+util-linux-2.40-GCCcore-13.3.0:
+  stage: util-linux-2.40
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] util-linux-2.40-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: util-linux/2.40-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - Autotools-20231222-GCCcore-13.3.0
+  - pkgconf-2.2.0-GCCcore-13.3.0
+  - ncurses-6.5-GCCcore-13.3.0
+  - zlib-1.3.1-GCCcore-13.3.0
+  - SQLite-3.45.3-GCCcore-13.3.0
+  - GCCcore-13.3.0
+libiconv-1.17-GCCcore-13.2.0:
+  stage: libiconv-1.17
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libiconv-1.17-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: libiconv/1.17-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - GCCcore-13.2.0
+libpng-1.6.43-GCCcore-13.3.0:
+  stage: libpng-1.6.43
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libpng-1.6.43-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: libpng/1.6.43-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - zlib-1.3.1-GCCcore-13.3.0
+  - GCCcore-13.3.0
+ncurses-6.4:
+  stage: ncurses-6.4
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] ncurses-6.4.eb
+  variables:
+    EB_MODULE_NAME: ncurses/6.4
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+patchelf-0.18.0-GCCcore-13.2.0:
+  stage: patchelf-0.18.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] patchelf-0.18.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: patchelf/0.18.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - Autotools-20220317-GCCcore-13.2.0
+  - GCCcore-13.2.0
+Autotools-20220317-GCCcore-12.3.0:
+  stage: Autotools-20220317
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Autotools-20220317-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: Autotools/20220317-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - Autoconf-2.71-GCCcore-12.3.0
+  - Automake-1.16.5-GCCcore-12.3.0
+  - libtool-2.4.7-GCCcore-12.3.0
+  - GCCcore-12.3.0
+UCX-1.14.1-GCCcore-12.3.0:
+  stage: UCX-1.14.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] UCX-1.14.1-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: UCX/1.14.1-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - Autotools-20220317-GCCcore-12.3.0
+  - pkgconf-1.9.5-GCCcore-12.3.0
+  - zlib-1.2.13-GCCcore-12.3.0
+  - numactl-2.0.16-GCCcore-12.3.0
+  - GCCcore-12.3.0
+libfabric-1.18.0-GCCcore-12.3.0:
+  stage: libfabric-1.18.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libfabric-1.18.0-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: libfabric/1.18.0-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - pkgconf-1.9.5-GCCcore-12.3.0
+  - Autotools-20220317-GCCcore-12.3.0
+  - numactl-2.0.16-GCCcore-12.3.0
+  - GCCcore-12.3.0
+gettext-0.22:
+  stage: gettext-0.22
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] gettext-0.22.eb
+  variables:
+    EB_MODULE_NAME: gettext/0.22
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - ncurses-6.4
+UCC-1.2.0-GCCcore-12.3.0:
+  stage: UCC-1.2.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] UCC-1.2.0-GCCcore-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: UCC/1.2.0-GCCcore-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-12.3.0
+  - Autotools-20220317-GCCcore-12.3.0
+  - UCX-1.14.1-GCCcore-12.3.0
+  - GCCcore-12.3.0
+OpenMPI-4.1.5-GCC-12.3.0:
+  stage: OpenMPI-4.1.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] OpenMPI-4.1.5-GCC-12.3.0.eb
+  variables:
+    EB_MODULE_NAME: OpenMPI/4.1.5-GCC-12.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - pkgconf-1.9.5-GCCcore-12.3.0
+  - Perl-5.36.1-GCCcore-12.3.0
+  - Autotools-20220317-GCCcore-12.3.0
+  - UCX-1.14.1-GCCcore-12.3.0
+  - libfabric-1.18.0-GCCcore-12.3.0
+  - UCC-1.2.0-GCCcore-12.3.0
+  - GCC-12.3.0
+XZ-5.4.4-GCCcore-13.2.0:
+  stage: XZ-5.4.4
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] XZ-5.4.4-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: XZ/5.4.4-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - gettext-0.22
+  - binutils-2.40-GCCcore-13.2.0
+  - GCCcore-13.2.0
+gompi-2023a:
+  stage: gompi-2023a
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] gompi-2023a.eb
+  variables:
+    EB_MODULE_NAME: gompi/2023a
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - GCC-12.3.0
+  - OpenMPI-4.1.5-GCC-12.3.0
+libxml2-2.11.5-GCCcore-13.2.0:
+  stage: libxml2-2.11.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libxml2-2.11.5-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: libxml2/2.11.5-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - XZ-5.4.4-GCCcore-13.2.0
+  - zlib-1.2.13-GCCcore-13.2.0
+  - GCCcore-13.2.0
+Python-3.11.5-GCCcore-13.2.0:
+  stage: Python-3.11.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Python-3.11.5-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Python/3.11.5-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - UnZip-6.0-GCCcore-13.2.0
+  - pkgconf-2.0.3-GCCcore-13.2.0
+  - binutils-2.40-GCCcore-13.2.0
+  - bzip2-1.0.8-GCCcore-13.2.0
+  - zlib-1.2.13-GCCcore-13.2.0
+  - libreadline-8.2-GCCcore-13.2.0
+  - ncurses-6.4-GCCcore-13.2.0
+  - SQLite-3.43.1-GCCcore-13.2.0
+  - XZ-5.4.4-GCCcore-13.2.0
+  - libffi-3.4.4-GCCcore-13.2.0
+  - OpenSSL-1.1
+  - GCCcore-13.2.0
+Ninja-1.11.1-GCCcore-13.2.0:
+  stage: Ninja-1.11.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Ninja-1.11.1-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Ninja/1.11.1-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - GCCcore-13.2.0
+Cython-3.0.10-GCCcore-13.2.0:
+  stage: Cython-3.0.10
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Cython-3.0.10-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Cython/3.0.10-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - GCCcore-13.2.0
+hatchling-1.18.0-GCCcore-13.2.0:
+  stage: hatchling-1.18.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] hatchling-1.18.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: hatchling/1.18.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - GCCcore-13.2.0
+BLIS-0.9.0-GCC-13.2.0:
+  stage: BLIS-0.9.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] BLIS-0.9.0-GCC-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: BLIS/0.9.0-GCC-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - Python-3.11.5-GCCcore-13.2.0
+  - Perl-5.38.0-GCCcore-13.2.0
+  - GCC-13.2.0
+scikit-build-0.17.6-GCCcore-13.2.0:
+  stage: scikit-build-0.17.6
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] scikit-build-0.17.6-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: scikit-build/0.17.6-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - hatchling-1.18.0-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - GCCcore-13.2.0
+OpenBLAS-0.3.24-GCC-13.2.0:
+  stage: OpenBLAS-0.3.24
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] OpenBLAS-0.3.24-GCC-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: OpenBLAS/0.3.24-GCC-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - make-4.4.1-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - GCC-13.2.0
+libarchive-3.7.2-GCCcore-13.2.0:
+  stage: libarchive-3.7.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libarchive-3.7.2-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: libarchive/3.7.2-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - zlib-1.2.13-GCCcore-13.2.0
+  - XZ-5.4.4-GCCcore-13.2.0
+  - OpenSSL-1.1
+  - GCCcore-13.2.0
+FFTW.MPI-3.3.10-gompi-2023a:
+  stage: FFTW.MPI-3.3.10
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] FFTW.MPI-3.3.10-gompi-2023a.eb
+  variables:
+    EB_MODULE_NAME: FFTW.MPI/3.3.10-gompi-2023a
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - FFTW-3.3.10-GCC-12.3.0
+  - gompi-2023a
+flit-3.9.0-GCCcore-13.2.0:
+  stage: flit-3.9.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] flit-3.9.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: flit/3.9.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - hatchling-1.18.0-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - GCCcore-13.2.0
+gettext-0.22-GCCcore-13.2.0:
+  stage: gettext-0.22
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] gettext-0.22-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: gettext/0.22-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - libxml2-2.11.5-GCCcore-13.2.0
+  - ncurses-6.4-GCCcore-13.2.0
+  - libiconv-1.17-GCCcore-13.2.0
+  - GCCcore-13.2.0
+ScaLAPACK-2.2.0-gompi-2023a-fb:
+  stage: ScaLAPACK-2.2.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] ScaLAPACK-2.2.0-gompi-2023a-fb.eb
+  variables:
+    EB_MODULE_NAME: ScaLAPACK/2.2.0-gompi-2023a-fb
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - CMake-3.26.3-GCCcore-12.3.0
+  - FlexiBLAS-3.3.1-GCC-12.3.0
+  - gompi-2023a
+virtualenv-20.24.6-GCCcore-13.2.0:
+  stage: virtualenv-20.24.6
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] virtualenv-20.24.6-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: virtualenv/20.24.6-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - hatchling-1.18.0-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - GCCcore-13.2.0
+setuptools-rust-1.8.0-GCCcore-13.2.0:
+  stage: setuptools-rust-1.8.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] setuptools-rust-1.8.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: setuptools-rust/1.8.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - GCCcore-13.2.0
+foss-2023a:
+  stage: foss-2023a
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] foss-2023a.eb
+  variables:
+    EB_MODULE_NAME: foss/2023a
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - GCC-12.3.0
+  - OpenMPI-4.1.5-GCC-12.3.0
+  - FlexiBLAS-3.3.1-GCC-12.3.0
+  - FFTW-3.3.10-GCC-12.3.0
+  - FFTW.MPI-3.3.10-gompi-2023a
+  - ScaLAPACK-2.2.0-gompi-2023a-fb
+Meson-1.2.3-GCCcore-13.2.0:
+  stage: Meson-1.2.3
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Meson-1.2.3-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Meson/1.2.3-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - Ninja-1.11.1-GCCcore-13.2.0
+  - GCCcore-13.2.0
+git-2.42.0-GCCcore-13.2.0:
+  stage: git-2.42.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] git-2.42.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: git/2.42.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - Autotools-20220317-GCCcore-13.2.0
+  - cURL-8.3.0-GCCcore-13.2.0
+  - expat-2.5.0-GCCcore-13.2.0
+  - gettext-0.22-GCCcore-13.2.0
+  - Perl-5.38.0-GCCcore-13.2.0
+  - OpenSSL-1.1
+  - GCCcore-13.2.0
+CMake-3.27.6-GCCcore-13.2.0:
+  stage: CMake-3.27.6
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] CMake-3.27.6-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: CMake/3.27.6-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - ncurses-6.4-GCCcore-13.2.0
+  - zlib-1.2.13-GCCcore-13.2.0
+  - bzip2-1.0.8-GCCcore-13.2.0
+  - cURL-8.3.0-GCCcore-13.2.0
+  - libarchive-3.7.2-GCCcore-13.2.0
+  - OpenSSL-1.1
+  - GCCcore-13.2.0
+Eigen-3.4.0-GCCcore-13.2.0:
+  stage: Eigen-3.4.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Eigen-3.4.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Eigen/3.4.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - CMake-3.27.6-GCCcore-13.2.0
+  - GCCcore-13.2.0
+Catch2-2.13.9-GCCcore-13.2.0:
+  stage: Catch2-2.13.9
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Catch2-2.13.9-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Catch2/2.13.9-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - CMake-3.27.6-GCCcore-13.2.0
+  - GCCcore-13.2.0
+Rust-1.73.0-GCCcore-13.2.0:
+  stage: Rust-1.73.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Rust-1.73.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Rust/1.73.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - CMake-3.27.6-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - Ninja-1.11.1-GCCcore-13.2.0
+  - pkgconf-2.0.3-GCCcore-13.2.0
+  - patchelf-0.18.0-GCCcore-13.2.0
+  - OpenSSL-1.1
+  - GCCcore-13.2.0
+CUTLASS-3.4.0-foss-2023a-CUDA-12.1.1:
+  stage: CUTLASS-3.4.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] CUTLASS-3.4.0-foss-2023a-CUDA-12.1.1.eb
+  variables:
+    EB_MODULE_NAME: CUTLASS/3.4.0-foss-2023a-CUDA-12.1.1
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - CMake-3.26.3-GCCcore-12.3.0
+  - Python-3.11.3-GCCcore-12.3.0
+  - CUDA-12.1.1
+  - cuDNN-8.9.2.26-CUDA-12.1.1
+  - foss-2023a
+FlexiBLAS-3.3.1-GCC-13.2.0:
+  stage: FlexiBLAS-3.3.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] FlexiBLAS-3.3.1-GCC-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: FlexiBLAS/3.3.1-GCC-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - CMake-3.27.6-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - BLIS-0.9.0-GCC-13.2.0
+  - OpenBLAS-0.3.24-GCC-13.2.0
+  - GCC-13.2.0
+gfbf-2023b:
+  stage: gfbf-2023b
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] gfbf-2023b.eb
+  variables:
+    EB_MODULE_NAME: gfbf/2023b
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - GCC-13.2.0
+  - FlexiBLAS-3.3.1-GCC-13.2.0
+  - FFTW-3.3.10-GCC-13.2.0
+cffi-1.15.1-GCCcore-13.2.0:
+  stage: cffi-1.15.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] cffi-1.15.1-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: cffi/1.15.1-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - GCCcore-13.2.0
+Brotli-1.1.0-GCCcore-13.3.0:
+  stage: Brotli-1.1.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Brotli-1.1.0-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: Brotli/1.1.0-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - CMake-3.29.3-GCCcore-13.3.0
+  - GCCcore-13.3.0
+cryptography-41.0.5-GCCcore-13.2.0:
+  stage: cryptography-41.0.5
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] cryptography-41.0.5-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: cryptography/41.0.5-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - pkgconf-2.0.3-GCCcore-13.2.0
+  - Rust-1.73.0-GCCcore-13.2.0
+  - hatchling-1.18.0-GCCcore-13.2.0
+  - setuptools-rust-1.8.0-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - cffi-1.15.1-GCCcore-13.2.0
+  - GCCcore-13.2.0
+freetype-2.13.2-GCCcore-13.3.0:
+  stage: freetype-2.13.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] freetype-2.13.2-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: freetype/2.13.2-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - bzip2-1.0.8-GCCcore-13.3.0
+  - libpng-1.6.43-GCCcore-13.3.0
+  - zlib-1.3.1-GCCcore-13.3.0
+  - Brotli-1.1.0-GCCcore-13.3.0
+  - GCCcore-13.3.0
+poetry-1.6.1-GCCcore-13.2.0:
+  stage: poetry-1.6.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] poetry-1.6.1-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: poetry/1.6.1-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - pkgconf-2.0.3-GCCcore-13.2.0
+  - scikit-build-0.17.6-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - hatchling-1.18.0-GCCcore-13.2.0
+  - cryptography-41.0.5-GCCcore-13.2.0
+  - virtualenv-20.24.6-GCCcore-13.2.0
+  - GCCcore-13.2.0
+fontconfig-2.15.0-GCCcore-13.3.0:
+  stage: fontconfig-2.15.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] fontconfig-2.15.0-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: fontconfig/2.15.0-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - gperf-3.1-GCCcore-13.3.0
+  - pkgconf-2.2.0-GCCcore-13.3.0
+  - Python-3.12.3-GCCcore-13.3.0
+  - expat-2.6.2-GCCcore-13.3.0
+  - freetype-2.13.2-GCCcore-13.3.0
+  - util-linux-2.40-GCCcore-13.3.0
+  - GCCcore-13.3.0
+Python-bundle-PyPI-2023.10-GCCcore-13.2.0:
+  stage: Python-bundle-PyPI-2023.10
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Python-bundle-PyPI-2023.10-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: Python-bundle-PyPI/2023.10-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - UnZip-6.0-GCCcore-13.2.0
+  - pkgconf-2.0.3-GCCcore-13.2.0
+  - git-2.42.0-GCCcore-13.2.0
+  - hatchling-1.18.0-GCCcore-13.2.0
+  - poetry-1.6.1-GCCcore-13.2.0
+  - scikit-build-0.17.6-GCCcore-13.2.0
+  - flit-3.9.0-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - cryptography-41.0.5-GCCcore-13.2.0
+  - virtualenv-20.24.6-GCCcore-13.2.0
+  - GCCcore-13.2.0
+X11-20240607-GCCcore-13.3.0:
+  stage: X11-20240607
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] X11-20240607-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: X11/20240607-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - Autotools-20231222-GCCcore-13.3.0
+  - Bison-3.8.2-GCCcore-13.3.0
+  - gettext-0.22.5-GCCcore-13.3.0
+  - pkgconf-2.2.0-GCCcore-13.3.0
+  - intltool-0.51.0-GCCcore-13.3.0
+  - Meson-1.4.0-GCCcore-13.3.0
+  - Ninja-1.12.1-GCCcore-13.3.0
+  - Doxygen-1.11.0-GCCcore-13.3.0
+  - bzip2-1.0.8-GCCcore-13.3.0
+  - fontconfig-2.15.0-GCCcore-13.3.0
+  - freetype-2.13.2-GCCcore-13.3.0
+  - zlib-1.3.1-GCCcore-13.3.0
+  - xorg-macros-1.20.1-GCCcore-13.3.0
+  - libpciaccess-0.18.1-GCCcore-13.3.0
+  - GCCcore-13.3.0
+meson-python-0.15.0-GCCcore-13.2.0:
+  stage: meson-python-0.15.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] meson-python-0.15.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: meson-python/0.15.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - Python-bundle-PyPI-2023.10-GCCcore-13.2.0
+  - Meson-1.2.3-GCCcore-13.2.0
+  - GCCcore-13.2.0
+pybind11-2.11.1-GCCcore-13.2.0:
+  stage: pybind11-2.11.1
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] pybind11-2.11.1-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: pybind11/2.11.1-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - CMake-3.27.6-GCCcore-13.2.0
+  - Eigen-3.4.0-GCCcore-13.2.0
+  - Catch2-2.13.9-GCCcore-13.2.0
+  - Python-bundle-PyPI-2023.10-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - GCCcore-13.2.0
+libdrm-2.4.122-GCCcore-13.3.0:
+  stage: libdrm-2.4.122
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] libdrm-2.4.122-GCCcore-13.3.0.eb
+  variables:
+    EB_MODULE_NAME: libdrm/2.4.122-GCCcore-13.3.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.42-GCCcore-13.3.0
+  - pkgconf-2.2.0-GCCcore-13.3.0
+  - Meson-1.4.0-GCCcore-13.3.0
+  - Ninja-1.12.1-GCCcore-13.3.0
+  - X11-20240607-GCCcore-13.3.0
+  - GCCcore-13.3.0
+hypothesis-6.90.0-GCCcore-13.2.0:
+  stage: hypothesis-6.90.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] hypothesis-6.90.0-GCCcore-13.2.0.eb
+  variables:
+    EB_MODULE_NAME: hypothesis/6.90.0-GCCcore-13.2.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - binutils-2.40-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - Python-bundle-PyPI-2023.10-GCCcore-13.2.0
+  - GCCcore-13.2.0
+Blender-4.3.2-GCCcore-13.3.0-linux-x86_64-CUDA-12.6.0:
+  stage: Blender-4.3.2
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] Blender-4.3.2-GCCcore-13.3.0-linux-x86_64-CUDA-12.6.0.eb
+  variables:
+    EB_MODULE_NAME: Blender/4.3.2-GCCcore-13.3.0-linux-x86_64-CUDA-12.6.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - CUDA-12.6.0
+  - libdrm-2.4.122-GCCcore-13.3.0
+  - GCCcore-13.3.0
+SciPy-bundle-2023.11-gfbf-2023b:
+  stage: SciPy-bundle-2023.11
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] SciPy-bundle-2023.11-gfbf-2023b.eb
+  variables:
+    EB_MODULE_NAME: SciPy-bundle/2023.11-gfbf-2023b
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - hypothesis-6.90.0-GCCcore-13.2.0
+  - UnZip-6.0-GCCcore-13.2.0
+  - Meson-1.2.3-GCCcore-13.2.0
+  - meson-python-0.15.0-GCCcore-13.2.0
+  - Ninja-1.11.1-GCCcore-13.2.0
+  - pkgconf-2.0.3-GCCcore-13.2.0
+  - Cython-3.0.10-GCCcore-13.2.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - Python-bundle-PyPI-2023.10-GCCcore-13.2.0
+  - pybind11-2.11.1-GCCcore-13.2.0
+  - gfbf-2023b
+CUDA-Python-12.4.0-gfbf-2023b-CUDA-12.4.0:
+  stage: CUDA-Python-12.4.0
+  script:
+  - eb --installpath=/bigdata/rz/sudhar46/eb_hopper_test/hopper --installpath-modules=/bigdata/rz/sudhar46/eb_hopper_test/hopper/modules
+    --buildpath=/tmp/ebbuild --sourcepath=/data/rosi/shared/eb/easybuild_source --tmp-logdir=/tmp/eblog --robot --force --insecure-download
+    --disable-mpi-tests --skip-test-step --skip-test-cases --detect-loaded-modules=warn --accept-eula-for=['Intel-oneAPI',
+    'CUDA', 'NVHPC', 'cuDNN'] CUDA-Python-12.4.0-gfbf-2023b-CUDA-12.4.0.eb
+  variables:
+    EB_MODULE_NAME: CUDA-Python/12.4.0-gfbf-2023b-CUDA-12.4.0
+    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+  artifacts:
+    when: always
+    paths:
+    - /tmp/eblog/*.log
+    expire_in: 1 week
+  needs:
+  - CUDA-12.4.0
+  - Python-3.11.5-GCCcore-13.2.0
+  - SciPy-bundle-2023.11-gfbf-2023b
+  - gfbf-2023b
+default:
+  before_script:
+  - ml python && source /data/rosi/shared/eb/easybuild_environments/rome/eb_env/bin/activate
+  - ml purge
+  - 'echo "Starting EasyBuild job: $CI_JOB_NAME"'
+  after_script:
+  - echo "Cleaning up temporary files"
+  - rm -rf /tmp/eblog || true
+  - rm -rf /tmp/ebbuild || true
+  - 'echo "Job completed: $CI_JOB_NAME"'
+  tags:
+  - rosi-admin-slurm
+  id_tokens:
+    CI_JOB_JWT:
+      aud: https://codebase.helmholtz.cloud
+  retry:
+    max: 2
+    when:
+    - runner_system_failure
+    - stuck_or_timeout_failure
+    - job_execution_timeout

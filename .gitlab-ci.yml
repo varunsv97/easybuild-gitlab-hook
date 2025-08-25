@@ -8,15 +8,14 @@ stages:
 variables:
   # EasyBuild configuration
   patheb: "/bigdata/rz/sudhar46/eb_hopper_test"
-  architecture_rosi: "hopper"
   GITLAB_CI_GENERATE: "1"
+  DRYRUN: "true"  # Set to "true" for dry run, "false" or unset for actual builds
   
   # GPU-specific configuration
-  SBATCH_PARTITION: "gpu-h100"
   CUDA_COMPUTE_CAPABILITIES: "9.0"
   
   # Jacamar CI Batch configuration
-  SCHEDULER_PARAMETERS: "--partition=gpu-h100 --gres=gpu:1"
+  SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=gpu-h100 --gres=gpu:1"
 
 # Default configuration for all jobs
 default:
@@ -39,8 +38,8 @@ generate_gpu_pipeline:
     - ls -la gitlab_hook.py || echo "Hook file NOT FOUND"
     - |
       eb --hooks=gitlab_hook.py \
-         --installpath=${patheb}/${architecture_rosi} \
-         --installpath-modules=${patheb}/${architecture_rosi}/modules \
+         --installpath=${patheb}/hopper \
+         --installpath-modules=${patheb}/hopper/modules \
          --tmp-logdir=/tmp/eblog \
          --buildpath=/tmp/ebbuild \
          --sourcepath=/data/rosi/shared/eb/easybuild_source \
@@ -76,7 +75,5 @@ execute_gpu_builds:
   variables:
     # Pass variables to child pipeline
     patheb: $patheb
-    architecture_rosi: $architecture_rosi
-    SBATCH_PARTITION: $SBATCH_PARTITION
     CUDA_COMPUTE_CAPABILITIES: $CUDA_COMPUTE_CAPABILITIES
     SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS

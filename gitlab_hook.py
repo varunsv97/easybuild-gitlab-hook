@@ -370,11 +370,14 @@ def _generate_gitlab_pipeline():
         'variables': {
             # Essential EasyBuild variables
             'EASYBUILD_MODULES_TOOL': 'Lmod',
-            # Inherit Jacamar CI Batch parameters
-            'SCHEDULER_PARAMETERS': '$SCHEDULER_PARAMETERS',
-            # Preserve architecture and path variables if set
-            'patheb': '${patheb:-/tmp/easybuild}',
-            'architecture_rosi': '${architecture_rosi:-x86_64}',
+            # Read scheduler parameters from environment
+            'SCHEDULER_PARAMETERS': os.environ.get('SCHEDULER_PARAMETERS', '$SCHEDULER_PARAMETERS'),
+            # Preserve path variables if set
+            'patheb': os.environ.get('patheb', '$patheb'),
+            # GPU configuration
+            'CUDA_COMPUTE_CAPABILITIES': os.environ.get('CUDA_COMPUTE_CAPABILITIES', '9.0'),
+            # Dry run option
+            'DRYRUN': os.environ.get('DRYRUN', '$DRYRUN'),
         },
     }
     
@@ -387,11 +390,21 @@ def _generate_gitlab_pipeline():
         sanitized_name = _sanitize_job_name(module_name)
         pipeline[sanitized_name] = job_yaml
         
+        log.debug("[GitLab CI Hook] Created job '%s' for module '%s'", sanitized_name, module_name)
+        
         # Add dependencies
         deps = JOB_DEPENDENCIES.get(module_name, [])
         if deps:
             # Only include dependencies that are being built in this pipeline
-            pipeline_deps = [_sanitize_job_name(dep) for dep in deps if dep in PIPELINE_JOBS]
+            # Filter out dependencies that don't exist in PIPELINE_JOBS
+            pipeline_deps = []
+            for dep in deps:
+                if dep in PIPELINE_JOBS:
+                    sanitized_dep = _sanitize_job_name(dep)
+                    pipeline_deps.append(sanitized_dep)
+                else:
+                    log.debug("[GitLab CI Hook] Skipping dependency '%s' for job '%s' - not in pipeline", dep, module_name)
+            
             if pipeline_deps:
                 pipeline[sanitized_name]['needs'] = pipeline_deps
     
@@ -405,6 +418,8 @@ def _generate_gitlab_pipeline():
     write_file(pipeline_file, pipeline_yaml)
     
     log.info("[GitLab CI Hook] Generated GitLab CI pipeline: %s", pipeline_file)
+    log.info("[GitLab CI Hook] Pipeline contains %d jobs with %d total dependencies", 
+             len(PIPELINE_JOBS), sum(len(deps) for deps in JOB_DEPENDENCIES.values()))
     
     # Generate summary
     _generate_pipeline_summary(pipeline_file, job_stages)
@@ -452,6 +467,10 @@ def _create_gitlab_job(job_info, stage_name):
     if build_option('detect_loaded_modules'):
         eb_command += f' --detect-loaded-modules={build_option("detect_loaded_modules")}'
     
+    # Add dry-run option only if DRYRUN variable is set to true
+    if os.environ.get('DRYRUN', '').lower() in ['1', 'true', 'yes']:
+        eb_command += ' --dry-run'
+    
     # Add EULA acceptance
     accept_eula = build_option('accept_eula_for')
     if accept_eula:
@@ -468,7 +487,7 @@ def _create_gitlab_job(job_info, stage_name):
         ],
         'variables': {
             'EB_MODULE_NAME': job_info['module'],
-            'SCHEDULER_PARAMETERS': '$SCHEDULER_PARAMETERS',
+            'SCHEDULER_PARAMETERS': os.environ.get('SCHEDULER_PARAMETERS', '$SCHEDULER_PARAMETERS'),
         },
         'artifacts': {
             'when': 'always',
