@@ -287,7 +287,7 @@ def _process_easyconfigs_for_jobs(easyconfigs):
                 'module': module_name,
                 'easyconfig_path': spec,
                 'dependencies': dep_mod_names,  # All deps for reference
-                'job_dependencies': job_deps   # Only deps being built in this pipeline
+                'job_dependencies': job_deps,   # Only deps being built in this pipeline
                 'toolchain': ec.toolchain,
                 'version': ec.version,
                 'cores': build_option('job_cores') or 1,
