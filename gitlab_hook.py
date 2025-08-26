@@ -295,7 +295,7 @@ def _generate_gitlab_pipeline():
                 log.streamInfo(f"[GitLab CI Hook] Job '{sanitized_name}' has no pipeline dependencies")
 
     # Write pipeline file
-    output_dir = os.environ.get('CI_PROJECT_DIR')
+    output_dir = os.environ.get('CI_PROJECT_DIR', os.getcwd())
     mkdir(output_dir, parents=True)
     
     pipeline_file = os.path.join(output_dir, 'easybuild-child-pipeline.yml')

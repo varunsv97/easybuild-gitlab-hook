@@ -29,17 +29,27 @@ generate_pipeline:
     - echo "GITLAB_CI_GENERATE=$GITLAB_CI_GENERATE"
     - echo "Current directory is $(pwd)"
     - ls -la gitlab_hook.py || echo "Hook file NOT FOUND"
-    - reframe -C configs/rosi.py -c install.py -v -r
-    - echo "Injecting default configuration into pipeline"
-    - pwd
-    - ls -la *.yml || echo "No .yml files found"
-    - ls -la easybuild-child-pipeline.yml || echo "easybuild-child-pipeline.yml not found"
+    - |
+      eb --hooks=gitlab_hook.py \
+         --installpath=${EB_PATH}/${ARCH} \
+         --installpath-modules=${EB_PATH}/${ARCH}/modules \
+         --tmp-logdir=eblog \
+         --buildpath=ebbuild \
+         --sourcepath=/data/rosi/shared/eb/easybuild_source \
+         --cuda-compute-capabilities=9.0 \
+         --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
+         --ignore-checksums \
+         --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
+         --trace \
+        NVHPC-25.3-CUDA-12.8.0.eb
     - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
+
+
   artifacts:
     paths:
-      -  ${CI_PROJECT_DIR}/easybuild-child-pipeline.yml
+      -  easybuild-child-pipeline.yml
     expire_in: 1 week
 
 execute_builds:
