@@ -45,9 +45,6 @@ PIPELINE_JOBS = {}
 JOB_DEPENDENCIES = {}
 GITLAB_CONFIG = {}
 
-# Setup EasyBuild configuration
-set_up_configuration()
-
 def start_hook(*args, **kwargs):
     """Initialize GitLab CI pipeline generation."""
     global PIPELINE_JOBS, JOB_DEPENDENCIES, GITLAB_CONFIG
@@ -313,44 +310,6 @@ def _process_easyconfigs_for_jobs(easyconfigs):
     print(f"*** Finished processing - created {len(PIPELINE_JOBS)} jobs ***")
     log.info("[GitLab CI Hook] Processed %d easyconfigs for GitLab CI jobs", len(PIPELINE_JOBS))
 
-
-#def _calculate_job_stages():
-#    """Calculate pipeline stages based on dependency depth."""
-#    log = fancylogger.getLogger('gitlab_hook', fname=False)
-#    
-#    stages = {}
-#    visited = set()
-#    
-#    def get_stage(module_name):
-#        if module_name in visited:
-#            return stages.get(module_name, 0)
-#        
-#        visited.add(module_name)
-#        
-#        # If no dependencies, it's stage 0
-#        deps = JOB_DEPENDENCIES.get(module_name, [])
-#        if not deps:
-#            stages[module_name] = 0
-#            return 0
-#        
-#        # Calculate max dependency stage + 1
-#        max_dep_stage = 0
-#        for dep in deps:
-#            if dep in PIPELINE_JOBS:  # Only consider deps that are being built
-#                dep_stage = get_stage(dep)
-#               max_dep_stage = max(max_dep_stage, dep_stage)
-#
-#        stages[module_name] = max_dep_stage + 1
-#        return stages[module_name]
-#
-#    # Calculate stages for all jobs
-#    for module_name in PIPELINE_JOBS:
-#        get_stage(module_name)
-#    
-#    log.info("[GitLab CI Hook] Calculated stages for %d jobs (max stage: %d)", 
-#             len(stages), max(stages.values()) if stages else 0)
-#
-#   return stages
 
 
 def _generate_gitlab_pipeline():
