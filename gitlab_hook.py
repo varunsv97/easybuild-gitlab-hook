@@ -18,6 +18,9 @@ PIPELINE_JOBS = {}
 JOB_DEPENDENCIES = {}
 GITLAB_CONFIG = {}
 
+# Setup EasyBuild configuration
+set_up_configuration()
+
 
 def start_hook(*args, **kwargs):
     """Initialize GitLab CI pipeline generation."""
