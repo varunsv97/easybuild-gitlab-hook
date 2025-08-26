@@ -48,8 +48,6 @@ def start_hook(*args, **kwargs):
         'server_url': os.environ.get('CI_SERVER_URL', 'https://gitlab.com'),
     }
     
-    log.streamInfo("[GitLab CI Hook] GitLab environment detected: %s", 
-             'Yes' if os.environ.get('GITLAB_CI') else 'No')
 
 
 def parse_hook(ec_dict):
@@ -62,8 +60,6 @@ def parse_hook(ec_dict):
         PARSED_ECS = []
     
     PARSED_ECS.append(ec_dict)
-    log.streamDebug("[GitLab CI Hook] Collected easyconfig: %s", ec_dict.get('spec', 'unknown'))
-    
     return ec_dict
 
 
@@ -88,7 +84,7 @@ def post_ready_hook(ec, *args, **kwargs):
     }
     
     READY_ECS.append(ec_info)
-    log.streamDebug("[GitLab CI Hook] Collected ready easyconfig: %s-%s", ec.name, ec.version)
+    log.streamDebug(f"[GitLab CI Hook] Collected ready easyconfig: {ec.name}-{ec.version}")
 
 
 def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
@@ -98,21 +94,21 @@ def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
     # Debug logging
     print("*** PRE_BUILD_AND_INSTALL_LOOP_HOOK CALLED ***")
     print(f"*** Received {len(ecs)} easyconfigs ***")
-    log.streamInfo("[GitLab CI Hook] pre_build_and_install_loop_hook called with %d easyconfigs", len(ecs))
+    log.streamInfo(f"[GitLab CI Hook] pre_build_and_install_loop_hook called with {len(ecs)} easyconfigs")
 
     print("*** GitLab CI mode enabled - proceeding ***")
-    log.streamInfo("[GitLab CI Hook] Processing %d easyconfigs for GitLab CI pipeline generation", len(ecs))
-    
+    log.streamInfo(f"[GitLab CI Hook] Processing {len(ecs)} easyconfigs for GitLab CI pipeline generation")
+
     try:
         # Use the ready easyconfigs if available, otherwise use the provided ones
         global READY_ECS
         if 'READY_ECS' in globals() and READY_ECS:
             print(f"*** Using {len(READY_ECS)} ready easyconfigs ***")
-            log.streamInfo("[GitLab CI Hook] Using %d ready easyconfigs from post_ready_hook", len(READY_ECS))
+            log.streamInfo(f"[GitLab CI Hook] Using {len(READY_ECS)} ready easyconfigs from post_ready_hook")
             _process_easyconfigs_for_jobs(READY_ECS)
         else:
             print(f"*** Using {len(ecs)} provided easyconfigs ***")
-            log.streamInfo("[GitLab CI Hook] Using %d easyconfigs from pre_build_and_install_loop_hook", len(ecs))
+            log.streamInfo(f"[GitLab CI Hook] Using {len(ecs)} easyconfigs from pre_build_and_install_loop_hook")
             _process_easyconfigs_for_jobs(ecs)
         
         print("*** Processing complete - generating pipeline ***")
@@ -129,7 +125,7 @@ def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
         raise
     except Exception as e:
         print(f"*** streamError(in hook: {e} ***")
-        log.streamError("[GitLab CI Hook] streamError(in pre_build_and_install_loop_hook: %s", e)
+        log.streamError(f"[GitLab CI Hook] streamError(in pre_build_and_install_loop_hook: {e}")
         import traceback
         traceback.print_exc()
         raise
@@ -148,7 +144,7 @@ def _process_easyconfigs_for_jobs(easyconfigs):
     # Keep track of which job builds which module (like SLURM backend)
     module_to_job = {}
     
-    log.streamInfo("[GitLab CI Hook] Processing %d easyconfigs", len(easyconfigs))
+    log.streamInfo(f"[GitLab CI Hook] Processing {len(easyconfigs)} easyconfigs")
     
     # Process each easyconfig linearly
     for i, easyconfig in enumerate(easyconfigs):
@@ -186,7 +182,7 @@ def _process_easyconfigs_for_jobs(easyconfigs):
             try:
                 module_name = ActiveMNS().det_full_module_name(ec)
             except Exception as err:
-                log.streamInfo("Could not determine module name for %s: %s", spec, err)
+                log.streamInfo(f"Could not determine module name for {spec}: {err}")
                 continue
             
             # Use the same dependency logic as EasyBuild's SLURM backend
@@ -207,12 +203,12 @@ def _process_easyconfigs_for_jobs(easyconfigs):
                     if dep_mod_name in module_to_job:
                         # Store the dependency module name (not job name) for consistency with PIPELINE_JOBS keys
                         job_deps.append(dep_mod_name)
-                        log.streamDebug("[GitLab CI Hook] Added dependency to job '%s': %s", easyconfig_name, dep_mod_name)
+                        log.streamDebug(f"[GitLab CI Hook] Added dependency to job '{easyconfig_name}': {dep_mod_name}")
                     else:
-                        log.streamDebug("[GitLab CI Hook] Skipped dependency for job '%s' (not in pipeline): %s", easyconfig_name, dep_mod_name)
+                        log.streamDebug(f"[GitLab CI Hook] Skipped dependency for job '{easyconfig_name}' (not in pipeline): {dep_mod_name}")
                 except Exception as err:
-                    log.streamInfo("Could not determine module name for dependency %s: %s", dep, err)
-            
+                    log.streamInfo(f"Could not determine module name for dependency {dep}: {err}")
+
             # Create job entry
             job_info = {
                 'name': easyconfig_name,
@@ -229,18 +225,17 @@ def _process_easyconfigs_for_jobs(easyconfigs):
             
             # Update module-to-job mapping (like SLURM backend)
             module_to_job[module_name] = job_info
-            
-            log.streamInfo("[GitLab CI Hook] Added job '%s' (%s) with %d total deps, %d pipeline deps: %s", 
-                     module_name, easyconfig_name, len(dep_mod_names), len(job_deps), job_deps)
-        
+
+            log.streamInfo(f"[GitLab CI Hook] Added job '{module_name}' ({easyconfig_name}) with {len(dep_mod_names)} total deps, {len(job_deps)} pipeline deps: {job_deps}")
+
         except Exception as err:
-            log.streamError("[GitLab CI Hook] streamError(processing easyconfig %d: %s", i, err)
-            log.streamError("[GitLab CI Hook] Easyconfig type: %s", type(easyconfig))
+            log.streamError(f"[GitLab CI Hook] streamError(processing easyconfig {i}: {err}")
+            log.streamError(f"[GitLab CI Hook] Easyconfig type: {type(easyconfig)}")
             if isinstance(easyconfig, dict):
-                log.streamError("[GitLab CI Hook] Easyconfig keys: %s", list(easyconfig.keys()))
+                log.streamError(f"[GitLab CI Hook] Easyconfig keys: {list(easyconfig.keys())}")
             continue
-    
-    log.streamInfo("[GitLab CI Hook] Processed %d easyconfigs for GitLab CI jobs", len(PIPELINE_JOBS))
+
+    log.streamInfo(f"[GitLab CI Hook] Processed {len(PIPELINE_JOBS)} easyconfigs for GitLab CI jobs")
 
 
 def _generate_gitlab_pipeline():
@@ -272,12 +267,12 @@ def _generate_gitlab_pipeline():
         job_yaml['stage'] = 'build'
         pipeline[sanitized_name] = job_yaml
 
-        log.streamDebug("[GitLab CI Hook] Created job '%s' for module '%s'", sanitized_name, module_name)
+        log.streamDebug(f"[GitLab CI Hook] Created job '{sanitized_name}' for module '{module_name}'")
 
         # Add dependencies
         deps = JOB_DEPENDENCIES.get(module_name, [])
-        log.streamDebug("[GitLab CI Hook] Job '%s' has %d dependencies: %s", module_name, len(deps), deps)
-        log.streamDebug("[GitLab CI Hook] Available jobs in pipeline: %s", list(pipeline.keys()))
+        log.streamDebug(f"[GitLab CI Hook] Job '{module_name}' has {len(deps)} dependencies: {deps}")
+        log.streamDebug(f"[GitLab CI Hook] Available jobs in pipeline: {list(pipeline.keys())}")
 
         if deps:
             pipeline_deps = []
@@ -285,15 +280,15 @@ def _generate_gitlab_pipeline():
                 sanitized_dep = _sanitize_job_name(dep)
                 if sanitized_dep in pipeline:
                     pipeline_deps.append(sanitized_dep)
-                    log.streamDebug("[GitLab CI Hook] ✓ Added dependency '%s' -> '%s' for job '%s'", dep, sanitized_dep, module_name)
+                    log.streamDebug(f"[GitLab CI Hook] ✓ Added dependency '{dep}' -> '{sanitized_dep}' for job '{module_name}'")
                 else:
-                    log.streamDebug("[GitLab CI Hook] ✗ Skipping dependency '%s' for job '%s' - not in pipeline", dep, module_name)
+                    log.streamDebug(f"[GitLab CI Hook] ✗ Skipping dependency '{dep}' for job '{module_name}' - not in pipeline")
             if pipeline_deps:
                 pipeline[sanitized_name]['needs'] = pipeline_deps
-                log.streamInfo("[GitLab CI Hook] Job '%s' needs: %s", sanitized_name, pipeline_deps)
+                log.streamInfo(f"[GitLab CI Hook] Job '{sanitized_name}' needs: {pipeline_deps}")
             else:
-                log.streamInfo("[GitLab CI Hook] Job '%s' has no pipeline dependencies", sanitized_name)
-    
+                log.streamInfo(f"[GitLab CI Hook] Job '{sanitized_name}' has no pipeline dependencies")
+
     # Write pipeline file
     output_dir = os.environ.get('CI_PROJECT_DIR')
     mkdir(output_dir, parents=True)
@@ -302,10 +297,9 @@ def _generate_gitlab_pipeline():
     pipeline_yaml = yaml.dump(pipeline, default_flow_style=False, width=120, sort_keys=False)
 
     write_file(pipeline_file, pipeline_yaml)
-    
-    log.streamInfo("[GitLab CI Hook] Generated GitLab CI pipeline: %s", pipeline_file)
-    log.streamInfo("[GitLab CI Hook] Pipeline contains %d jobs with %d total dependencies", 
-             len(PIPELINE_JOBS), sum(len(deps) for deps in JOB_DEPENDENCIES.values()))
+
+    log.streamInfo(f"[GitLab CI Hook] Generated GitLab CI pipeline: {pipeline_file}")
+    log.streamInfo(f"[GitLab CI Hook] Pipeline contains {len(PIPELINE_JOBS)} jobs with {sum(len(deps) for deps in JOB_DEPENDENCIES.values())} total dependencies")
     # Generate summary
     _generate_pipeline_summary(pipeline_file)
 
