@@ -79,20 +79,6 @@ def inject_pipeline_metadata(data):
     
     # Add global variables if not present
     variables = data.get('variables', {})
-    
-    # Add Hopper-specific variables
-    hopper_vars = {
-        'patheb': '/data/rosi/shared/eb',
-        'architecture_rosi': 'hopper',
-        'SBATCH_PARTITION': 'gpu-h100',
-        'CUDA_COMPUTE_CAPABILITIES': '9.0',
-        # Note: EASYBUILD_CUDA_COMPUTE_CAPABILITIES will be set via command line options
-    }
-    
-    for key, value in hopper_vars.items():
-        if key not in variables:
-            variables[key] = value
-    
     data['variables'] = variables
 
 

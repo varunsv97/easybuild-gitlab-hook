@@ -3,9 +3,7 @@ GitLab CI Hook for EasyBuild
 
 This hook generates GitLab CI child pipelines with job dependencies instead of 
 submitting to SLURM directly. It works exactly like the SLURM backend but creates
-
-a hierarchical pipeline structure with dependent jobs, enabling more efficient
-execution of EasyBuild jobs on the Jacamar CI Batch infrastructure.
+GitLab CI jobs that run via Jacamar CI Batch.
 
 Usage:
   # Enable GitLab CI generation and set environment variable
@@ -30,15 +28,12 @@ Author: Custom GitLab CI Integration
 import os
 import sys
 import yaml
-import json
-from collections import defaultdict, deque
-
 from easybuild.base import fancylogger
-from easybuild.tools.build_log import EasyBuildError, print_msg
+from easybuild.tools.build_log import print_msg
 from easybuild.tools.config import build_option
 from easybuild.tools.filetools import write_file, mkdir
 from easybuild.framework.easyconfig.easyconfig import ActiveMNS
-from easybuild.tools.module_naming_scheme.utilities import det_full_ec_version
+
 
 # Print a message when the hook module is loaded
 print("*** GITLAB HOOK LOADED ***")
@@ -316,43 +311,43 @@ def _process_easyconfigs_for_jobs(easyconfigs):
     log.info("[GitLab CI Hook] Processed %d easyconfigs for GitLab CI jobs", len(PIPELINE_JOBS))
 
 
-def _calculate_job_stages():
-    """Calculate pipeline stages based on dependency depth."""
-    log = fancylogger.getLogger('gitlab_hook', fname=False)
-    
-    stages = {}
-    visited = set()
-    
-    def get_stage(module_name):
-        if module_name in visited:
-            return stages.get(module_name, 0)
-        
-        visited.add(module_name)
-        
-        # If no dependencies, it's stage 0
-        deps = JOB_DEPENDENCIES.get(module_name, [])
-        if not deps:
-            stages[module_name] = 0
-            return 0
-        
-        # Calculate max dependency stage + 1
-        max_dep_stage = 0
-        for dep in deps:
-            if dep in PIPELINE_JOBS:  # Only consider deps that are being built
-                dep_stage = get_stage(dep)
-                max_dep_stage = max(max_dep_stage, dep_stage)
-        
-        stages[module_name] = max_dep_stage + 1
-        return stages[module_name]
-    
-    # Calculate stages for all jobs
-    for module_name in PIPELINE_JOBS:
-        get_stage(module_name)
-    
-    log.info("[GitLab CI Hook] Calculated stages for %d jobs (max stage: %d)", 
-             len(stages), max(stages.values()) if stages else 0)
-    
-    return stages
+#def _calculate_job_stages():
+#    """Calculate pipeline stages based on dependency depth."""
+#    log = fancylogger.getLogger('gitlab_hook', fname=False)
+#    
+#    stages = {}
+#    visited = set()
+#    
+#    def get_stage(module_name):
+#        if module_name in visited:
+#            return stages.get(module_name, 0)
+#        
+#        visited.add(module_name)
+#        
+#        # If no dependencies, it's stage 0
+#        deps = JOB_DEPENDENCIES.get(module_name, [])
+#        if not deps:
+#            stages[module_name] = 0
+#            return 0
+#        
+#        # Calculate max dependency stage + 1
+#        max_dep_stage = 0
+#        for dep in deps:
+#            if dep in PIPELINE_JOBS:  # Only consider deps that are being built
+#                dep_stage = get_stage(dep)
+#               max_dep_stage = max(max_dep_stage, dep_stage)
+#
+#        stages[module_name] = max_dep_stage + 1
+#        return stages[module_name]
+#
+#    # Calculate stages for all jobs
+#    for module_name in PIPELINE_JOBS:
+#        get_stage(module_name)
+#    
+#    log.info("[GitLab CI Hook] Calculated stages for %d jobs (max stage: %d)", 
+#             len(stages), max(stages.values()) if stages else 0)
+#
+#   return stages
 
 
 def _generate_gitlab_pipeline():
@@ -416,7 +411,7 @@ def _generate_gitlab_pipeline():
     
     pipeline_file = os.path.join(output_dir, 'easybuild-child-pipeline.yml')
     pipeline_yaml = yaml.dump(pipeline, default_flow_style=False, width=120, sort_keys=False)
-    
+
     write_file(pipeline_file, pipeline_yaml)
     
     log.info("[GitLab CI Hook] Generated GitLab CI pipeline: %s", pipeline_file)
@@ -498,7 +493,7 @@ def _create_gitlab_job(job_info, stage_name):
     job = {
         'stage': stage_name,
         'script': [
-            eb_command
+            eb_comman
         ],
         'variables': {
             'EB_MODULE_NAME': job_info['module'],
