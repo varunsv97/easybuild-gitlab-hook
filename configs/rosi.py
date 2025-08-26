@@ -128,6 +128,10 @@ site_configuration = {
         {
             'name': 'easybuild',
             'features': ['easybuild'],
+            'prepare_cmds': [
+                'module load python',
+                'source /data/rosi/shared/eb/easybuild_environments/rome/eb_env/bin/activate'
+            ]
         },
         
     ],

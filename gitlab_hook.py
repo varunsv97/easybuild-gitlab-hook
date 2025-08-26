@@ -5,6 +5,7 @@ from easybuild.tools.build_log import print_msg
 from easybuild.tools.config import build_option
 from easybuild.tools.filetools import write_file, mkdir
 from easybuild.framework.easyconfig.easyconfig import ActiveMNS
+from easybuild.tools.options import set_up_configuration
 
 
 # Print a message when the hook module is loaded
@@ -16,6 +17,10 @@ log.streamInfo("GitLab CI Hook module loaded successfully")
 PIPELINE_JOBS = {}
 JOB_DEPENDENCIES = {}
 GITLAB_CONFIG = {}
+
+# Setup EasyBuild configuration
+set_up_configuration()
+
 
 def start_hook(*args, **kwargs):
     """Initialize GitLab CI pipeline generation."""
