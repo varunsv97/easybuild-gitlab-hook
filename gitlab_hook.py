@@ -455,7 +455,7 @@ def _create_gitlab_job(job_info, stage_name):
     job = {
         'stage': stage_name,
         'script': [
-            eb_comman
+            eb_command
         ],
         'variables': {
             'EB_MODULE_NAME': job_info['module'],
