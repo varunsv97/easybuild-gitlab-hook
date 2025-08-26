@@ -1,34 +1,24 @@
-# GitLab CI configuration for EasyBuild GPU package builds
-# This pipeline generates and executes child pipelines for GPU-accelerated software
-
 stages:
   - generate
   - build
 
 variables:
-  # EasyBuild configuration
-  patheb: "/bigdata/rz/sudhar46/eb_hopper_test"
+  EB_PATH: "/bigdata/rz/rosi_easybuild"
+  EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   GITLAB_CI_GENERATE: "1"
-  DRYRUN: "false"  # Set to "true" for dry run, "false" or unset for actual builds
-  
-  # GPU-specific configuration
-  CUDA_COMPUTE_CAPABILITIES: "9.0"
-  
-  # Jacamar CI Batch configuration
-  SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=gpu-h100 --gres=gpu:1"
+  ARCH: 'ampere'
+  SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=gpu-a100 --gres=gpu:1"
 
-# Default configuration for all jobs
 default:
   tags: ['rosi-admin-shell']
   before_script:
     - ml python
-    - source /data/rosi/shared/eb/easybuild_environments/rome/eb_env/bin/activate
+    - source $EB_SOURCE/bin/activate
   id_tokens:
     CI_JOB_JWT:
       aud: "https://codebase.helmholtz.cloud"
 
-# Generate EasyBuild pipeline for GPU packages
-generate_gpu_pipeline:
+generate_pipeline:
   stage: generate
   script:
     - echo "Generating EasyBuild GitLab CI pipeline for GPU packages"
@@ -36,21 +26,7 @@ generate_gpu_pipeline:
     - echo "GITLAB_CI_GENERATE=$GITLAB_CI_GENERATE"
     - echo "Current directory is $(pwd)"
     - ls -la gitlab_hook.py || echo "Hook file NOT FOUND"
-    - |
-      eb --hooks=gitlab_hook.py \
-         --installpath=${patheb}/hopper \
-         --installpath-modules=${patheb}/hopper/modules \
-         --tmp-logdir=eblog \
-         --buildpath=ebbuild \
-         --sourcepath=/data/rosi/shared/eb/easybuild_source \
-         --cuda-compute-capabilities=9.0 \
-         --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
-         --ignore-checksums \
-         --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
-         --trace \
-         CUDA-12.4.0.eb \
-         CUDA-12.6.0.eb \
-         CUDA-12.8.0.eb
+    - reframe -C configs/rosi.py -c install.py -v -r
     - echo "Injecting default configuration into pipeline"
     - pwd
     - ls -la *.yml || echo "No .yml files found"
@@ -60,20 +36,17 @@ generate_gpu_pipeline:
     - cat easybuild-child-pipeline.yml
   artifacts:
     paths:
-      - easybuild-child-pipeline.yml
+      -  ${CI_PROJECT_DIR}/easybuild-child-pipeline.yml
     expire_in: 1 week
 
-# Execute the generated EasyBuild pipeline
-execute_gpu_builds:
+execute_builds:
   stage: build
   trigger:
     include:
-      - artifact: easybuild-child-pipeline.yml
-        job: generate_gpu_pipeline
+      - artifact:  ${CI_PROJECT_DIR}/easybuild-child-pipeline.yml
+        job: generate_pipeline
     strategy: depend
   variables:
-    # Pass variables to child pipeline
-    patheb: $patheb
+    EB_PATH: $EB_PATH
     CUDA_COMPUTE_CAPABILITIES: $CUDA_COMPUTE_CAPABILITIES
     SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
-    DRYRUN: $DRYRUN
