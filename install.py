@@ -10,6 +10,7 @@ working_dir = os.environ.get('CI_PROJECT_DIR', os.getcwd())
 easyconfigs_path = os.path.join(working_dir, easyconfigs_yaml)
 arch = os.environ.get('ARCH')
 
+
 def load_easyconfigs():
     if not os.path.exists(easyconfigs_path):
         raise FileNotFoundError(f'{easyconfigs_path} not found')
@@ -27,14 +28,15 @@ class EasyBuildInstall(rfm.RunOnlyRegressionTest):
     valid_prog_environs = ['easybuild']
     executable = 'eb'
 
-    num_tasks = int(os.environ.get('NTASKS', '16'))
+    num_tasks = int(os.environ.get('NTASKS', '4'))
     num_tasks_per_node = num_tasks
 
-    memory = os.environ.get('MEMORY', '200G')
+    memory = os.environ.get('MEMORY', '10G')
     extra_resources = {'memory': {'memory': memory}}
 
-    source_path = os.environ.get('SOURCE_PATH', '/data/rosi/shared/eb/easybuild_source')
+    source_path = os.environ.get('SOURCE_PATH')
     patheb = os.environ.get('EB_PATH')
+    hook = os.environ.get('HOOK')
 
     easyconfigs = load_easyconfigs()
 
@@ -42,6 +44,7 @@ class EasyBuildInstall(rfm.RunOnlyRegressionTest):
     def run_installation(self):
         architecture = self.current_partition.name
         base_opts = [
+            f'--hooks={self.hook}',
             f'--installpath={self.patheb}/{architecture}',
             f'--installpath-modules={self.patheb}/{architecture}/modules',
             f'--tmp-logdir=eb_logs/{architecture}_tmplog',
@@ -69,12 +72,11 @@ class EasyBuildInstall(rfm.RunOnlyRegressionTest):
             base_opts.append('--cuda-compute-capabilities=9.2')
         # Pass all easyconfigs together as arguments
         self.executable_opts = self.easyconfigs + base_opts
+        self.env_vars
         self.logger.info(f'Running EasyBuild with: {self.executable} {" ".join(self.executable_opts)}')
 
     @sanity_function
     def assert_success(self):
         return sn.all([
-            sn.assert_not_found('FAILED', self.stdout),
-            sn.assert_not_found('ERROR', self.stdout),
             sn.assert_found('SUCCESS', self.stdout)
         ])

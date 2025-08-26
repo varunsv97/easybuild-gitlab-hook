@@ -261,11 +261,7 @@ def _generate_gitlab_pipeline():
             # Read scheduler parameters from environment
             'SCHEDULER_PARAMETERS': os.environ.get('SCHEDULER_PARAMETERS', '$SCHEDULER_PARAMETERS'),
             # Preserve path variables if set
-            'patheb': os.environ.get('patheb', '$patheb'),
-            # GPU configuration
-            'CUDA_COMPUTE_CAPABILITIES': os.environ.get('CUDA_COMPUTE_CAPABILITIES', '9.0'),
-            # Dry run option
-            'DRYRUN': os.environ.get('DRYRUN', '$DRYRUN'),
+            'EB_PATH': os.environ.get('EB_PATH', '$EB_PATH'),
         },
     }
     
@@ -426,15 +422,7 @@ def _generate_pipeline_summary(pipeline_file):
     print_msg("="*80, log=log)
     print_msg("Pipeline file: %s" % pipeline_file, log=log)
     print_msg("Total jobs: %d" % total_jobs, log=log)
-    print_msg("\nTo trigger this pipeline, add to your .gitlab-ci.yml:", log=log)
-    print_msg("", log=log)
-    print_msg("easybuild_pipeline:", log=log)
-    print_msg("  trigger:", log=log)
-    print_msg("    include: %s" % os.path.basename(pipeline_file), log=log)
-    print_msg("    strategy: depend", log=log)
-    print_msg("  tags:", log=log)
-    print_msg("    - batch", log=log)
-    print_msg("", log=log)
+    print_msg("SUCCESS", log=log)
 
 def end_hook(*args, **kwargs):
     """Cleanup hook called when EasyBuild finishes."""

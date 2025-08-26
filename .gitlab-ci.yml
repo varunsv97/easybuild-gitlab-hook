@@ -7,7 +7,7 @@ variables:
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   GITLAB_CI_GENERATE: "1"
   ARCH: 'ampere'
-  SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=gpu-a100 --gres=gpu:1"
+
 
 default:
   tags: ['rosi-admin-shell']
@@ -20,6 +20,8 @@ default:
 
 generate_pipeline:
   stage: generate
+  variables:
+    HOOK: "$CI_PROJECT_DIR/gitlab_hook.py"
   script:
     - echo "Generating EasyBuild GitLab CI pipeline for GPU packages"
     - echo "DEBUG Environment variables:"
@@ -48,5 +50,4 @@ execute_builds:
     strategy: depend
   variables:
     EB_PATH: $EB_PATH
-    CUDA_COMPUTE_CAPABILITIES: $CUDA_COMPUTE_CAPABILITIES
-    SCHEDULER_PARAMETERS: $SCHEDULER_PARAMETERS
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=gpu-a100 --gres=gpu:1"
