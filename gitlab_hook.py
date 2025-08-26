@@ -27,8 +27,8 @@ def start_hook(*args, **kwargs):
 
     # Debug: Print environment and option detection
     gitlab_ci_env = os.environ.get('GITLAB_CI_GENERATE', '')
-    
-    log.streamInfo("[GitLab CI Hook] DEBUG: GITLAB_CI_GENERATE env var: '%s'", gitlab_ci_env)
+
+    log.streamInfo(f"[GitLab CI Hook] DEBUG: GITLAB_CI_GENERATE env var: ${gitlab_ci_env}")
     log.streamInfo("[GitLab CI Hook] Initializing GitLab CI pipeline generation")
     log.streamInfo("[GitLab CI Hook] Running in GitLab CI mode (will intercept before builds)")
     
