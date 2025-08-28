@@ -403,12 +403,9 @@ def _create_gitlab_job(job_info, stage_name):
     
     # Add robot if enabled
     if build_option('robot'):
-        robot_paths = build_option('robot_paths') or []
-        if robot_paths:
-            eb_command += ' --robot=' + ':'.join(robot_paths)
-        else:
-            eb_command += ' --robot'
-    
+        eb_command += ' --robot'
+    if build_option('robot_paths'):
+        eb_command += f' --robot-paths={build_option("robot_paths")}'
     # Add common build options
     if build_option('force'):
         eb_command += ' --force'

@@ -38,6 +38,7 @@ generate_pipeline:
          --sourcepath=/data/rosi/shared/eb/easybuild_source \
          --cuda-compute-capabilities=9.0 \
          --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
+         --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
          --trace --max-parallel=8 \
