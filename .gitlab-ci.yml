@@ -40,7 +40,7 @@ generate_pipeline:
          --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
-         --trace --max_parallel=8 \
+         --trace --max-parallel=8 \
         JupyterLab-3.1.6-GCCcore-11.2.0.eb
         JupyterLab-4.0.3-GCCcore-12.2.0.eb
         JupyterLab-4.2.0-GCCcore-13.2.0.eb
