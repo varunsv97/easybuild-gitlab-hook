@@ -62,5 +62,5 @@ execute_builds:
     strategy: depend
   variables:
     EB_PATH: $EB_PATH
-    CUDA_COMPUTE_CAPABILITIES: "8.0"
+    CUDA_COMPUTE_CAPABILITIES: 8.0
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-a100"
