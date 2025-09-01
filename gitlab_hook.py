@@ -332,7 +332,7 @@ def _generate_gitlab_pipeline():
             # Preserve path variables if set
             'patheb': os.environ.get('patheb', '$patheb'),
             # GPU configuration
-            'CUDA_COMPUTE_CAPABILITIES': os.environ.get('CUDA_COMPUTE_CAPABILITIES', '9.0'),
+            'CUDA_COMPUTE_CAPABILITIES': os.environ.get('CUDA_COMPUTE_CAPABILITIES', '8.0'),
             # Dry run option
             'DRYRUN': os.environ.get('DRYRUN', '$DRYRUN'),
         },
