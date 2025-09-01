@@ -582,7 +582,7 @@ def build_option(option_name):
             return '--skip-test-step' in (sys.argv if hasattr(sys, 'argv') else [])
         elif option_name == 'skip_test_cases':
             return '--skip-test-cases' in (sys.argv if hasattr(sys, 'argv') else [])
-        elif option_name in ['installpath', 'installpath_modules', 'buildpath', 'sourcepath', 'tmp_logdir', 'detect_loaded_modules', 'accept_eula_for']:
+        elif option_name in ['installpath', 'installpath_modules', 'buildpath', 'sourcepath', 'tmp_logdir', 'detect_loaded_modules', 'accept_eula_for', 'robot_paths']:
             # Extract option value from command line
             argv = sys.argv if hasattr(sys, 'argv') else []
             option_flag = f'--{option_name.replace("_", "-")}'
