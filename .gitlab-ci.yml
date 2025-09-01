@@ -3,7 +3,7 @@ stages:
   - build
 
 variables:
-  EB_PATH: "/data/rosi/shared/eb"
+  EB_PATH: "/bigdata/rz/rosi_easybuild"
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
@@ -42,7 +42,14 @@ generate_pipeline:
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
          --trace --max-parallel=8 \
-        NVHPC-25.3-CUDA-12.8.0.eb
+        NVHPC-25.1-CUDA-12.6.0.eb
+        NVHPC-24.11-CUDA-12.6.0.eb
+        NVHPC-24.9-CUDA-12.6.0.eb
+        NVHPC-24.7-CUDA-12.6.0.eb
+        NVHPC-24.1-CUDA-12.3.0.eb
+        NVHPC-23.7-CUDA-12.2.0.eb
+        NVHPC-23.7-CUDA-12.1.1.eb
+
     - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
