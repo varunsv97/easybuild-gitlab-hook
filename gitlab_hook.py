@@ -559,12 +559,6 @@ def build_option(option_name):
         if option_name == 'gitlab_ci_generate':
             return (os.environ.get('GITLAB_CI_GENERATE', '').lower() in ['1', 'true', 'yes'] or
                     any('gitlab-ci' in arg.lower() for arg in (sys.argv if hasattr(sys, 'argv') else [])))
-        elif option_name == 'job_output_dir':
-            return os.environ.get('JOB_OUTPUT_DIR', os.getcwd())
-        elif option_name == 'job_cores':
-            return int(os.environ.get('JOB_CORES', '1'))
-        elif option_name == 'job_max_walltime':
-            return int(os.environ.get('JOB_MAX_WALLTIME', '24'))
         elif option_name == 'robot':
             return '--robot' in (sys.argv if hasattr(sys, 'argv') else [])
         elif option_name == 'job':
