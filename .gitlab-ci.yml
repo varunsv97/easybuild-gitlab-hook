@@ -66,4 +66,4 @@ execute_builds:
     strategy: depend
   variables:
     EB_PATH: $EB_PATH
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-genoa"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-a100"
