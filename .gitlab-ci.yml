@@ -3,7 +3,7 @@ stages:
   - build
 
 variables:
-  EB_PATH: "/bigdata/rz/rosi_easybuild"
+  EB_PATH: "/data/rosi/shared/eb"
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
