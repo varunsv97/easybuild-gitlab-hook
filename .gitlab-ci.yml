@@ -3,7 +3,7 @@ stages:
   - build
 
 variables:
-  EB_PATH: "/bigdata/rz/rosi_easybuild"
+  EB_PATH: "/data/rosi/shared/eb"
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
@@ -55,9 +55,6 @@ generate_pipeline:
         libvdwxc-0.4.0-foss-2024a.eb \
         MUMPS-5.7.2-foss-2023b-parmetis.eb \
         MUMPS-5.7.2-foss-2024a-metis.eb \
-        ELPA-2023.05.001-foss-2023a.eb \
-        ELPA-2023.11.001-foss-2023b.eb \
-        ELPA-2024.05.001-foss-2024a.eb \
         PETSc-3.20.3-foss-2023a.eb \
         SLEPc-3.20.1-foss-2023a.eb \
         ESL-Bundle-0.6.1-foss-2020b.eb \
