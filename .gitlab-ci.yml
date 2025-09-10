@@ -3,7 +3,7 @@ stages:
   - build
 
 variables:
-  EB_PATH: "/data/rosi/shared/eb"
+  EB_PATH: "/bigdata/rz/rosi_easybuild"
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
@@ -42,30 +42,46 @@ generate_pipeline:
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
          --trace --max-parallel=8 \
-        SCOTCH-7.0.1-gompi-2022a.eb \
-        FFTW.MPI-3.3.10-gompi-2022a.eb \
-        FFTW.MPI-3.3.10-gompi-2023a.eb \
-        FFTW.MPI-3.3.10-gompi-2024a.eb \
-        HDF5-1.14.0-gompi-2023a.eb \
-        HDF5-1.14.5-gompi-2024a.eb \
-        ScaLAPACK-2.2.0-gompi-2023a-fb.eb \
-        ScaLAPACK-2.2.0-gompi-2024a-fb.eb \
-        SuperLU-6.0.1-foss-2023b.eb \
-        arpack-ng-3.9.1-foss-2024a.eb \
-        libvdwxc-0.4.0-foss-2024a.eb \
-        MUMPS-5.7.2-foss-2023b-parmetis.eb \
-        MUMPS-5.7.2-foss-2024a-metis.eb \
-        PETSc-3.20.3-foss-2023a.eb \
-        SLEPc-3.20.1-foss-2023a.eb \
-        ESL-Bundle-0.6.1-foss-2020b.eb \
-        ELSI-2.9.1-foss-2022a-PEXSI.eb \
-        ELSI-2.11.0-foss-2023a-PEXSI.eb \
-        Python-bundle-3.10.4-foss-2022a.eb \
-        R-4.2.2-foss-2022b.eb \
-        pyFFTW-0.13.1-foss-2022a.eb \
-        h5py-3.12.1-foss-2024a.eb \
-        h5netcdf-1.2.0-foss-2023a.eb \
-        netcdf4-python-1.7.1.post2-foss-2024a.eb
+        sympy-1.11.1-foss-2022a.eb \
+        matplotlib-3.5.2-foss-2022a.eb \
+        Seaborn-0.12.2-foss-2022b.eb \
+        networkx-2.8.4-foss-2022a.eb \
+        LMfit-1.0.3-foss-2022a.eb \
+        spglib-python-2.0.0-foss-2022a.eb \
+        bokeh-3.2.2-foss-2023a.eb \
+        bayesian-optimization-2.0.3-foss-2024a.eb \
+        numba-0.60.0-foss-2023b.eb \
+        dask-2023.12.1-foss-2023a.eb \
+        snakemake-8.27.0-foss-2024a.eb \
+        Optuna-4.1.0-foss-2024a.eb \
+        ASE-3.22.1-foss-2022a.eb \
+        phonopy-2.20.0-foss-2023a.eb \
+        pyiron-0.5.1-foss-2023a.eb \
+        nglview-3.1.2-foss-2023a.eb \
+        pyWannier90-2024-01-28-foss-2023a.eb \
+        pymatgen-2024.5.1-foss-2023b.eb \
+        ABINIT-9.6.2-foss-2022a.eb \
+        Amber-22.0-foss-2021b-AmberTools-22.3.eb \
+        BAGEL-1.2.2-foss-2023a.eb \
+        BerkeleyGW-4.0-foss-2022a.eb \
+        ESPResSo-4.2.2-foss-2023b.eb \
+        Elk-8.5.2-foss-2022a.eb \
+        LAMMPS-29Aug2024-foss-2023b-kokkos.eb \
+        OpenFOAM-v2406-foss-2023a.eb \
+        ORCA-6.0.0-foss-2023b.eb \
+        PySCF-2.7.0-foss-2023a.eb \
+        Siesta-5.2.2-foss-2023a.eb \
+        TINKER-8.11.3-foss-2023a.eb \
+        VASPKIT-1.5.1-foss-2023a.eb \
+        Wannier90-3.1.0-foss-2024a.eb \
+        XCrySDen-1.6.2-foss-2024a.eb \
+        xtb-6.6.0-foss-2022a.eb \
+        Dakota-6.16.0-foss-2021b.eb \
+        ALAMODE-1.4.2-foss-2022b.eb \
+        HPL-2.3-foss-2024a.eb \
+        XGBoost-1.7.2-foss-2022b.eb \
+        tensorboard-2.18.0-gfbf-2024a.eb
+
 
     - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
