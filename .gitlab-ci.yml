@@ -7,7 +7,7 @@ variables:
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
-  ARCH: 'milan'
+  ARCH: 'rome'
 
 
 default:
@@ -42,48 +42,13 @@ generate_pipeline:
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
          --trace --max-parallel=8 \
-        sympy-1.11.1-foss-2022a.eb \
-        matplotlib-3.5.2-foss-2022a.eb \
-        Seaborn-0.12.2-foss-2022b.eb \
-        networkx-2.8.4-foss-2022a.eb \
-        LMfit-1.0.3-foss-2022a.eb \
-        spglib-python-2.0.0-foss-2022a.eb \
-        bokeh-3.2.2-foss-2023a.eb \
-        bayesian-optimization-2.0.3-foss-2024a.eb \
-        numba-0.60.0-foss-2023b.eb \
-        dask-2023.12.1-foss-2023a.eb \
-        snakemake-8.27.0-foss-2024a.eb \
-        Optuna-4.1.0-foss-2024a.eb \
-        ASE-3.22.1-foss-2022a.eb \
-        phonopy-2.20.0-foss-2023a.eb \
-        pyiron-0.5.1-foss-2023a.eb \
-        nglview-3.1.2-foss-2023a.eb \
-        pyWannier90-2024-01-28-foss-2023a.eb \
-        pymatgen-2024.5.1-foss-2023b.eb \
-        ABINIT-9.6.2-foss-2022a.eb \
-        Amber-22.0-foss-2021b-AmberTools-22.3.eb \
-        BAGEL-1.2.2-foss-2023a.eb \
-        BerkeleyGW-4.0-foss-2022a.eb \
-        ESPResSo-4.2.2-foss-2023b.eb \
-        Elk-8.5.2-foss-2022a.eb \
-        LAMMPS-29Aug2024-foss-2023b-kokkos.eb \
-        OpenFOAM-v2406-foss-2023a.eb \
-        ORCA-6.0.0-foss-2023b.eb \
-        PySCF-2.7.0-foss-2023a.eb \
-        Siesta-5.2.2-foss-2023a.eb \
-        TINKER-8.11.3-foss-2023a.eb \
-        VASPKIT-1.5.1-foss-2023a.eb \
-        Wannier90-3.1.0-foss-2024a.eb \
-        XCrySDen-1.6.2-foss-2024a.eb \
-        xtb-6.6.0-foss-2022a.eb \
-        Dakota-6.16.0-foss-2021b.eb \
-        ALAMODE-1.4.2-foss-2022b.eb \
-        HPL-2.3-foss-2024a.eb \
-        XGBoost-1.7.2-foss-2022b.eb \
-        tensorboard-2.18.0-gfbf-2024a.eb
-        Python-3.12.3-GCCcore-13.3.0.eb \
-        GCCcore-12.3.0.eb \
-        foss-2025a.eb
+        Julia-1.11.3-linux-x86_64.eb \
+        Julia-1.10.5-linux-x86_64.eb \
+        Julia-1.9.3-linux-x86_64.eb \
+        Julia-1.8.5-linux-x86_64.eb \
+        Julia-1.7.3-linux-x86_64.eb \
+        Julia-1.6.7-linux-x86_64.eb 
+
 
 
     - python inject_defaults.py easybuild-child-pipeline.yml
@@ -106,4 +71,4 @@ execute_builds:
   variables:
     EB_PATH: $EB_PATH
 #    CUDA_COMPUTE_CAPABILITIES: 8.0
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-milan"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-rome"
