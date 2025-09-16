@@ -32,12 +32,12 @@ builddependencies = [
 ]
 
 dependencies = [
-    ('zlib', '1.2.12'),
-    ('hwloc', '2.8.0'),
-    ('libevent', '2.1.12'),
+#    ('zlib', '1.2.12'),
+#    ('hwloc', '2.8.0'),
+#    ('libevent', '2.1.12'),
     ('UCX', '1.13.1'),
     ('libfabric', '1.16.1'),
-    ('PMIx', '4.2.2'),
+#    ('PMIx', '4.2.2'),
     ('UCC', '1.1.0'),
 ]
 
@@ -63,5 +63,5 @@ configopts = '--with-cuda=internal '
 
 # to enable SLURM integration (site-specific)
 # configopts += '--with-slurm --with-pmi=/usr/include/slurm --with-pmi-libdir=/usr'
-
+configopts = '--with-slurm --with-hwloc=/usr --with-hwloc-libdir=/usr/lib/x86_64-linux-gnu --with-pmix=/usr/local --with-libevent-libdir=/usr/lib/x86_64-linux-gnu --with-libevent=/usr'
 moduleclass = 'mpi'

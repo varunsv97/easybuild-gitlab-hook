@@ -42,13 +42,6 @@ generate_pipeline:
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
          --trace --max-parallel=8 \
-        Julia-1.11.3-linux-x86_64.eb \
-        Julia-1.10.5-linux-x86_64.eb \
-        Julia-1.9.3-linux-x86_64.eb \
-        Julia-1.8.5-linux-x86_64.eb \
-        Julia-1.7.3-linux-x86_64.eb \
-        Julia-1.6.7-linux-x86_64.eb 
-
 
 
     - python inject_defaults.py easybuild-child-pipeline.yml

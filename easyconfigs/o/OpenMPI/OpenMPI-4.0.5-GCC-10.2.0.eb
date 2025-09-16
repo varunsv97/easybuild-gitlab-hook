@@ -29,12 +29,12 @@ builddependencies = [
 ]
 
 dependencies = [
-    ('zlib', '1.2.11'),
-    ('hwloc', '2.2.0'),
-    ('libevent', '2.1.12'),
+#    ('zlib', '1.2.11'),
+#    ('hwloc', '2.2.0'),
+#    ('libevent', '2.1.12'),
     ('UCX', '1.9.0'),
     ('libfabric', '1.11.0'),
-    ('PMIx', '3.1.5'),
+#    ('PMIx', '3.1.5'),
 ]
 
 # disable MPI1 compatibility for now, see what breaks...
@@ -42,5 +42,5 @@ dependencies = [
 
 # to enable SLURM integration (site-specific)
 # configopts += '--with-slurm --with-pmi=/usr/include/slurm --with-pmi-libdir=/usr'
-
+configopts = '--with-slurm --with-hwloc=/usr --with-hwloc-libdir=/usr/lib/x86_64-linux-gnu --with-pmix=/usr/local --with-libevent-libdir=/usr/lib/x86_64-linux-gnu --with-libevent=/usr'
 moduleclass = 'mpi'
