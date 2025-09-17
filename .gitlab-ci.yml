@@ -42,7 +42,7 @@ generate_pipeline:
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
          --trace --max-parallel=16 \
-        OpenMPI-4.0.5-GCC-10.2.0.eb \
+        OpenMPI-4.0.5-GCC-10.2.0.eb 
 #        OpenMPI-4.0.6-GCC-10.3.0.eb \
 #        OpenMPI-4.0.7-GCC-10.3.0.eb \
 #        OpenMPI-4.1.0-GCC-10.2.0.eb \
