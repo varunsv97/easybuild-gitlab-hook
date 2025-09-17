@@ -37,7 +37,6 @@ generate_pipeline:
          --tmp-logdir=eblog \
          --buildpath=ebbuild \
          --sourcepath=/data/rosi/shared/eb/easybuild_source \
-         --cuda-compute-capabilities=8.0 \
          --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --ignore-checksums \
@@ -51,7 +50,7 @@ generate_pipeline:
         OpenMPI-4.1.2-GCC-10.2.0.eb \
         OpenMPI-4.1.2-GCC-11.2.0.eb \
         OpenMPI-4.1.5-GCC-12.2.0.eb \
-        OpenMPI-4.1.6-GCC-12.3.0.eb 
+        OpenMPI-4.1.6-GCC-12.3.0.eb
 #        OpenMPI-4.1.1-GCC-11.2.0.eb \
 #        OpenMPI-4.1.4-GCC-11.3.0.eb \
 #        OpenMPI-4.1.4-GCC-12.2.0.eb \
