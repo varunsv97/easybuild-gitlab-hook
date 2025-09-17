@@ -30,9 +30,6 @@ generate_pipeline:
     - echo "GITLAB_CI_GENERATE=$GITLAB_CI_GENERATE"
     - echo "Current directory is $(pwd)"
     - ls -la gitlab_hook.py || echo "Hook file NOT FOUND"
-    - echo "Checking easyconfigs structure:"
-    - ls -la easyconfigs/ || echo "easyconfigs dir not found"
-    - ls -la easyconfigs/o/OpenMPI/ || echo "OpenMPI dir not found"
     - |
       eb --hooks=gitlab_hook.py \
          --installpath=${EB_PATH}/${ARCH} \
