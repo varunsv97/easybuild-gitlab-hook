@@ -29,6 +29,9 @@ generate_pipeline:
     - echo "GITLAB_CI_GENERATE=$GITLAB_CI_GENERATE"
     - echo "Current directory is $(pwd)"
     - ls -la gitlab_hook.py || echo "Hook file NOT FOUND"
+    - echo "Testing if EasyBuild can find OpenMPI files:"
+    - find ${CI_PROJECT_DIR}/easyconfigs -name "OpenMPI-4.0.5-GCC-10.2.0.eb" || echo "File not found in search"
+    - echo "Testing with just one file:"
     - |
       eb --hooks=gitlab_hook.py \
          --installpath=${EB_PATH}/${ARCH} \
@@ -40,7 +43,21 @@ generate_pipeline:
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
-         --trace --max-parallel=16 --dry-run --debug \
+         --trace --dry-run \
+        OpenMPI-4.0.5-GCC-10.2.0.eb
+    - echo "Now testing with full list:"
+    - |
+      eb --hooks=gitlab_hook.py \
+         --installpath=${EB_PATH}/${ARCH} \
+         --installpath-modules=${EB_PATH}/${ARCH}/modules \
+         --tmp-logdir=eblog \
+         --buildpath=ebbuild \
+         --sourcepath=/data/rosi/shared/eb/easybuild_source \
+         --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
+         --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
+         --ignore-checksums \
+         --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
+         --trace --max-parallel=16 --debug \
         OpenMPI-4.0.5-GCC-10.2.0.eb \ 
         OpenMPI-4.0.6-GCC-10.3.0.eb \
         OpenMPI-4.0.7-GCC-10.3.0.eb \
