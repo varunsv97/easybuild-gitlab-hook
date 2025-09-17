@@ -7,7 +7,6 @@ variables:
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
-  DRYRUN: "1"
   ARCH: 'genoa'
 
 
