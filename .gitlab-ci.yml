@@ -3,11 +3,11 @@ stages:
   - build
 
 variables:
-  EB_PATH: "/data/rosi/shared/eb"
+  EB_PATH: "/bigdata/rz/rosi_easybuild"
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
-  ARCH: 'ampere'
+  ARCH: 'volta'
 
 
 default:
@@ -83,5 +83,5 @@ execute_builds:
     strategy: depend
   variables:
     EB_PATH: $EB_PATH
-    CUDA_COMPUTE_CAPABILITIES: 8.0
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-a100"
+    CUDA_COMPUTE_CAPABILITIES: 7.0
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-v100"
