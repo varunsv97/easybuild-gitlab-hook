@@ -28,10 +28,13 @@ dependencies = [
 ]
 
 
+# CUDA related patches and custom configure option can be removed if CUDA support isn't wanted.
+configopts = '--with-cuda=internal '
+
 # disable MPI1 compatibility for now, see what breaks...
 # configopts = '--enable-mpi1-compatibility '
 
 # to enable SLURM integration use e.g. --try-amend="configopts=--with-slurm"
-configopts = '--with-slurm --with-hwloc=/usr --with-hwloc-libdir=/usr/lib/x86_64-linux-gnu --with-pmix=/usr/local --with-libevent-libdir=/usr/lib/x86_64-linux-gnu --with-libevent=/usr'
+configopts += '--with-slurm --with-hwloc=/usr --with-hwloc-libdir=/usr/lib/x86_64-linux-gnu --with-pmix=/usr/local --with-libevent-libdir=/usr/lib/x86_64-linux-gnu --with-libevent=/usr'
 
 moduleclass = 'mpi'

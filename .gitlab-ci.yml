@@ -7,7 +7,7 @@ variables:
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
-  ARCH: 'milan'
+  ARCH: 'ampere'
 
 
 default:
@@ -43,8 +43,9 @@ generate_pipeline:
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
-         --trace --max-parallel=16  \
+         --trace --max-parallel=8  \
         OpenMPI-4.0.5-GCC-10.2.0.eb \
+        OpenMPI-4.0.5-NVHPC-21.2-CUDA-11.2.1.eb \
         OpenMPI-4.0.6-GCC-10.3.0.eb \
         OpenMPI-4.0.7-GCC-10.3.0.eb \
         OpenMPI-4.1.0-GCC-10.2.0.eb \
@@ -58,7 +59,9 @@ generate_pipeline:
         OpenMPI-4.1.5-GCC-12.3.0.eb \
         OpenMPI-4.1.6-GCC-12.3.0.eb \
         OpenMPI-4.1.6-GCC-13.2.0.eb \
-        OpenMPI-5.0.3-GCC-13.3.0.eb
+        OpenMPI-5.0.3-NVHPC-24.9-CUDA-12.6.0.eb \
+        OpenMPI-5.0.3-GCC-13.3.0.eb \
+        OpenMPI-5.0.7-GCC-14.2.0.eb
 
 
     - python inject_defaults.py easybuild-child-pipeline.yml
@@ -80,5 +83,5 @@ execute_builds:
     strategy: depend
   variables:
     EB_PATH: $EB_PATH
-#    CUDA_COMPUTE_CAPABILITIES: 7.0
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=cpu-milan"
+    CUDA_COMPUTE_CAPABILITIES: 8.0
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-a100"

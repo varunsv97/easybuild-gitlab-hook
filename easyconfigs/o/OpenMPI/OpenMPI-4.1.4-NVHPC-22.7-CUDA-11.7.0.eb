@@ -32,13 +32,13 @@ builddependencies = [
 ]
 
 dependencies = [
-    ('zlib', '1.2.12'),
-    ('hwloc', '2.7.1'),
-    ('libevent', '2.1.12'),
+#    ('zlib', '1.2.12'),
+#    ('hwloc', '2.7.1'),
+#    ('libevent', '2.1.12'),
     ('UCX', '1.12.1'),
     ('UCX-CUDA', '1.12.1', '-CUDA-%(cudaver)s'),
     ('libfabric', '1.15.1'),
-    ('PMIx', '4.1.2'),
+#    ('PMIx', '4.1.2'),
     ('UCC', '1.0.0'),
     ('UCC-CUDA', '1.0.0', '-CUDA-%(cudaver)s'),
 ]

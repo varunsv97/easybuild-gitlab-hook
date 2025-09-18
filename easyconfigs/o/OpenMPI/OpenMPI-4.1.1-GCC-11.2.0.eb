@@ -60,5 +60,5 @@ configopts = '--with-cuda=internal '
 
 # to enable SLURM integration (site-specific)
 # configopts += '--with-slurm --with-pmi=/usr/include/slurm --with-pmi-libdir=/usr'
-configopts = '--with-slurm --with-hwloc=/usr --with-hwloc-libdir=/usr/lib/x86_64-linux-gnu --with-pmix=/usr/local --with-libevent-libdir=/usr/lib/x86_64-linux-gnu --with-libevent=/usr'
+configopts += '--with-slurm --with-hwloc=/usr --with-hwloc-libdir=/usr/lib/x86_64-linux-gnu --with-pmix=/usr/local --with-libevent-libdir=/usr/lib/x86_64-linux-gnu --with-libevent=/usr'
 moduleclass = 'mpi'
