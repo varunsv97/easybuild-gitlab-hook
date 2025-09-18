@@ -7,7 +7,7 @@ variables:
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
-  ARCH: 'genoa'
+  ARCH: 'milan'
 
 
 default:
@@ -49,10 +49,17 @@ generate_pipeline:
         OpenMPI-4.0.7-GCC-10.3.0.eb \
         OpenMPI-4.1.0-GCC-10.2.0.eb \
         OpenMPI-4.1.1-GCC-10.3.0.eb \
+        OpenMPI-4.1.1-GCC-11.2.0.eb \
         OpenMPI-4.1.2-GCC-10.2.0.eb \
         OpenMPI-4.1.2-GCC-11.2.0.eb \
+        OpenMPI-4.1.4-GCC-11.3.0.eb \
+        OpenMPI-4.1.4-GCC-12.2.0.eb \
         OpenMPI-4.1.5-GCC-12.2.0.eb \
-        OpenMPI-4.1.6-GCC-12.3.0.eb
+        OpenMPI-4.1.5-GCC-12.3.0.eb \
+        OpenMPI-4.1.6-GCC-12.3.0.eb \
+        OpenMPI-4.1.6-GCC-13.2.0.eb \
+        OpenMPI-5.0.3-GCC-13.3.0.eb \
+
 
     - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
@@ -73,5 +80,5 @@ execute_builds:
     strategy: depend
   variables:
     EB_PATH: $EB_PATH
- #   CUDA_COMPUTE_CAPABILITIES: 8.0
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=cpu-genoa"
+#    CUDA_COMPUTE_CAPABILITIES: 7.0
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=cpu-milan"
