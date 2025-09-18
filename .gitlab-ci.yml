@@ -58,7 +58,7 @@ generate_pipeline:
         OpenMPI-4.1.5-GCC-12.3.0.eb \
         OpenMPI-4.1.6-GCC-12.3.0.eb \
         OpenMPI-4.1.6-GCC-13.2.0.eb \
-        OpenMPI-5.0.3-GCC-13.3.0.eb \
+        OpenMPI-5.0.3-GCC-13.3.0.eb
 
 
     - python inject_defaults.py easybuild-child-pipeline.yml
