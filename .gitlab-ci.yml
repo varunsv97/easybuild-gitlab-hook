@@ -81,4 +81,4 @@ execute_builds:
   variables:
     EB_PATH: $EB_PATH
     CUDA_COMPUTE_CAPABILITIES: 7.0
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=gpu-volta"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=gpu-v100"
