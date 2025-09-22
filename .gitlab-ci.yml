@@ -44,7 +44,7 @@ generate_pipeline:
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=16  \
-        OpenFOAM-v2312-foss-2023a.ebCUDA-12.1.1.eb
+        OpenFOAM-v2312-foss-2023a.eb
 
     - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
