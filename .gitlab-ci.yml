@@ -44,22 +44,11 @@ generate_pipeline:
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=16  \
-        CUDA-12.8.0.eb \
-        CUDA-12.6.0.eb \
-        CUDA-12.5.0.eb \
-        CUDA-12.4.0.eb \
-        CUDA-12.3.0.eb \
-        CUDA-12.2.0.eb \
-        CUDA-12.1.1.eb \
-        OpenMPI-4.0.5-GCC-10.2.0.eb \
-        OpenMPI-4.1.1-GCC-11.2.0.eb \
-        OpenMPI-4.1.4-GCC-11.3.0.eb \
-        OpenMPI-4.1.4-GCC-12.2.0.eb \
-        OpenMPI-4.1.5-GCC-12.2.0.eb \
-        OpenMPI-4.1.5-GCC-12.3.0.eb \
-        OpenMPI-5.0.3-GCC-13.3.0.eb \
-        OpenMPI-5.0.7-GCC-14.2.0.eb
-
+        JupyterLab-3.1.6-GCCcore-11.2.0.eb \
+        JupyterLab-4.0.3-GCCcore-12.2.0.eb \
+        JupyterLab-4.2.0-GCCcore-13.2.0.eb \
+        JupyterLab-4.2.5-GCCcore-13.3.0.eb \
+        JupyterLab-4.4.4-GCCcore-14.2.0.eb 
 
     - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
