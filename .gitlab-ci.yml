@@ -44,6 +44,7 @@ generate_pipeline:
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=16  \
+        CUDA-12.8.0.eb \
         CUDA-12.6.0.eb \
         CUDA-12.4.0.eb \
         CUDA-12.5.0.eb \
@@ -71,4 +72,4 @@ execute_builds:
   variables:
     EB_PATH: $EB_PATH
     CUDA_COMPUTE_CAPABILITIES: 7.0
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=gpu-v100 --gres=gpu:1"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=gpu-v100 --mem=100G --gres=gpu:1"
