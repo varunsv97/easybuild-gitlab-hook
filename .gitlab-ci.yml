@@ -7,7 +7,7 @@ variables:
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
-  ARCH: 'genoa'
+  ARCH: 'volta'
 
 
 default:
@@ -44,7 +44,12 @@ generate_pipeline:
          --ignore-checksums \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=16  \
-        OpenFOAM-v2406-foss-2023a.eb
+        CUDA-12.6.0.eb \
+        CUDA-12.4.0.eb \
+        CUDA-12.5.0.eb \
+        CUDA-12.3.2.eb \
+        CUDA-12.2.2.eb \
+        CUDA-12.1.1.eb
 
     - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
@@ -65,5 +70,5 @@ execute_builds:
     strategy: depend
   variables:
     EB_PATH: $EB_PATH
-#    CUDA_COMPUTE_CAPABILITIES: 7.0
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=cpu-genoa"
+    CUDA_COMPUTE_CAPABILITIES: 7.0
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=gpu-v100 --gres=gpu:1"
