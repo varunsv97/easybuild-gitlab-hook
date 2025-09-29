@@ -3,11 +3,12 @@ stages:
   - build
 
 variables:
-  EB_PATH: "/data/rosi/shared/eb"
+#  EB_PATH: "/data/rosi/shared/eb/easybuild"
+  EB_PATH: "/bigdata/rz/sudhar46/easybuild_nosym"
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
-  ARCH: 'rome'
+  ARCH: 'skylake'
 
 
 default:
@@ -41,10 +42,11 @@ generate_pipeline:
          --sourcepath=/data/rosi/shared/eb/easybuild_source \
          --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
-         --ignore-checksums \
+         --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=16 \
-        OpenFOAM-v2206-foss-2022a.eb
+        OpenMPI-4.1.6-GCC-12.3.0.eb \
+        OpenMPI-5.0.7-GCC-14.2.0.eb
 
     - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
@@ -65,5 +67,5 @@ execute_builds:
     strategy: depend
   variables:
     EB_PATH: $EB_PATH
-    CUDA_COMPUTE_CAPABILITIES: 7.0
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=cpu-rome --mem=100G"
+#    CUDA_COMPUTE_CAPABILITIES: 7.0
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=cpu-skylake --mem=80G"

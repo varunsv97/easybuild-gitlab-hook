@@ -400,6 +400,8 @@ def _create_gitlab_job(job_info, stage_name):
         eb_command += f' --sourcepath={build_option("sourcepath")}'
     if build_option('tmp_logdir'):
         eb_command += f' --tmp-logdir={build_option("tmp_logdir")}'
+    if build_option('module_naming_scheme'):
+        eb_command += f' --module-naming-scheme={build_option("module_naming_scheme")}'   
     # Add robot if enabled
     if build_option('robot'):
         eb_command += ' --robot'
@@ -574,7 +576,7 @@ def build_option(option_name):
             return '--skip-test-step' in (sys.argv if hasattr(sys, 'argv') else [])
         elif option_name == 'skip_test_cases':
             return '--skip-test-cases' in (sys.argv if hasattr(sys, 'argv') else [])
-        elif option_name in ['installpath', 'installpath_modules', 'buildpath', 'sourcepath', 'tmp_logdir', 'detect_loaded_modules', 'accept_eula_for', 'robot_paths']:
+        elif option_name in ['installpath', 'installpath_modules', 'buildpath', 'sourcepath', 'tmp_logdir', 'detect_loaded_modules', 'accept_eula_for', 'robot_paths', 'module_naming_scheme']:
             # Extract option value from command line
             argv = sys.argv if hasattr(sys, 'argv') else []
             option_flag = f'--{option_name.replace("_", "-")}'
