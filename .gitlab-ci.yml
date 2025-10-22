@@ -3,12 +3,12 @@ stages:
   - build
 
 variables:
-#  EB_PATH: "/data/rosi/shared/eb/easybuild"
-  EB_PATH: "/bigdata/rz/sudhar46/easybuild_nosym"
+  EB_PATH: "/data/rosi/shared/eb/easybuild"
+#  EB_PATH: "/bigdata/rz/sudhar46/easybuild_nosym"
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
-  ARCH: 'skylake'
+  ARCH: 'milan'
 
 
 default:
@@ -30,9 +30,6 @@ generate_pipeline:
     - echo "GITLAB_CI_GENERATE=$GITLAB_CI_GENERATE"
     - echo "Current directory is $(pwd)"
     - ls -la gitlab_hook.py || echo "Hook file NOT FOUND"
-    - echo "Testing if EasyBuild can find OpenMPI files:"
-    - find ${CI_PROJECT_DIR}/easyconfigs -name "OpenMPI-4.0.5-GCC-10.2.0.eb" || echo "File not found in search"
-    - echo "Testing with just one file:"
     - |
       eb --hooks=gitlab_hook.py \
          --installpath=${EB_PATH}/${ARCH} \
@@ -45,8 +42,7 @@ generate_pipeline:
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=16 \
-        OpenMPI-4.1.6-GCC-12.3.0.eb \
-        OpenMPI-5.0.7-GCC-14.2.0.eb
+        libgd-2.3.3-GCCcore-14.2.0.eb
 
     - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
@@ -68,4 +64,4 @@ execute_builds:
   variables:
     EB_PATH: $EB_PATH
 #    CUDA_COMPUTE_CAPABILITIES: 7.0
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=cpu-skylake --mem=80G"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=cpu-milan --mem=20G"
