@@ -8,7 +8,7 @@ variables:
   EB_SOURCE: "/data/rosi/shared/eb/easybuild_environments/rome/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
-  ARCH: 'milan'
+  ARCH: 'ampere'
 
 
 default:
@@ -41,8 +41,13 @@ generate_pipeline:
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
-         --trace --max-parallel=16 \
-        libgd-2.3.3-GCCcore-14.2.0.eb
+         --trace --max-parallel=8 \
+        NVHPC-25.3-CUDA-12.8.0.eb \
+        NVHPC-25.1-CUDA-12.6.0.eb \
+        NVHPC-24.1-CUDA-12.3.0.eb \
+        NVHPC-23.7-CUDA-12.2.0.eb \
+        NVHPC-23.7-CUDA-12.1.1.eb \ 
+        NVHPC-23.1-CUDA-12.0.0.eb
 
     - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
@@ -63,5 +68,5 @@ execute_builds:
     strategy: depend
   variables:
     EB_PATH: $EB_PATH
-#    CUDA_COMPUTE_CAPABILITIES: 7.0
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=cpu-milan --mem=20G"
+    CUDA_COMPUTE_CAPABILITIES: 8.0
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-a100 --mem=100G --gres=gpu:1"
