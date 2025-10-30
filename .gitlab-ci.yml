@@ -46,7 +46,7 @@ generate_pipeline:
         NVHPC-25.1-CUDA-12.6.0.eb \
         NVHPC-24.1-CUDA-12.3.0.eb \
         NVHPC-23.7-CUDA-12.2.0.eb \
-        NVHPC-23.7-CUDA-12.1.1.eb \ 
+        NVHPC-23.7-CUDA-12.1.1.eb \
         NVHPC-23.1-CUDA-12.0.0.eb
 
     - python inject_defaults.py easybuild-child-pipeline.yml
