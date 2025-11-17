@@ -29,11 +29,12 @@ def inject_pipeline_metadata(data):
     # Add EasyBuild environment activation to before_script
     before_script = default.get('before_script', [])
     eb_env_activate = f'source /bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb/bin/activate'
-    if 'ml python' not in before_script:
-        before_script.insert(0, 'ml python')
+    if 'ml ampere' not in before_script:
         before_script.insert(0, 'ml ampere')
+    if 'ml python' not in before_script:
+        before_script.insert(1, 'ml python')
     if eb_env_activate not in before_script:
-        before_script.insert(1, eb_env_activate)
+        before_script.insert(2, eb_env_activate)
     
     # Add environment setup
     if 'echo "Starting EasyBuild job: $CI_JOB_NAME"' not in before_script:
