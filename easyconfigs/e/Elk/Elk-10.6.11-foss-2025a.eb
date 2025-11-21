@@ -17,7 +17,7 @@ toolchainopts = {'usempi': True, 'openmp': True, 'opt': True}
 
 source_urls = [SOURCEFORGE_SOURCE]
 sources = [SOURCELOWER_TGZ]
-checksums = ['2d9d98ddadb8a6e031d32cb0957f41bc53099c286874bd1b38a08164352de7c0']
+checksums = ['13de7f00037de3c35189ca3fe962540167ed39f9ab0a7ecd4552be4f544956dc']
 
 dependencies = [
     ('libxc', '7.0.0'),

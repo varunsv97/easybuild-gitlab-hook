@@ -46,7 +46,6 @@ generate_pipeline:
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         ABINIT-10.4.7-foss-2025b.eb \
          Elk-10.6.11-foss-2025a.eb
 
 
