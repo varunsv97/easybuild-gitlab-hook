@@ -16,6 +16,7 @@ checksums = ['dd3f1f0bb016edcc0b2d082e8229c822ad1d02223511997c80461481759b1ed2']
 builddependencies = [
     ('binutils', '2.42'),
 ]
+
 dependencies = [
     ('fontconfig', '2.16.2'),
     ('libjpeg-turbo', '3.1.0'),

@@ -40,7 +40,6 @@ builddependencies = [
 preconfigopts = './autogen.sh && '
 preconfigopts += 'export LDFLAGS="-lm $LDFLAGS" && '
 preconfigopts += 'autoreconf && '
-configopts = '--disable-openmp' #added after error in mpi
 
 # When building in parallel, the file test_setup_mpi.mod is sometimes
 # used before it is built, leading to an error.  This must be a bug in

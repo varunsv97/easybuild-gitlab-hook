@@ -1,6 +1,6 @@
 easyblock = 'Bundle'
 
-name = 'GCC'#
+name = 'GCC'
 version = '12.3.0'
 
 homepage = 'https://gcc.gnu.org/'

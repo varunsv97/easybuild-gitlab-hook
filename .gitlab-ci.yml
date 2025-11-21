@@ -6,9 +6,12 @@ variables:
   EB_PATH: "/data/rosi/shared/eb/easybuild"
 #  EB_PATH: "/bigdata/rz/sudhar46/easybuild_nosym"
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb"
+  EB_PATH: "/data/rosi/shared/eb/easybuild"
+#  EB_PATH: "/bigdata/rz/sudhar46/easybuild_nosym"
+  EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
-  ARCH: 'ampere'
+  ARCH: 'genoa'
 
 
 default:
@@ -43,12 +46,8 @@ generate_pipeline:
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-        NVHPC-25.3-CUDA-12.8.0.eb
-#        NVHPC-25.1-CUDA-12.6.0.eb \
-#        NVHPC-24.1-CUDA-12.3.0.eb \
-#        NVHPC-23.7-CUDA-12.2.0.eb \
-#        NVHPC-23.7-CUDA-12.1.1.eb \
-#        NVHPC-23.1-CUDA-12.0.0.eb
+         ABINIT-10.4.7-foss-2025b.eb
+
 
     - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
@@ -69,5 +68,5 @@ execute_builds:
     strategy: depend
   variables:
     EB_PATH: $EB_PATH
-    CUDA_COMPUTE_CAPABILITIES: 8.0
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-a100 --mem=400G --gres=gpu:1"
+#    CUDA_COMPUTE_CAPABILITIES: 8.0
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-genoa --mem=200G"
