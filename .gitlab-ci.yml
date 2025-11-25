@@ -4,16 +4,16 @@ stages:
 
 variables:
   EB_PATH: "/data/rosi/shared/eb/easybuild"
-#  EB_PATH: "/bigdata/rz/sudhar46/easybuild_nosym"
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   ARCH: 'genoa'
+  PARTITION: 'cpu-genoa'
 
 
 default:
   tags: ['rosi-admin-shell']
   before_script:
-    - ml genoa
+    - ml ${ARCH}
     - ml python
     - source $EB_SOURCE/bin/activate
   id_tokens:
@@ -57,6 +57,7 @@ generate_pipeline:
 
 execute_builds:
   stage: build
+  when: manual
   trigger:
     include:
       - artifact:  ${CI_PROJECT_DIR}/easybuild-child-pipeline.yml
@@ -64,5 +65,4 @@ execute_builds:
     strategy: depend
   variables:
     EB_PATH: $EB_PATH
-#    CUDA_COMPUTE_CAPABILITIES: 8.0
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-genoa --mem=200G"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION} --mem=200G"

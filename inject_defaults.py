@@ -2,17 +2,13 @@
 """
 Script to inject default configuration into EasyBuild-generated GitLab CI pipelines.
 
-This script adds essential default configuration including:
-- EasyBuild environment activation
-- Custom runner tags
-- JWT tokens for authentication
-- Retry and timeout configurations
+This script reads configuration from .gitlab-ci.yml and applies it to the generated pipeline.
 
 Usage:
-    python inject_defaults.py <pipeline_file>
+    python inject_defaults.py <pipeline_file> [config_file]
     
 Example:
-    python inject_defaults.py easybuild-child-pipeline.yml
+    python inject_defaults.py easybuild-child-pipeline.yml .gitlab-ci.yml
 """
 
 import sys
@@ -20,85 +16,102 @@ import yaml
 from pathlib import Path
 
 
-def inject_pipeline_metadata(data):
-    """Inject default metadata into the pipeline configuration."""
+def load_config_from_gitlab_ci(config_file):
+    """Load default configuration from .gitlab-ci.yml file."""
+    
+    if not config_file.exists():
+        print(f"Warning: Config file '{config_file}' not found, using minimal defaults")
+        return {}, {}
+    
+    try:
+        with open(config_file, 'r') as f:
+            config_data = yaml.safe_load(f)
+        
+        # Extract the 'default' section from .gitlab-ci.yml
+        default_config = config_data.get('default', {})
+        
+        # Extract variables from execute_builds job for child pipeline
+        child_variables = {}
+        execute_builds = config_data.get('execute_builds', {})
+        if 'variables' in execute_builds:
+            child_variables = execute_builds['variables']
+        
+        return default_config, child_variables
+    except Exception as e:
+        print(f"Warning: Could not load config file: {e}")
+        return {}, {}
+
+
+def inject_pipeline_metadata(data, config, child_variables):
+    """Inject configuration from .gitlab-ci.yml into the pipeline."""
     
     # Get or create default section
     default = data.get('default', {})
     
-    # Add EasyBuild environment activation to before_script
-    before_script = default.get('before_script', [])
-    eb_env_activate = f'source /bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb/bin/activate'
-    if 'ml genoa' not in before_script:
-        before_script.insert(0, 'ml genoa')
-    if 'ml python' not in before_script:
-        before_script.insert(1, 'ml python')
-    if eb_env_activate not in before_script:
-        before_script.insert(2, eb_env_activate)
+    # Copy before_script from config
+    if 'before_script' in config:
+        default['before_script'] = config['before_script'].copy()
     
-    # Add environment setup
-    if 'echo "Starting EasyBuild job: $CI_JOB_NAME"' not in before_script:
-        before_script.append('echo "Starting EasyBuild job: $CI_JOB_NAME"')
+    # Copy after_script from config if present
+    if 'after_script' in config:
+        default['after_script'] = config['after_script'].copy()
     
-    default['before_script'] = before_script
+    # Copy tags from config
+    if 'tags' in config:
+        default['tags'] = config['tags'].copy()
     
-    # Add after_script for cleanup and reporting
-    after_script = default.get('after_script', [])
-    cleanup_commands = [
-        'echo "Cleaning up temporary files"',
-        'rm -rf /tmp/eblog || true',
-        'rm -rf /tmp/ebbuild || true', 
-        'echo "Job completed: $CI_JOB_NAME"'
-    ]
+    # Copy id_tokens from config
+    if 'id_tokens' in config:
+        default['id_tokens'] = config['id_tokens'].copy()
     
-    for cmd in cleanup_commands:
-        if cmd not in after_script:
-            after_script.append(cmd)
+    # Copy retry configuration if present
+    if 'retry' in config:
+        default['retry'] = config['retry'].copy()
+    else:
+        # Add default retry configuration
+        default['retry'] = {
+            'max': 2,
+            'when': ['runner_system_failure', 'stuck_or_timeout_failure', 'job_execution_timeout']
+        }
     
-    default['after_script'] = after_script
+    # Copy timeout if present
+    if 'timeout' in config:
+        default['timeout'] = config['timeout']
     
-    # Merge 'tags'
-    tags = set(default.get('tags', []))
-    tags.add('rosi-admin-slurm')
-    default['tags'] = list(tags)
-
-    # Merge 'id_tokens'
-    default.setdefault('id_tokens', {})
-    default['id_tokens']['CI_JOB_JWT'] = {
-        'aud': 'https://codebase.helmholtz.cloud'
-    }
-    data['default'] = default
-
-    
-    # Add retry configuration
-    default['retry'] = {
-        'max': 2,
-        'when': ['runner_system_failure', 'stuck_or_timeout_failure', 'job_execution_timeout']
-    }
+    # Copy image if present
+    if 'image' in config:
+        default['image'] = config['image']
     
     # Update the data with our modified default section
     data['default'] = default
     
-    # Add global variables if not present
-    variables = data.get('variables', {})
-    data['variables'] = variables
+    # Merge child pipeline variables into the global variables section
+    if child_variables:
+        variables = data.get('variables', {})
+        variables.update(child_variables)
+        data['variables'] = variables
 
 
 def main():
     """Main function to process the pipeline file."""
     
-    if len(sys.argv) != 2:
-        print("Usage: python inject_defaults.py <pipeline_file>")
-        print("Example: python inject_defaults.py easybuild-child-pipeline.yml")
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        print("Usage: python inject_defaults.py <pipeline_file> [config_file]")
+        print("Example: python inject_defaults.py easybuild-child-pipeline.yml .gitlab-ci.yml")
         sys.exit(1)
     
     pipeline_file = Path(sys.argv[1])
+    config_file = Path(sys.argv[2]) if len(sys.argv) == 3 else Path('.gitlab-ci.yml')
     
     if not pipeline_file.exists():
         print(f"Error: Pipeline file '{pipeline_file}' not found!")
         sys.exit(1)
     
     print(f"Processing pipeline file: {pipeline_file}")
+    print(f"Reading config from: {config_file}")
+    
+    # Load configuration from .gitlab-ci.yml
+    config, child_variables = load_config_from_gitlab_ci(config_file)
     
     # Load the pipeline YAML
     try:
@@ -112,8 +125,8 @@ def main():
         print("Error: Pipeline file is empty or invalid!")
         sys.exit(1)
     
-    # Inject the default metadata
-    inject_pipeline_metadata(pipeline_data)
+    # Inject the configuration
+    inject_pipeline_metadata(pipeline_data, config, child_variables)
     
     # Write the updated pipeline back
     try:
@@ -123,24 +136,29 @@ def main():
         print(f"Error writing pipeline file: {e}")
         sys.exit(1)
     
-    print("✅ Successfully injected default configuration!")
-    print("\nAdded configurations:")
-    print("  - EasyBuild environment activation")
-    print("  - Custom runner tags (easybuild-runner, gpu-h100)")
-    print("  - JWT authentication tokens")
-    print("  - Retry logic and timeouts")
-    print("  - Cleanup scripts")
-    print("  - Hopper-specific variables")
+    print("✅ Successfully injected configuration from .gitlab-ci.yml!")
     
     # Show summary of what was added
     default_config = pipeline_data.get('default', {})
-    print(f"\nDefault configuration summary:")
-    print(f"  - Image: {default_config.get('image', 'Not set')}")
-    print(f"  - Tags: {', '.join(default_config.get('tags', []))}")
-    print(f"  - Retry max: {default_config.get('retry', {}).get('max', 'Not set')}")
-    print(f"  - Timeout: {default_config.get('timeout', 'Not set')}")
-    print(f"  - Before script steps: {len(default_config.get('before_script', []))}")
-    print(f"  - After script steps: {len(default_config.get('after_script', []))}")
+    variables_config = pipeline_data.get('variables', {})
+    
+    print(f"\nApplied configuration:")
+    if 'image' in default_config:
+        print(f"  - Image: {default_config.get('image')}")
+    if 'tags' in default_config:
+        print(f"  - Tags: {', '.join(default_config.get('tags', []))}")
+    if 'retry' in default_config:
+        print(f"  - Retry max: {default_config.get('retry', {}).get('max')}")
+    if 'timeout' in default_config:
+        print(f"  - Timeout: {default_config.get('timeout')}")
+    if 'before_script' in default_config:
+        print(f"  - Before script steps: {len(default_config.get('before_script', []))}")
+    if 'after_script' in default_config:
+        print(f"  - After script steps: {len(default_config.get('after_script', []))}")
+    if 'id_tokens' in default_config:
+        print(f"  - JWT tokens configured: Yes")
+    if variables_config:
+        print(f"  - Variables: {', '.join(variables_config.keys())}")
 
 
 if __name__ == '__main__':
