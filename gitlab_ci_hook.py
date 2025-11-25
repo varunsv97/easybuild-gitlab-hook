@@ -18,8 +18,7 @@ Configuration is read from .gitlab-ci.yml in the current directory, specifically
 - default: section (tags, before_script, id_tokens, retry, etc.)
 - execute_builds.variables: section (for child pipeline variables)
 
-Author: EasyBuild Community
-License: GPLv2
+Author: Varun Sudharshnam, HZDR
 """
 
 import os
