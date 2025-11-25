@@ -386,66 +386,49 @@ def _generate_gitlab_pipeline():
 def _create_gitlab_job(job_info, stage_name):
     """Create a GitLab CI job definition."""
     
-    # Build EasyBuild command with all relevant options
-    eb_command = 'eb'
+    # Build EasyBuild command by reconstructing from sys.argv or build options
+    # Get the base command without the hook option
+    argv = sys.argv if hasattr(sys, 'argv') else []
     
-    # Add path options if set
-    if build_option('installpath'):
-        eb_command += f' --installpath={build_option("installpath")}'
-    if build_option('installpath_modules'):
-        eb_command += f' --installpath-modules={build_option("installpath_modules")}'
-    if build_option('buildpath'):
-        eb_command += f' --buildpath={build_option("buildpath")}'
-    if build_option('sourcepath'):
-        eb_command += f' --sourcepath={build_option("sourcepath")}'
-    if build_option('tmp_logdir'):
-        eb_command += f' --tmp-logdir={build_option("tmp_logdir")}'
-    if build_option('module_naming_scheme'):
-        eb_command += f' --module-naming-scheme={build_option("module_naming_scheme")}'   
-    # Add robot if enabled
-    if build_option('robot'):
-        eb_command += ' --robot'
-    if build_option('robot_paths'):
-        eb_command += f' --robot-paths={build_option("robot_paths")}'
-    # Add common build options
-    if build_option('force'):
-        eb_command += ' --force'
-    if build_option('debug'):
-        eb_command += ' --debug'
-    if build_option('insecure'):
-        eb_command += ' --insecure-download'
-    if build_option('disable_mpi_tests'):
-        eb_command += ' --disable-mpi-tests'
-    if build_option('skip_test_step'):
-        eb_command += ' --skip-test-step'
-    if build_option('skip_test_cases'):
-        eb_command += ' --skip-test-cases'
-    if build_option('detect_loaded_modules'):
-        eb_command += f' --detect-loaded-modules={build_option("detect_loaded_modules")}'
+    # Filter out options we don't want to pass to child jobs
+    skip_options = ['--hooks', '--job', '--gitlab-ci-generate']
+    eb_args = []
+    
+    i = 0
+    while i < len(argv):
+        arg = argv[i]
+        # Skip the program name (eb)
+        if i == 0:
+            i += 1
+            continue
+        
+        # Skip hook-related options and their values
+        skip_this = False
+        for skip_opt in skip_options:
+            if arg.startswith(skip_opt):
+                skip_this = True
+                # If it's --option=value format, we're done
+                if '=' in arg:
+                    break
+                # If it's --option value format, skip the next arg too
+                if i + 1 < len(argv) and not argv[i + 1].startswith('-'):
+                    i += 1
+                break
+        
+        # Skip .eb files (we'll add the specific one for this job)
+        if not skip_this and not arg.endswith('.eb'):
+            eb_args.append(arg)
+        
+        i += 1
+    
+    # Build the command
+    eb_command = 'eb ' + ' '.join(eb_args)
     
     # Add dry-run option only if DRYRUN variable is set to true
     if os.environ.get('DRYRUN', '').lower() in ['1', 'true', 'yes']:
         eb_command += ' --dry-run'
     
-    # Add CUDA compute capabilities if set
-    cuda_capabilities = os.environ.get('CUDA_COMPUTE_CAPABILITIES', 8.0)
-    eb_command += f' --cuda-compute-capabilities={cuda_capabilities}'
-    
-    # Add EULA acceptance
-    accept_eula = build_option('accept_eula_for')
-    if accept_eula:
-        # If it's a list or string with brackets/quotes, format as comma-separated
-        if isinstance(accept_eula, (list, tuple)):
-            accept_eula_str = ','.join(str(x) for x in accept_eula)
-        else:
-            accept_eula_str = str(accept_eula).strip()
-            if accept_eula_str.startswith('[') and accept_eula_str.endswith(']'):
-                accept_eula_str = accept_eula_str[1:-1]
-            accept_eula_str = accept_eula_str.replace("'", "").replace('"', "")
-            accept_eula_str = ','.join([x.strip() for x in accept_eula_str.split(',')])
-        eb_command += f' --accept-eula-for={accept_eula_str}'
-    
-    # Add the easyconfig
+    # Add the specific easyconfig for this job
     eb_command += ' ' + os.path.basename(job_info['easyconfig_path'])
     
     # Create minimal job definition - only essential elements
@@ -524,67 +507,3 @@ def end_hook(*args, **kwargs):
     
     if build_option('gitlab_ci_generate'):
         log.info("[GitLab CI Hook] GitLab CI pipeline generation completed")
-
-
-# Register custom build options for GitLab CI
-def modify_build_options():
-    """Add custom build options for GitLab CI support."""
-    try:
-        from easybuild.tools.config import ConfigurationVariables
-        from easybuild.tools.options import EasyBuildOptions
-        
-        # This would need to be integrated into EasyBuild's option system
-        # For now, we'll check environment variables or use existing options
-        pass
-    except ImportError:
-        pass
-
-
-# Check if GitLab CI generation is enabled via environment or command line
-def build_option(option_name):
-    """Helper function to get build options, including custom GitLab CI options."""
-    try:
-        from easybuild.tools.config import build_option as eb_build_option
-        
-        # Handle custom GitLab CI options
-        if option_name == 'gitlab_ci_generate':
-            # Check environment variable or command line flag
-            return (os.environ.get('GITLAB_CI_GENERATE', '').lower() in ['1', 'true', 'yes'] or
-                    '--gitlab-ci-generate' in (sys.argv if hasattr(sys, 'argv') else []) or
-                    any('gitlab-ci' in arg.lower() for arg in (sys.argv if hasattr(sys, 'argv') else [])))
-        
-        return eb_build_option(option_name)
-    except:
-        # Fallback for options that might not exist
-        if option_name == 'gitlab_ci_generate':
-            return (os.environ.get('GITLAB_CI_GENERATE', '').lower() in ['1', 'true', 'yes'] or
-                    any('gitlab-ci' in arg.lower() for arg in (sys.argv if hasattr(sys, 'argv') else [])))
-        elif option_name == 'robot':
-            return '--robot' in (sys.argv if hasattr(sys, 'argv') else [])
-        elif option_name == 'job':
-            # We don't actually need --job for GitLab CI mode
-            return '--job' in (sys.argv if hasattr(sys, 'argv') else [])
-        elif option_name == 'force':
-            return '--force' in (sys.argv if hasattr(sys, 'argv') else [])
-        elif option_name == 'debug':
-            return '--debug' in (sys.argv if hasattr(sys, 'argv') else [])
-        elif option_name == 'insecure':
-            return '--insecure-download' in (sys.argv if hasattr(sys, 'argv') else [])
-        elif option_name == 'disable_mpi_tests':
-            return '--disable-mpi-tests' in (sys.argv if hasattr(sys, 'argv') else [])
-        elif option_name == 'skip_test_step':
-            return '--skip-test-step' in (sys.argv if hasattr(sys, 'argv') else [])
-        elif option_name == 'skip_test_cases':
-            return '--skip-test-cases' in (sys.argv if hasattr(sys, 'argv') else [])
-        elif option_name in ['installpath', 'installpath_modules', 'buildpath', 'sourcepath', 'tmp_logdir', 'detect_loaded_modules', 'accept_eula_for', 'robot_paths', 'module_naming_scheme']:
-            # Extract option value from command line
-            argv = sys.argv if hasattr(sys, 'argv') else []
-            option_flag = f'--{option_name.replace("_", "-")}'
-            for i, arg in enumerate(argv):
-                if arg.startswith(f'{option_flag}='):
-                    return arg.split('=', 1)[1]
-                elif arg == option_flag and i + 1 < len(argv):
-                    return argv[i + 1]
-            return None
-        else:
-            return None
