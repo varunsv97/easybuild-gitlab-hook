@@ -64,5 +64,4 @@ execute_builds:
         job: generate_pipeline
     strategy: depend
   variables:
-    EB_PATH: $EB_PATH
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION} --mem=200G"
