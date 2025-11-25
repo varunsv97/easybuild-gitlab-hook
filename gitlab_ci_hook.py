@@ -441,6 +441,10 @@ def _create_gitlab_job(job_info, stage_name):
     skip_options = ['--hooks', '--job']
     eb_args = []
     
+    # Extract tmp-logdir and buildpath for artifact paths
+    tmp_logdir = None
+    buildpath = None
+    
     i = 0
     while i < len(argv):
         arg = argv[i]
@@ -448,6 +452,18 @@ def _create_gitlab_job(job_info, stage_name):
         if i == 0:
             i += 1
             continue
+        
+        # Extract tmp-logdir
+        if arg.startswith('--tmp-logdir='):
+            tmp_logdir = arg.split('=', 1)[1]
+        elif arg == '--tmp-logdir' and i + 1 < len(argv):
+            tmp_logdir = argv[i + 1]
+        
+        # Extract buildpath
+        if arg.startswith('--buildpath='):
+            buildpath = arg.split('=', 1)[1]
+        elif arg == '--buildpath' and i + 1 < len(argv):
+            buildpath = argv[i + 1]
         
         # Skip hook-related options and their values
         skip_this = False
@@ -478,6 +494,13 @@ def _create_gitlab_job(job_info, stage_name):
     # Add the specific easyconfig for this job
     eb_command += ' ' + os.path.basename(job_info['easyconfig_path'])
     
+    # Build artifact paths dynamically
+    artifact_paths = ['*.log', '*.out', '*.err']
+    if tmp_logdir:
+        artifact_paths.insert(0, f'{tmp_logdir}/*.log')
+    if buildpath:
+        artifact_paths.insert(1 if tmp_logdir else 0, f'{buildpath}/**/*.log')
+    
     # Create job definition
     job = {
         'stage': stage_name,
@@ -488,7 +511,7 @@ def _create_gitlab_job(job_info, stage_name):
         },
         'artifacts': {
             'when': 'always',
-            'paths': ['eblog/*.log', '*.log', '*.out', '*.err'],
+            'paths': artifact_paths,
             'expire_in': '1 week',
         }
     }

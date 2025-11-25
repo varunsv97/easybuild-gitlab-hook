@@ -1,174 +1,142 @@
-# EasyBuild GitLab CI GPU Pipeline Setup
+# EasyBuild GitLab CI Hook
 
-This directory contains the GitLab CI hook and configuration for building GPU-accelerated software packages using EasyBuild. It is designed for CUDA toolchains and GPU-specific packages on the Hopper architecture.
+This repository contains an EasyBuild hook that automatically generates GitLab CI pipeline YAML files from EasyBuild easyconfigs. It analyzes dependencies and creates a child pipeline with proper job dependencies for distributed builds on HPC clusters.
 
-**Key Feature:** The hook runs EasyBuild in dry-run mode to resolve dependencies and generate GitLab CI pipelines **without submitting actual SLURM jobs**.
+## Prerequisites
 
-## Files
+This hook requires:
 
-- `gitlab_hook.py`: EasyBuild hook that generates GitLab CI pipelines instead of SLURM jobs.
-- `inject_defaults.py`: Script to add default configuration to generated pipelines.
-- `.gitlab-ci.yml`: Main GitLab CI configuration that triggers child pipelines.
-- `FIXED_ENVIRONMENT_VARIABLES.md`: Documentation of environment variable fixes.
-- `DRY_RUN_CHANGES.md`: Details about dry-run implementation.
+1. **GitLab Runner** installed and configured on your HPC cluster
+2. **Jacamar CI** - GitLab Runner executor for HPC batch systems (SLURM, PBS, LSF)
+   - Project: https://gitlab.com/ecp-ci/jacamar-ci
+   - Documentation: https://ecp-ci.gitlab.io/
+3. **EasyBuild** environment with Python and required modules
+
+Jacamar CI enables GitLab Runner to submit jobs to HPC schedulers, allowing GitLab CI pipelines to execute on compute nodes with proper resource allocation.
 
 ## How It Works
 
-### Problem Solved
-Previously, the hook allowed EasyBuild to submit SLURM jobs instead of only resolving dependencies and creating a GitLab CI pipeline file.
+The hook intercepts EasyBuild execution and generates a GitLab CI pipeline:
 
-### Solution: Dry-Run Implementation
-The hook now uses EasyBuild's `--dry-run` mode to:
+1. **Dependency Resolution:** EasyBuild resolves all dependencies with `--robot`
+2. **Hook Capture:** Captures easyconfig objects and dependency information
+3. **Pipeline Generation:** Creates `easybuild-child-pipeline.yml` with proper job dependencies
+4. **Configuration Injection:** Reads `.gitlab-ci.yml` and injects `default:` and `variables:` sections
+5. **Clean Exit:** Exits before any builds start
 
-1. Parse and resolve all dependencies with `--robot`.
-2. Prepare job information without submission.
-3. Capture complete dependency data via hooks.
-4. Generate a GitLab CI pipeline with proper job dependencies.
-5. Exit cleanly without starting actual builds.
+### Pipeline Components
 
-### Hook Strategy
-- **`post_ready_hook`**: Captures easyconfig objects after dependency resolution.
-- **`pre_build_and_install_loop_hook`**: Generates the GitLab CI pipeline and exits.
-- Enhanced processing: Handles dependency mapping for GitLab CI jobs.
+**Main Pipeline (`.gitlab-ci.yml`):**
+- `generate_pipeline` job: Runs EasyBuild with hook to generate child pipeline
+- `execute_builds` job: Triggers the generated child pipeline
 
-## Setup
+**Generated Child Pipeline (`easybuild-child-pipeline.yml`):**
+- Individual jobs for each package/dependency
+- Proper `needs:` relationships for dependency ordering
+- Dynamic artifact paths from `--tmp-logdir` and `--buildpath`
+- All configuration inherited from main pipeline
 
-### 1. Environment Configuration
+See `.gitlab-ci.yml` in this repository for a complete example.
 
-```bash
-# Set up EasyBuild environment
-source /data/rosi/shared/eb/easybuild_environments/hopper/eb_env/bin/activate
+## Quick Start
 
-# Configure paths
-export patheb=/data/rosi/shared/eb
-export architecture_rosi=hopper
+### 1. Setup GitLab CI Configuration
 
-# Enable GitLab CI pipeline generation
-export GITLAB_CI_GENERATE=1
+Create `.gitlab-ci.yml` with two stages:
+- **generate:** Run EasyBuild with hook to create child pipeline
+- **build:** Trigger the generated child pipeline
 
-# Optional: Set job parameters
-export JOB_OUTPUT_DIR=/path/to/output
-export JOB_CORES=16
-export JOB_MAX_WALLTIME=96
-```
+The hook reads configuration from:
+- `default:` section - tags, before_script, id_tokens, retry settings
+- `execute_builds.variables:` - SCHEDULER_PARAMETERS and other child pipeline variables
 
-**Important:** Use `GITLAB_CI_GENERATE` (not `EASYBUILD_GITLAB_CI_GENERATE`) to avoid EasyBuild environment variable validation errors.
+**Example:** See `.gitlab-ci.yml` in this repository
 
-### 2. Usage
+### 2. Run the Pipeline
 
-Run EasyBuild with the following command:
+Push to GitLab and the pipeline will:
+- Generate child pipeline from your easyconfigs
+- Inject configuration automatically
+- Execute builds on HPC compute nodes via Jacamar CI
 
-```bash
-eb --hooks=gitlab_hook.py \
-   --installpath=${patheb}/${architecture_rosi} \
-   --installpath-modules=${patheb}/${architecture_rosi}/modules \
-   --tmp-logdir=/tmp/eblog \
-   --buildpath=/tmp/ebbuild \
-   --sourcepath=/data/rosi/shared/eb/easybuild_source \
-   --cuda-compute-capabilities=9.0 \
-   --job-cores=16 \
-   --job-max-walltime=96 \
-   --dry-run \
-   --robot --job --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
-   --ignore-checksums \
-   --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN --force \
-   --trace \
-   Blender-4.3.2-GCCcore-13.3.0-linux-x86_64-CUDA-12.6.0.eb \
-   CUDA-Python-12.4.0-gfbf-2023b-CUDA-12.4.0.eb \
-   CUTLASS-3.4.0-foss-2023a-CUDA-12.1.1.eb \
-   Clang-18.1.8-GCCcore-13.3.0-CUDA-12.6.0.eb
-```
-
-**Key flags:**
-- `--dry-run`: Prevents actual SLURM job submission.
-- `--robot`: Resolves all dependencies automatically.
-- `--job`: Enables job mode (required for hook activation).
-
-### 3. Post-Processing
-
-After the pipeline is generated, inject configuration:
+### 3. Local Testing
 
 ```bash
-python inject_defaults.py easybuild-child-pipeline.yml
+source /path/to/easybuild/venv/bin/activate
+
+eb --hooks=gitlab_ci_hook.py \
+   --installpath=/path/to/software \
+   --tmp-logdir=eblog \
+   --buildpath=ebbuild \
+   --robot \
+   YourPackage.eb
+
+cat easybuild-child-pipeline.yml
 ```
 
-This adds:
-- EasyBuild environment activation.
-- Custom runner tags (`rosi-admin-slurm`).
-- JWT tokens for authentication.
-- Retry and timeout configurations.
-- Hopper-specific variables.
+## Key Features
 
-## Expected Behavior
+✅ **Automatic dependency mapping** - Jobs include proper `needs:` relationships  
+✅ **Configuration inheritance** - Reads everything from `.gitlab-ci.yml`  
+✅ **Dynamic artifact paths** - Uses `--tmp-logdir` and `--buildpath` from your command  
+✅ **Command preservation** - All eb options automatically passed to child jobs  
+✅ **HPC integration** - Works with Jacamar CI for SLURM/PBS/LSF job submission  
 
-When you run the GitLab CI pipeline:
+## Configuration
 
-1. **Dependency Resolution:** EasyBuild resolves all dependencies.
-2. **Hook Execution:** GitLab CI hook captures dependency information.
-3. **Pipeline Generation:** Creates `easybuild-child-pipeline.yml` with all jobs.
-4. **Dependency Mapping:** Jobs include proper `needs` relationships.
-5. **Clean Exit:** Process stops after pipeline generation (no actual builds).
+The hook automatically reads from `.gitlab-ci.yml`:
 
-## Pipeline Structure
+**From `default:` section:**
+- `tags` - Runner tags (e.g., for selecting HPC runners)
+- `before_script` - Setup commands (module loads, environment activation)
+- `id_tokens` - JWT authentication
+- `retry` - Retry configuration for failed jobs
 
-The generated pipeline will:
+**From `execute_builds.variables:`:**
+- `SCHEDULER_PARAMETERS` - HPC scheduler parameters (nodes, cores, partition, memory, etc.)
+- Custom variables for child pipeline jobs
 
-- Create individual jobs for each GPU package and dependency.
-- Handle dependencies automatically (CUDA toolchains first, then packages).
-- Use GPU runners with appropriate tags (`rosi-admin-slurm`, `gpu-h100`).
-- Include CUDA-specific options like compute capabilities.
-- Collect artifacts including logs and build outputs.
-- Support retry logic for failed jobs.
+## Architecture Examples
 
-## GPU Package Examples
+**CPU (Genoa/Milan/Turin):**
+```yaml
+execute_builds:
+  variables:
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-genoa --mem=200G"
+```
 
-Common GPU packages that can be built:
-
-- **CUDA Toolchains:** NVHPC, CUDA runtime.
-- **Deep Learning:** PyTorch, TensorFlow, JAX.
-- **Scientific Computing:** CuPy, GROMACS with CUDA.
-- **Math Libraries:** cuDNN, cuBLAS, cuSPARSE.
-- **Visualization:** Blender with CUDA support.
-
-## Architecture Configuration
-
-- **Target:** Hopper (H100 GPUs)
-- **CUDA Compute Capability:** 9.0
-- **Partition:** gpu-h100
-- **Max Walltime:** 96 hours
-- **Cores per job:** 16
-
-## Debug Information
-
-The hook includes comprehensive logging. Look for messages starting with `[GitLab CI Hook]` to track:
-
-- Environment variable detection.
-- Number of easyconfigs processed.
-- Hook function calls.
-- Pipeline generation progress.
-- File creation status.
+**GPU (Ampere/Hopper):**
+```yaml
+execute_builds:
+  variables:
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=gpu-a100 --gres=gpu:1 --mem=400G"
+```
 
 ## Troubleshooting
 
-### Common Issues
+**Circular variable reference error:**
+Remove self-referencing variables like `EB_PATH: $EB_PATH` from `execute_builds.variables`
 
-1. **Environment Variable Error:** Use `GITLAB_CI_GENERATE=1` not `EASYBUILD_GITLAB_CI_GENERATE=1`.
-2. **No Pipeline File:** Check that `--dry-run` and `--job` flags are present.
-3. **SLURM Jobs Submitted:** Ensure `--dry-run` flag is included in the command.
-4. **Missing Dependencies:** Verify `--robot` flag is enabling dependency resolution.
+**Artifacts not found:**
+Ensure `--tmp-logdir` and `--buildpath` are set in your eb command
 
-### Environment Variables
+**Missing configuration:**
+Verify `.gitlab-ci.yml` exists in the working directory during pipeline generation
 
-Fixed environment variables to avoid conflicts:
-- `GITLAB_CI_GENERATE`: Enables GitLab CI mode.
-- `JOB_OUTPUT_DIR`: Output directory for pipeline files.
-- `JOB_CORES`: Number of cores per job.
-- `JOB_MAX_WALLTIME`: Maximum walltime for jobs.
+**Jobs not running on HPC:**
+Check that Jacamar CI is properly configured and GitLab Runner has access to the HPC scheduler
 
-## Notes
+## Debug Information
 
-- All packages are built with `--ignore-checksums` for flexibility.
-- CUDA compute capabilities are set to 9.0 for H100 GPUs.
-- Build and log directories use `/tmp` for better I/O performance.
-- Automatic cleanup of temporary directories after builds.
-- The hook generates pipelines **without submitting actual builds** to SLURM.
+Look for these messages during pipeline generation:
+
+```
+*** GITLAB CI HOOK LOADED ***
+*** START_HOOK CALLED ***
+*** PRE_BUILD_AND_INSTALL_LOOP_HOOK CALLED ***
+*** Using N ready easyconfigs ***
+*** Finished processing - created N jobs ***
+*** Pipeline generated - exiting ***
+```
+
+Detailed logs start with `[GitLab CI Hook]` showing configuration loading, dependency mapping, and pipeline generation.
