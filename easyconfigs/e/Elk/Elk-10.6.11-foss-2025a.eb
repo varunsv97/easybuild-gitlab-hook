@@ -26,8 +26,8 @@ dependencies = [
 
 
 # make.inc file is generated interactively by "setup" command, creating it here
-prebuildopts = 'echo "F90_OPTS = -std=legacy $FFLAGS" > make.inc && '
-prebuildopts += 'echo "F77_OPTS = -std=legacy $FFLAGS" >> make.inc && '
+prebuildopts = 'echo "F90_OPTS = -std=legacy $FFLAGS -I$EBROOTLIBXC/include" > make.inc && '        # -I$EBROOTLIBXC/include
+prebuildopts += 'echo "F77_OPTS = -std=legacy $FFLAGS -I$EBROOTLIBXC/include" >> make.inc && '      # -I$EBROOTLIBXC/include
 prebuildopts += 'echo "LIB_LPK = $LIBLAPACK" >> make.inc && '
 prebuildopts += 'echo "LIB_FFT = $LIBFFT" >> make.inc && '
 prebuildopts += 'echo "LIB_W90 = -lwannier" >> make.inc && '
