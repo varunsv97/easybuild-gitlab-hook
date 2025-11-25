@@ -488,7 +488,7 @@ def _create_gitlab_job(job_info, stage_name):
         },
         'artifacts': {
             'when': 'always',
-            'paths': ['*.log', '*.out', '*.err'],
+            'paths': ['eblog/*.log', '*.log', '*.out', '*.err'],
             'expire_in': '1 week',
         }
     }
