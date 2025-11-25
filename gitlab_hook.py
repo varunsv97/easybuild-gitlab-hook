@@ -28,17 +28,6 @@ def start_hook(*args, **kwargs):
     print("*** START_HOOK CALLED ***")
     log.info("*** START_HOOK CALLED ***")
     
-    # Debug: Print environment and option detection
-    gitlab_ci_env = os.environ.get('GITLAB_CI_GENERATE', '')
-    
-    log.info("[GitLab CI Hook] DEBUG: GITLAB_CI_GENERATE env var: '%s'", gitlab_ci_env)
-    log.info("[GitLab CI Hook] DEBUG: build_option('gitlab_ci_generate'): %s", build_option('gitlab_ci_generate'))
-    
-    # Check if GitLab CI generation is enabled (no longer require --job)
-    if not build_option('gitlab_ci_generate'):
-        log.info("[GitLab CI Hook] GitLab CI mode not enabled - exiting hook")
-        return
-    
     log.info("[GitLab CI Hook] Initializing GitLab CI pipeline generation")
     log.info("[GitLab CI Hook] Running in GitLab CI mode (will intercept before builds)")
     
@@ -117,9 +106,6 @@ def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
     print("*** PRE_BUILD_AND_INSTALL_LOOP_HOOK CALLED ***")
     print(f"*** Received {len(ecs)} easyconfigs ***")
     log.info("[GitLab CI Hook] pre_build_and_install_loop_hook called with %d easyconfigs", len(ecs))
-    log.info("[GitLab CI Hook] DEBUG: build_option('gitlab_ci_generate'): %s", build_option('gitlab_ci_generate'))
-    
-    # Check if GitLab CI generation is enabled (no longer require --job)
     print("*** GitLab CI mode enabled - proceeding ***")
     log.info("[GitLab CI Hook] Processing %d easyconfigs for GitLab CI pipeline generation", len(ecs))
     
@@ -459,6 +445,4 @@ def _generate_pipeline_summary(pipeline_file):
 def end_hook(*args, **kwargs):
     """Cleanup hook called when EasyBuild finishes."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
-    
-    if build_option('gitlab_ci_generate'):
-        log.info("[GitLab CI Hook] GitLab CI pipeline generation completed")
+    log.info("[GitLab CI Hook] GitLab CI pipeline generation completed")

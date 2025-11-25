@@ -13,7 +13,7 @@ variables:
 default:
   tags: ['rosi-admin-shell']
   before_script:
-    - ml ampere
+    - ml genoa
     - ml python
     - source $EB_SOURCE/bin/activate
   id_tokens:
