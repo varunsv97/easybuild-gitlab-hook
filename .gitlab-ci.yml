@@ -7,7 +7,6 @@ variables:
 #  EB_PATH: "/bigdata/rz/sudhar46/easybuild_nosym"
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
-  GITLAB_CI_GENERATE: "1"
   ARCH: 'genoa'
 
 

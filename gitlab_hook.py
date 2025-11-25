@@ -1,30 +1,3 @@
-"""
-GitLab CI Hook for EasyBuild
-
-This hook generates GitLab CI child pipelines with job dependencies instead of 
-submitting to SLURM directly. It works exactly like the SLURM backend but creates
-GitLab CI jobs that run via Jacamar CI Batch.
-
-Usage:
-  # Enable GitLab CI generation and set environment variable
-  export GITLAB_CI_GENERATE=1
-  
-  # Run just like you would with SLURM backend
-  eb --hooks=gitlab_hook.py --robot --job pkg1.eb pkg2.eb
-  
-  # Or with multiple easyconfigs
-  eb --hooks=gitlab_hook.py --robot --job *.eb
-
-The hook will:
-1. Process all easyconfigs linearly (like SLURM backend)
-2. Resolve dependencies with --robot
-3. Create GitLab CI jobs with proper dependencies
-4. Generate easybuild-child-pipeline.yml
-5. Stop execution (preventing actual builds)
-
-Author: Custom GitLab CI Integration
-"""
-
 import os
 import sys
 import yaml
@@ -94,21 +67,12 @@ def pre_configure_hook(*args, **kwargs):
     log = fancylogger.getLogger('gitlab_hook', fname=False)
     print("*** PRE_CONFIGURE_HOOK CALLED ***")
     log.info("*** PRE_CONFIGURE_HOOK CALLED ***")
-    
-    # Check if GitLab CI generation is enabled (no longer require --job)
-    if not build_option('gitlab_ci_generate'):
-        return
-    
     log.info("[GitLab CI Hook] GitLab CI mode detected in pre_configure_hook")
 
 
 def parse_hook(ec_dict):
     """Hook called when parsing easyconfig files - collect them for GitLab CI pipeline generation."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
-    
-    # Check if GitLab CI generation is enabled (no longer require --job)
-    if not build_option('gitlab_ci_generate'):
-        return ec_dict
     
     # Store easyconfig for pipeline generation
     global PARSED_ECS
@@ -124,10 +88,6 @@ def parse_hook(ec_dict):
 def post_ready_hook(ec, *args, **kwargs):
     """Hook called when easyconfig is ready - use this to collect dependency info."""
     log = fancylogger.getLogger('gitlab_hook', fname=False)
-    
-    # Check if GitLab CI generation is enabled (no longer require --job)
-    if not build_option('gitlab_ci_generate'):
-        return
     
     # Store easyconfig in our global list for pipeline generation
     global READY_ECS
@@ -160,11 +120,6 @@ def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
     log.info("[GitLab CI Hook] DEBUG: build_option('gitlab_ci_generate'): %s", build_option('gitlab_ci_generate'))
     
     # Check if GitLab CI generation is enabled (no longer require --job)
-    if not build_option('gitlab_ci_generate'):
-        print("*** GitLab CI mode not enabled - exiting ***")
-        log.info("[GitLab CI Hook] GitLab CI mode not enabled in pre_build_and_install_loop_hook - exiting")
-        return
-    
     print("*** GitLab CI mode enabled - proceeding ***")
     log.info("[GitLab CI Hook] Processing %d easyconfigs for GitLab CI pipeline generation", len(ecs))
     
