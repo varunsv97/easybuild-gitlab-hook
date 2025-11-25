@@ -6,9 +6,6 @@ variables:
   EB_PATH: "/data/rosi/shared/eb/easybuild"
 #  EB_PATH: "/bigdata/rz/sudhar46/easybuild_nosym"
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb"
-  EB_PATH: "/data/rosi/shared/eb/easybuild"
-#  EB_PATH: "/bigdata/rz/sudhar46/easybuild_nosym"
-  EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   GITLAB_CI_GENERATE: "1"
   ARCH: 'genoa'
@@ -46,7 +43,7 @@ generate_pipeline:
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         Elk-10.6.11-foss-2025a.eb
+         Elk-8.5.2-foss-2022a.eb
 
 
     - python inject_defaults.py easybuild-child-pipeline.yml

@@ -12,7 +12,7 @@ simple as possible so that new developments in the field of density
 functional theory (DFT) can be added quickly and reliably.
 """
 
-toolchain = {'name': 'foss', 'version': '2024a'}
+toolchain = {'name': 'foss', 'version': '2025a'}
 toolchainopts = {'usempi': True, 'openmp': True, 'opt': True}
 
 source_urls = [SOURCEFORGE_SOURCE]
@@ -20,7 +20,7 @@ sources = [SOURCELOWER_TGZ]
 checksums = ['13de7f00037de3c35189ca3fe962540167ed39f9ab0a7ecd4552be4f544956dc']
 
 dependencies = [
-    ('libxc', '6.2.2'),
+    ('libxc', '7.0.0'),
     ('Wannier90', '3.1.0'),
 ]
 
