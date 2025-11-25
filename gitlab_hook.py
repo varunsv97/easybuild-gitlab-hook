@@ -3,7 +3,6 @@ import sys
 import yaml
 from easybuild.base import fancylogger
 from easybuild.tools.build_log import print_msg
-from easybuild.tools.config import build_option
 from easybuild.tools.filetools import write_file, mkdir
 from easybuild.framework.easyconfig.easyconfig import ActiveMNS
 
@@ -27,6 +26,11 @@ def start_hook(*args, **kwargs):
     # Always print this to help with debugging
     print("*** START_HOOK CALLED ***")
     log.info("*** START_HOOK CALLED ***")
+    
+    # Debug: Print environment and option detection
+    gitlab_ci_env = os.environ.get('GITLAB_CI_GENERATE', '')
+    
+    log.info("[GitLab CI Hook] DEBUG: GITLAB_CI_GENERATE env var: '%s'", gitlab_ci_env)
     
     log.info("[GitLab CI Hook] Initializing GitLab CI pipeline generation")
     log.info("[GitLab CI Hook] Running in GitLab CI mode (will intercept before builds)")
@@ -106,6 +110,8 @@ def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
     print("*** PRE_BUILD_AND_INSTALL_LOOP_HOOK CALLED ***")
     print(f"*** Received {len(ecs)} easyconfigs ***")
     log.info("[GitLab CI Hook] pre_build_and_install_loop_hook called with %d easyconfigs", len(ecs))
+    
+    # Check if GitLab CI generation is enabled (no longer require --job)
     print("*** GitLab CI mode enabled - proceeding ***")
     log.info("[GitLab CI Hook] Processing %d easyconfigs for GitLab CI pipeline generation", len(ecs))
     
@@ -228,8 +234,6 @@ def _process_easyconfigs_for_jobs(easyconfigs):
                 'job_dependencies': job_deps,   # Only deps being built in this pipeline
                 'toolchain': ec.toolchain,
                 'version': ec.version,
-                'cores': build_option('job_cores') or 1,
-                'walltime': build_option('job_max_walltime') or 24,
             }
             
             PIPELINE_JOBS[module_name] = job_info
@@ -309,7 +313,7 @@ def _generate_gitlab_pipeline():
                 log.info("[GitLab CI Hook] Job '%s' has no pipeline dependencies", sanitized_name)
     
     # Write pipeline file
-    output_dir = build_option('job_output_dir') or os.getcwd()
+    output_dir = os.getcwd()
     mkdir(output_dir, parents=True)
     
     pipeline_file = os.path.join(output_dir, 'easybuild-child-pipeline.yml')
@@ -332,7 +336,7 @@ def _create_gitlab_job(job_info, stage_name):
     argv = sys.argv if hasattr(sys, 'argv') else []
     
     # Filter out options we don't want to pass to child jobs
-    skip_options = ['--hooks', '--job', '--gitlab-ci-generate']
+    skip_options = ['--hooks', '--job']
     eb_args = []
     
     i = 0
@@ -389,14 +393,8 @@ def _create_gitlab_job(job_info, stage_name):
         }
     }
     
-    # Add log files from tmplogdir as artifacts
-    tmplogdir = build_option('tmp_logdir')
-    if tmplogdir:
-        # Add path for log files in the specified tmplogdir
-        job['artifacts']['paths'].append(f'{tmplogdir}/*.log')
-    else:
-        # Fallback to current directory log files if no tmplogdir specified
-        job['artifacts']['paths'].extend(['*.log', '*.out', '*.err'])
+    # Add log files as artifacts
+    job['artifacts']['paths'].extend(['*.log', '*.out', '*.err'])
     
     return job
 
