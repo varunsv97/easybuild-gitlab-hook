@@ -42,7 +42,7 @@ generate_pipeline:
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         Elk-8.5.2-foss-2022a.eb
+         Elk-10.6.11-foss-2022a.eb
 
 
     - python inject_defaults.py easybuild-child-pipeline.yml
