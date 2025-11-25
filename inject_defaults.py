@@ -88,8 +88,33 @@ def inject_pipeline_metadata(data, config, child_variables):
     # Merge child pipeline variables into the global variables section
     if child_variables:
         variables = data.get('variables', {})
-        variables.update(child_variables)
+        # Merge without overwriting existing variables from the hook
+        for key, value in child_variables.items():
+            if key not in variables:
+                variables[key] = value
         data['variables'] = variables
+    
+    # Reorder the YAML structure to put important sections first
+    ordered_data = {}
+    
+    # 1. Stages first
+    if 'stages' in data:
+        ordered_data['stages'] = data['stages']
+    
+    # 2. Variables second
+    if 'variables' in data:
+        ordered_data['variables'] = data['variables']
+    
+    # 3. Default configuration third
+    if 'default' in data:
+        ordered_data['default'] = data['default']
+    
+    # 4. All other keys (jobs)
+    for key in data:
+        if key not in ['stages', 'variables', 'default']:
+            ordered_data[key] = data[key]
+    
+    return ordered_data
 
 
 def main():
@@ -125,8 +150,8 @@ def main():
         print("Error: Pipeline file is empty or invalid!")
         sys.exit(1)
     
-    # Inject the configuration
-    inject_pipeline_metadata(pipeline_data, config, child_variables)
+    # Inject the configuration and reorder
+    pipeline_data = inject_pipeline_metadata(pipeline_data, config, child_variables)
     
     # Write the updated pipeline back
     try:
