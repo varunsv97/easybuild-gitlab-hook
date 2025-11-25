@@ -401,6 +401,11 @@ def _inject_configuration(pipeline, default_config, child_variables):
     if child_variables:
         variables = pipeline.get('variables', {})
         for key, value in child_variables.items():
+            # Skip variables that reference themselves (e.g., EB_PATH: $EB_PATH)
+            if isinstance(value, str) and value.strip() == f'${key}':
+                log.debug("[GitLab CI Hook] Skipping self-referencing variable: %s", key)
+                continue
+            # Only add if not already present
             if key not in variables:
                 variables[key] = value
         pipeline['variables'] = variables
