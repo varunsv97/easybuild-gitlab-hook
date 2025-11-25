@@ -22,16 +22,14 @@ default:
 
 generate_pipeline:
   stage: generate
-  variables:
-    HOOK: "$CI_PROJECT_DIR/gitlab_hook.py"
   script:
     - echo "Generating EasyBuild GitLab CI pipeline for GPU packages"
     - echo "DEBUG Environment variables:"
     - echo "GITLAB_CI_GENERATE=$GITLAB_CI_GENERATE"
     - echo "Current directory is $(pwd)"
-    - ls -la gitlab_hook.py || echo "Hook file NOT FOUND"
+    - ls -la gitlab_ci_hook.py || echo "Hook file NOT FOUND"
     - |
-      eb --hooks=gitlab_hook.py \
+      eb --hooks=gitlab_ci_hook.py \
          --installpath=${EB_PATH}/${ARCH} \
          --installpath-modules=${EB_PATH}/${ARCH}/modules \
          --tmp-logdir=eblog \
@@ -44,8 +42,6 @@ generate_pipeline:
          --trace --max-parallel=8 \
          Elk-10.6.11-foss-2022a.eb
 
-
-    - python inject_defaults.py easybuild-child-pipeline.yml
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
 
