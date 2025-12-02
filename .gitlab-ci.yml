@@ -40,7 +40,7 @@ generate_pipeline:
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         Dakota-6.22.0-foss-2023a.eb 
+         Dakota-6.22.0-foss-2023a.eb
 
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
