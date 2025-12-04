@@ -35,7 +35,7 @@ generate_pipeline:
          --tmp-logdir=eblog \
          --buildpath=ebbuild \
          --sourcepath=/data/rosi/shared/eb/easybuild_source \
-         --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
+         --robot --insecure-download --disable-mpi-tests --skip-test-step --ignore-test-failure \
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
