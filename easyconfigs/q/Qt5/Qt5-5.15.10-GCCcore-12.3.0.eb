@@ -80,6 +80,11 @@ dependencies = [
     ('nodejs', '18.17.1'),
 ]
 
+toolchainopts += {'optarch': False}
+cflags += "-O2 -march=znver2"
+cxxflags += "-O2 -march=znver2"
+
+
 # qtgamepad needs recent kernel/libevdev (fails on RHEL 6.x)
 # qtwayland fails to build on (some) Centos 7 systems
 configopts = '-skip qtgamepad  -skip qtwayland'
