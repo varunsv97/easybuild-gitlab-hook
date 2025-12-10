@@ -40,7 +40,6 @@ generate_pipeline:
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         JupyterLab-3.1.6-GCCcore-11.2.0.eb
          JupyterLab-4.0.3-GCCcore-12.2.0.eb
          JupyterLab-4.0.5-GCCcore-12.3.0.eb
          JupyterLab-4.2.0-GCCcore-13.2.0.eb
