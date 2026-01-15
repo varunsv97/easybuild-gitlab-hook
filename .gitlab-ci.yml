@@ -6,8 +6,8 @@ variables:
   EB_PATH: "/data/rosi/shared/eb/easybuild"
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
-  ARCH: 'rome'
-  PARTITION: 'rome'
+  ARCH: 'milan'
+  PARTITION: 'milan'
 
 
 default:
