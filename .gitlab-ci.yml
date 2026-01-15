@@ -35,16 +35,16 @@ generate_pipeline:
          --tmp-logdir=eblog \
          --buildpath=ebbuild \
          --sourcepath=/data/rosi/shared/eb/easybuild_source \
-         --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases --fix-deprecated-easyconfigs \
+         --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         JupyterLab-4.0.3-GCCcore-12.2.0.eb
-         JupyterLab-4.0.5-GCCcore-12.3.0.eb
-         JupyterLab-4.2.0-GCCcore-13.2.0.eb
-         JupyterLab-4.2.5-GCCcore-13.3.0.eb
-         JupyterLab-4.4.4-GCCcore-14.2.0.eb
+         JupyterLab-4.0.3-GCCcore-12.2.0.eb \
+         JupyterLab-4.0.5-GCCcore-12.3.0.eb \
+         JupyterLab-4.2.0-GCCcore-13.2.0.eb \
+         JupyterLab-4.2.5-GCCcore-13.3.0.eb \
+         JupyterLab-4.4.4-GCCcore-14.2.0.eb \
          JupyterLab-4.4.9-GCCcore-14.3.0.eb
 
 
