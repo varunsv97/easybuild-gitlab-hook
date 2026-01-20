@@ -55,6 +55,7 @@ def start_hook(*args, **kwargs):
     # Reset global state
     PIPELINE_JOBS = {}
     JOB_DEPENDENCIES = {}
+    GITLAB_CONFIG = {}
     
     # Load GitLab configuration from environment
     GITLAB_CONFIG = {
