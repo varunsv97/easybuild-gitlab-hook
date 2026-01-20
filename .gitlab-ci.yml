@@ -6,8 +6,10 @@ variables:
   EB_PATH: "/data/rosi/shared/eb/easybuild"
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
+  CUSTOM_CI_BUILDS_DIR: "/bigdata/rz/rosi_easybuild"
   ARCH: 'rome'
   PARTITION: 'cpu-rome'
+  GIT_STRATEGY: fetch
 
 
 default:
