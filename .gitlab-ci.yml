@@ -7,8 +7,8 @@ variables:
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
   CUSTOM_CI_BUILDS_DIR: "/bigdata/rz/rosi_easybuild"
-  ARCH: 'rome'
-  PARTITION: 'cpu-rome'
+  ARCH: 'genoa'
+  PARTITION: 'cpu-genoa'
   GIT_STRATEGY: fetch
 
 
@@ -42,10 +42,8 @@ generate_pipeline:
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         R-4.5.1-gfbf-2025a.eb \
-         R-4.4.2-gfbf-2024a.eb \
-         R-4.3.2-gfbf-2023a.eb \
-         R-4.2.1-foss-2022a.eb
+         rclone-1.68.1.eb \
+         OpenFOAM-v2406-foss-2023a.eb
 
 
 
