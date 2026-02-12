@@ -58,7 +58,7 @@ generate_pipeline:
 
 execute_builds:
   stage: build
-  when: manual
+  when: always
   trigger:
     include:
       - artifact:  ${CI_PROJECT_DIR}/easybuild-child-pipeline.yml
