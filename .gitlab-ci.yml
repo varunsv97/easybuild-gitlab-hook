@@ -42,7 +42,7 @@ generate_pipeline:
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         openFOAM-v2406-foss-2023b.eb
+         OpenFOAM-v2406-foss-2023a.eb
 
 
 
