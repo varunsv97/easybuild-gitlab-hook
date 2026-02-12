@@ -9,11 +9,11 @@ variables:
   CUSTOM_CI_BUILDS_DIR: "/bigdata/rz/rosi_easybuild"
   ARCH: 'genoa'
   PARTITION: 'cpu-genoa'
-  GIT_STRATEGY: clone
+  GIT_STRATEGY: fetch
 
 
 default:
-  tags: ['rosi-admin-slurm']
+  tags: ['rosi-slurm']
   before_script:
     - ml ${ARCH}
     - ml python
