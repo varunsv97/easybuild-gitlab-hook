@@ -39,7 +39,7 @@ generate_pipeline:
          --sourcepath=/data/rosi/shared/eb/easybuild_source \
          --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
-         --ignore-checksums --module-naming-scheme=CategorizedHMNS \
+         --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
          OpenFOAM-v2406-foss-2023a.eb
