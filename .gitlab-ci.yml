@@ -42,7 +42,6 @@ generate_pipeline:
          --ignore-checksums --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         rclone-1.68.1.eb \
          OpenFOAM-v2406-foss-2023a.eb
 
 
