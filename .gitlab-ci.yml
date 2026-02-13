@@ -9,7 +9,7 @@ variables:
   CUSTOM_CI_BUILDS_DIR: "/bigdata/rz/rosi_easybuild"
   ARCH: 'genoa'
   PARTITION: 'cpu-genoa'
-  GIT_STRATEGY: fetch
+  GIT_STRATEGY: clone
 
 
 default:
