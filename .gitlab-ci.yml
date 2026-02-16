@@ -4,13 +4,13 @@ workflow:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       variables:
-        EB_PATH: /data/rosi/shared/eb/easybuild
-        CUSTOM_CI_BUILDS_DIR: /bigdata/rz/rosi_easybuild
+        EB_PATH: "/data/rosi/shared/eb/easybuild"
+        CUSTOM_CI_BUILDS_DIR: "/bigdata/rz/rosi_easybuild"
     # Please add paths where you want to store the generated modules and git clone respectively.
     - when: always
       variables: 
-        EB_PATH: 
-        CUSTOM_CI_BUILDS_DIR: /bigdata/nanostructures/DFT/DI/clusterspacktemp
+        EB_PATH: ""
+        CUSTOM_CI_BUILDS_DIR: ""
 
 variables:
   ARCH: 'genoa'
