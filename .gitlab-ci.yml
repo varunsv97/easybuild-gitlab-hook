@@ -9,8 +9,8 @@ workflow:
     # Please add paths where you want to store the generated modules and git clone respectively.
     - when: always
       variables: 
-        EB_PATH: ""
-        CUSTOM_CI_BUILDS_DIR: ""
+        EB_PATH: "/bigdata/nanostructures/DFT/DI/clusterebtemp"
+        CUSTOM_CI_BUILDS_DIR: "/bigdata/nanostructures/DFT/DI/clusterebtemp/build"
 
 variables:
   ARCH: 'genoa'
@@ -50,13 +50,8 @@ generate_pipeline:
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
-         --trace --max-parallel=8 \
-         git-annex-10.20240731-GCCcore-13.3.0.eb \
-         datalad-1.1.3-GCCcore-13.3.0.eb \
-         jq-1.7.1-GCCcore-13.3.0.eb \
-         rclone-1.68.1.eb \
-         Tcl-8.6.14-GCCcore-13.3.0.eb \
-         Tk-8.6.14-GCCcore-13.3.0.eb
+         --trace --max-parallel=4 \
+         QuantumESPRESSO-7.2-foss-2024a.eb
 
 
     - echo "Pipeline generation completed"
@@ -78,4 +73,4 @@ execute_builds:
     strategy: depend
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION} --mem=200G"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=4 --partition=${PARTITION} --mem=1000G"
