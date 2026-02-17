@@ -50,7 +50,7 @@ generate_pipeline:
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
-         --trace --max-parallel=4 \
+         --trace --max-parallel=16 \
          --ignore-checksums \
          QuantumESPRESSO-7.2-foss-2024a.eb
 
@@ -74,4 +74,4 @@ execute_builds:
     strategy: depend
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=4 --partition=${PARTITION} --mem=1000G"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=16 --partition=${PARTITION} --mem=1000G"
