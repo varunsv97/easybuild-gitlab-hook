@@ -52,8 +52,7 @@ generate_pipeline:
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=1 \
          --ignore-checksums \
-         QuantumESPRESSO-7.2-foss-2024a.eb
-
+         QuantumESPRESSO-7.5-foss-2025a.eb
 
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
