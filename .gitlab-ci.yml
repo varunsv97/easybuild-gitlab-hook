@@ -13,8 +13,8 @@ workflow:
         CUSTOM_CI_BUILDS_DIR: ""
 
 variables:
-  ARCH: 'genoa'
-  PARTITION: 'cpu-genoa'
+  ARCH: 'skylake'
+  PARTITION: 'cpu-skylake'
 
 #Do not change the below variables
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb_env"
@@ -51,13 +51,7 @@ generate_pipeline:
          --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         git-annex-10.20240731-GCCcore-13.3.0.eb \
-         datalad-1.1.3-GCCcore-13.3.0.eb \
-         jq-1.7.1-GCCcore-13.3.0.eb \
-         rclone-1.68.1.eb \
-         Tcl-8.6.14-GCCcore-13.3.0.eb \
-         Tk-8.6.14-GCCcore-13.3.0.eb
-
+         JupyterLab/4.4.4
 
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
@@ -78,4 +72,4 @@ execute_builds:
     strategy: depend
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION} --mem=200G"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION} --mem=100G"
