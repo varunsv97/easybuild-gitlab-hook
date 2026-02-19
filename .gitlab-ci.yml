@@ -51,7 +51,7 @@ generate_pipeline:
          --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         JupyterLab/4.4.4
+         JupyterLab-4.4.4-GCCcore-14.2.0.eb
 
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
