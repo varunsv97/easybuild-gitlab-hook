@@ -9,8 +9,8 @@ workflow:
     # Please add paths where you want to store the generated modules and git clone respectively.
     - when: always
       variables: 
-        EB_PATH: ""
-        CUSTOM_CI_BUILDS_DIR: ""
+        EB_PATH: "/bigdata/nanostructures/DFT/DI/clusterebtemp"
+        CUSTOM_CI_BUILDS_DIR: "/bigdata/nanostructures/DFT/DI/clusterebtemp/build"
 
 variables:
   ARCH: 'skylake'
@@ -50,8 +50,9 @@ generate_pipeline:
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
-         --trace --max-parallel=8 \
-         JupyterLab-4.4.4-GCCcore-14.2.0.eb
+         --trace --max-parallel=1 \
+         --ignore-checksums \
+         QuantumESPRESSO-7.5-foss-2025a.eb
 
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
@@ -72,4 +73,4 @@ execute_builds:
     strategy: depend
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION} --mem=100G"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=1 --partition=${PARTITION} --mem=1000G"
