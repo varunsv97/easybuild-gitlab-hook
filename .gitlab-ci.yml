@@ -13,8 +13,8 @@ workflow:
         CUSTOM_CI_BUILDS_DIR: "/bigdata/nanostructures/DFT/DI/clusterebtemp/build"
 
 variables:
-  ARCH: 'genoa'
-  PARTITION: 'cpu-genoa'
+  ARCH: 'skylake'
+  PARTITION: 'cpu-skylake'
 
 #Do not change the below variables
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb_env"
