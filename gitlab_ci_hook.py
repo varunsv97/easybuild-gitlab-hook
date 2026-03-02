@@ -40,11 +40,12 @@ log.info("GitLab CI Hook module loaded successfully")
 PIPELINE_JOBS = {}
 JOB_DEPENDENCIES = {}
 GITLAB_CONFIG = {}
+JOB_NAME_MAP = {}
 
 
 def start_hook(*args, **kwargs):
     """Initialize GitLab CI pipeline generation."""
-    global PIPELINE_JOBS, JOB_DEPENDENCIES, GITLAB_CONFIG
+    global PIPELINE_JOBS, JOB_DEPENDENCIES, GITLAB_CONFIG, JOB_NAME_MAP, PARSED_ECS, READY_ECS
     
     log = fancylogger.getLogger('gitlab_ci_hook', fname=False)
     
@@ -56,6 +57,9 @@ def start_hook(*args, **kwargs):
     PIPELINE_JOBS = {}
     JOB_DEPENDENCIES = {}
     GITLAB_CONFIG = {}
+    JOB_NAME_MAP = {}
+    PARSED_ECS = []
+    READY_ECS = []
     
     # Load GitLab configuration from environment
     GITLAB_CONFIG = {
@@ -162,14 +166,15 @@ def _process_easyconfigs_for_jobs(easyconfigs):
     """Process easyconfigs and build job dependency map."""
     log = fancylogger.getLogger('gitlab_ci_hook', fname=False)
     
-    global PIPELINE_JOBS, JOB_DEPENDENCIES
+    global PIPELINE_JOBS, JOB_DEPENDENCIES, JOB_NAME_MAP
     
     # Reset global state
     PIPELINE_JOBS = {}
     JOB_DEPENDENCIES = {}
+    JOB_NAME_MAP = {}
     
-    # Keep track of which job builds which module
-    module_to_job = {}
+    # Collect all dependency module names first, then resolve to in-pipeline deps in a second pass.
+    raw_dependencies = {}
     
     log.info("[GitLab CI Hook] Processing %d easyconfigs", len(easyconfigs))
     
@@ -214,20 +219,12 @@ def _process_easyconfigs_for_jobs(easyconfigs):
             
             # Map dependency module names
             dep_mod_names = []
-            job_deps = []
             
             # Process all dependencies
             for dep in all_deps:
                 try:
                     dep_mod_name = ActiveMNS().det_full_module_name(dep)
                     dep_mod_names.append(dep_mod_name)
-                    # Only include dependencies that are being built in this pipeline
-                    if dep_mod_name in module_to_job:
-                        job_deps.append(dep_mod_name)
-                        log.debug("[GitLab CI Hook] Added dependency to job '%s': %s", easyconfig_name, dep_mod_name)
-                    else:
-                        log.debug("[GitLab CI Hook] Skipped dependency for job '%s' (not in pipeline): %s", 
-                                easyconfig_name, dep_mod_name)
                 except Exception as err:
                     log.warning("Could not determine module name for dependency %s: %s", dep, err)
             
@@ -237,19 +234,16 @@ def _process_easyconfigs_for_jobs(easyconfigs):
                 'module': module_name,
                 'easyconfig_path': spec,
                 'dependencies': dep_mod_names,
-                'job_dependencies': job_deps,
+                'job_dependencies': [],
                 'toolchain': ec.toolchain,
                 'version': ec.version,
             }
             
             PIPELINE_JOBS[module_name] = job_info
-            JOB_DEPENDENCIES[module_name] = job_deps
+            raw_dependencies[module_name] = dep_mod_names
             
-            # Update module-to-job mapping
-            module_to_job[module_name] = job_info
-            
-            log.info("[GitLab CI Hook] Added job '%s' (%s) with %d total deps, %d pipeline deps: %s", 
-                     module_name, easyconfig_name, len(dep_mod_names), len(job_deps), job_deps)
+            log.info("[GitLab CI Hook] Added job '%s' (%s) with %d total deps", 
+                     module_name, easyconfig_name, len(dep_mod_names))
         
         except Exception as err:
             log.error("[GitLab CI Hook] Error processing easyconfig %d: %s", i, err)
@@ -257,6 +251,22 @@ def _process_easyconfigs_for_jobs(easyconfigs):
             if isinstance(easyconfig, dict):
                 log.error("[GitLab CI Hook] Easyconfig keys: %s", list(easyconfig.keys()))
             continue
+
+    # Resolve dependency edges against the final set of jobs so input order does not matter.
+    pipeline_modules = set(PIPELINE_JOBS.keys())
+    for module_name, dep_mod_names in raw_dependencies.items():
+        seen = set()
+        pipeline_deps = []
+        for dep_mod_name in dep_mod_names:
+            if dep_mod_name == module_name:
+                continue
+            if dep_mod_name in pipeline_modules and dep_mod_name not in seen:
+                pipeline_deps.append(dep_mod_name)
+                seen.add(dep_mod_name)
+
+        JOB_DEPENDENCIES[module_name] = pipeline_deps
+        PIPELINE_JOBS[module_name]['job_dependencies'] = pipeline_deps
+        log.info("[GitLab CI Hook] Resolved pipeline deps for '%s': %s", module_name, pipeline_deps)
     
     print(f"*** Finished processing - created {len(PIPELINE_JOBS)} jobs ***")
     log.info("[GitLab CI Hook] Processed %d easyconfigs for GitLab CI jobs", len(PIPELINE_JOBS))
@@ -301,6 +311,7 @@ def _generate_and_inject_pipeline():
 def _generate_base_pipeline():
     """Generate the base GitLab CI pipeline structure."""
     log = fancylogger.getLogger('gitlab_ci_hook', fname=False)
+    global JOB_NAME_MAP
     
     # Set all jobs to a single stage for parallel execution
     pipeline = {
@@ -313,10 +324,25 @@ def _generate_base_pipeline():
             'DRYRUN': os.environ.get('DRYRUN', '$DRYRUN'),
         },
     }
+
+    # Build unique GitLab job names to avoid collisions after sanitization.
+    used_job_names = set()
+    JOB_NAME_MAP = {}
+    for module_name in PIPELINE_JOBS:
+        base_name = _sanitize_job_name(module_name)
+        job_name = base_name
+        suffix = 2
+        while job_name in used_job_names:
+            job_name = f"{base_name}-{suffix}"
+            suffix += 1
+        if job_name != base_name:
+            log.warning("[GitLab CI Hook] Job name collision for '%s'; using '%s'", module_name, job_name)
+        used_job_names.add(job_name)
+        JOB_NAME_MAP[module_name] = job_name
     
     # Add jobs
     for module_name, job_info in PIPELINE_JOBS.items():
-        sanitized_name = _sanitize_job_name(module_name)
+        sanitized_name = JOB_NAME_MAP[module_name]
         job_yaml = _create_gitlab_job(job_info, 'build')
         job_yaml['stage'] = 'build'
         pipeline[sanitized_name] = job_yaml
@@ -328,11 +354,10 @@ def _generate_base_pipeline():
         if deps:
             pipeline_deps = []
             for dep in deps:
-                sanitized_dep = _sanitize_job_name(dep)
-                if sanitized_dep in pipeline:
-                    pipeline_deps.append(sanitized_dep)
+                if dep in JOB_NAME_MAP:
+                    pipeline_deps.append(JOB_NAME_MAP[dep])
                     log.debug("[GitLab CI Hook] ✓ Added dependency '%s' -> '%s' for job '%s'", 
-                            dep, sanitized_dep, module_name)
+                              dep, JOB_NAME_MAP[dep], module_name)
             if pipeline_deps:
                 pipeline[sanitized_name]['needs'] = pipeline_deps
                 log.info("[GitLab CI Hook] Job '%s' needs: %s", sanitized_name, pipeline_deps)
@@ -384,7 +409,12 @@ def _inject_configuration(pipeline, default_config, child_variables):
         default['id_tokens'] = default_config['id_tokens'].copy()
     
     if 'retry' in default_config:
-        default['retry'] = default_config['retry'].copy()
+        retry_value = default_config['retry']
+        if isinstance(retry_value, dict):
+            default['retry'] = retry_value.copy()
+        else:
+            # GitLab also allows scalar retry values (for example: retry: 2).
+            default['retry'] = retry_value
     else:
         default['retry'] = {
             'max': 2,
