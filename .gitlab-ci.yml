@@ -73,4 +73,4 @@ execute_builds:
     strategy: depend
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION} --mem=100G"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION} --mem=50G"
