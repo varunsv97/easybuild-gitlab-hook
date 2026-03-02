@@ -13,8 +13,8 @@ workflow:
         CUSTOM_CI_BUILDS_DIR: "/bigdata/nanostructures/DFT/DI/clusterebtemp/build"
 
 variables:
-  ARCH: 'genoa'
-  PARTITION: 'cpu-genoa'
+  ARCH: 'skylake'
+  PARTITION: 'cpu-skylake'
 
 #Do not change the below variables
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb_env"
@@ -52,7 +52,7 @@ generate_pipeline:
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=1 \
          --ignore-checksums \
-         QuantumESPRESSO-7.5-foss-2025a.eb
+         Dakota-6.22.0-foss-2023a.eb
 
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
@@ -73,4 +73,4 @@ execute_builds:
     strategy: depend
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=1 --partition=${PARTITION} --mem=1000G"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION} --mem=100G"
