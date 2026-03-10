@@ -24,7 +24,6 @@ variables:
 default:
   tags: ['rosi-slurm']
   before_script:
-    - ml ${ARCH}
     - ml python
     - source $EB_SOURCE/bin/activate
   id_tokens:
@@ -54,15 +53,13 @@ generate_pipeline:
       eb --hooks=gitlab_ci_hook.py \
          --installpath=${EB_PATH}/${ARCH} \
          --installpath-modules=${EB_PATH}/${ARCH}/modules \
-         --tmp-logdir=eblog \
-         --buildpath=ebbuild \
+         --tmp-logdir=eblog --buildpath=ebbuild \
          --sourcepath=/data/rosi/shared/eb/easybuild_source \
          --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         --ignore-checksums \
          foss-2021b.eb \
          foss-2022.05.eb \
          foss-2022.10.eb \
