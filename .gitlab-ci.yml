@@ -13,8 +13,8 @@ workflow:
         CUSTOM_CI_BUILDS_DIR: "/bigdata/nanostructures/DFT/DI/clusterebtemp/build"
 
 variables:
-  ARCH: 'turin'
-  PARTITION: 'cpu-turin'
+  ARCH: 'hopper'
+  PARTITION: 'gpu-h100'
 
 #Do not change the below variables
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb_env"
@@ -44,7 +44,7 @@ test_gitlab_ci_hook:
 generate_pipeline:
   stage: generate
   script:
-    - echo "Generating EasyBuild GitLab CI pipeline for GPU packages"
+    - echo "Generating EasyBuild GitLab CI pipeline for foss and CUDA toolchains"
     - echo "DEBUG Environment variables:"
     - echo "GITLAB_CI_GENERATE=$GITLAB_CI_GENERATE"
     - echo "Current directory is $(pwd)"
@@ -60,18 +60,16 @@ generate_pipeline:
          --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=8 \
-         foss-2021b.eb \
-         foss-2022.05.eb \
-         foss-2022.10.eb \
-         foss-2022a.eb \
-         foss-2022b.eb \
-         foss-2023.09.eb \
-         foss-2023a.eb \
-         foss-2023c.eb \
-         foss-2024.05.eb \
-         foss-2024a.eb \
-         foss-2025a.eb \
-         foss-2025b.eb
+         CUDA-12.1.1.eb \
+         CUDA-12.2.2.eb \
+         CUDA-12.3.2.eb \
+         CUDA-12.4.0.eb \
+         CUDA-12.5.0.eb \
+         CUDA-12.6.0.eb \
+         CUDA-12.8.0.eb \
+         CUDA-12.9.1.eb \
+         CUDA-13.0.2.eb \
+         CUDA-13.1.0.eb
 
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
@@ -91,4 +89,4 @@ execute_builds:
     strategy: depend
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION}"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION} --mem=500G -A rz --qos=qos_rz"
