@@ -59,7 +59,7 @@ generate_pipeline:
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
-         --trace --max-parallel=8 \
+         --trace --max-parallel=8 --cuda-compute-capabilities=9.0 \
          CUDA-12.1.1.eb \
          CUDA-12.2.2.eb \
          CUDA-12.3.2.eb \
