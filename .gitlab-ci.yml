@@ -1,10 +1,10 @@
-stages: ["generate", "build"]
+stages: ["test", "generate", "build"]
 
 workflow:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       variables:
-        EB_PATH: "/data/rosi/shared/eb/easybuild"
+        EB_PATH: "/bigdata/rz/rosi_easybuild"
         CUSTOM_CI_BUILDS_DIR: "/bigdata/rz/rosi_easybuild"
     # Please add paths where you want to store the generated modules and git clone respectively.
     - when: always
@@ -13,8 +13,8 @@ workflow:
         CUSTOM_CI_BUILDS_DIR: "/bigdata/nanostructures/DFT/DI/clusterebtemp/build"
 
 variables:
-  ARCH: 'skylake'
-  PARTITION: 'cpu-skylake'
+  ARCH: 'turin'
+  PARTITION: 'cpu-turin'
 
 #Do not change the below variables
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb_env"
@@ -30,6 +30,17 @@ default:
   id_tokens:
     CI_JOB_JWT:
       aud: "https://codebase.helmholtz.cloud"
+
+test_gitlab_ci_hook:
+  stage: test
+  before_script: []
+  script:
+    - python3 --version
+    - python3 -m unittest discover -s tests -p "test_*.py" -v
+  rules:
+    - changes:
+        - gitlab_ci_hook.py
+        - tests/test_gitlab_ci_hook.py
 
 generate_pipeline:
   stage: generate
@@ -50,13 +61,23 @@ generate_pipeline:
          --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
          --module-naming-scheme=CategorizedHMNS \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
-         --trace --max-parallel=1 \
+         --trace --max-parallel=8 \
          --ignore-checksums \
-         Dakota-6.22.0-foss-2023a.eb
+         foss-2021b.eb \
+         foss-2022.05.eb \
+         foss-2022.10.eb \
+         foss-2022a.eb \
+         foss-2022b.eb \
+         foss-2023.09.eb \
+         foss-2023a.eb \
+         foss-2023c.eb \
+         foss-2024.05.eb \
+         foss-2024a.eb \
+         foss-2025a.eb \
+         foss-2025b.eb
 
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
-
 
   artifacts:
     paths:
@@ -73,4 +94,4 @@ execute_builds:
     strategy: depend
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION} --mem=50G --time=20:00:00"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION}"

@@ -314,15 +314,26 @@ def _generate_base_pipeline():
     global JOB_NAME_MAP
     
     # Set all jobs to a single stage for parallel execution
+    pipeline_variables = {
+        'EASYBUILD_MODULES_TOOL': 'Lmod',
+    }
+    for key in ['SCHEDULER_PARAMETERS', 'patheb', 'DRYRUN']:
+        value = os.environ.get(key)
+        if value:
+            pipeline_variables[key] = value
+
+    # EasyBuild reads EASYBUILD_CUDA_COMPUTE_CAPABILITIES (not the unprefixed name).
+    # Accept either form from the environment for convenience.
+    cuda_cc = os.environ.get(
+        'EASYBUILD_CUDA_COMPUTE_CAPABILITIES',
+        os.environ.get('CUDA_COMPUTE_CAPABILITIES'),
+    )
+    if cuda_cc:
+        pipeline_variables['EASYBUILD_CUDA_COMPUTE_CAPABILITIES'] = cuda_cc
+
     pipeline = {
         'stages': ['build'],
-        'variables': {
-            'EASYBUILD_MODULES_TOOL': 'Lmod',
-            'SCHEDULER_PARAMETERS': os.environ.get('SCHEDULER_PARAMETERS', '$SCHEDULER_PARAMETERS'),
-            'patheb': os.environ.get('patheb', '$patheb'),
-            'CUDA_COMPUTE_CAPABILITIES': os.environ.get('CUDA_COMPUTE_CAPABILITIES', '8.0'),
-            'DRYRUN': os.environ.get('DRYRUN', '$DRYRUN'),
-        },
+        'variables': pipeline_variables,
     }
 
     # Build unique GitLab job names to avoid collisions after sanitization.
@@ -537,7 +548,6 @@ def _create_gitlab_job(job_info, stage_name):
         'script': [eb_command],
         'variables': {
             'EB_MODULE_NAME': job_info['module'],
-            'SCHEDULER_PARAMETERS': os.environ.get('SCHEDULER_PARAMETERS', '$SCHEDULER_PARAMETERS'),
         },
         'artifacts': {
             'when': 'always',

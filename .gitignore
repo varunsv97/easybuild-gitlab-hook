@@ -1,2 +1,7 @@
 __pycache__/
 legacy/
+.local/
+.venv-*/
+venv-*/
+venv/
+easyconfigs_old/
