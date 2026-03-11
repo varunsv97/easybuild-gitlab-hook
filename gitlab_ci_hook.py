@@ -542,13 +542,22 @@ def _create_gitlab_job(job_info, stage_name):
     if buildpath:
         artifact_paths.insert(1 if tmp_logdir else 0, f'{buildpath}/**/*.log')
     
+    # Build per-job variables
+    job_variables = {
+        'EB_MODULE_NAME': job_info['module'],
+    }
+
+    # Point TMPDIR at the buildpath so large CUDA .run extractions don't
+    # overflow a small /tmp tmpfs and SIGSEGV the installer.
+    if buildpath:
+        job_variables['TMPDIR'] = f'{buildpath}/tmp'
+        job_variables['EASYBUILD_TMPDIR'] = f'{buildpath}/tmp'
+
     # Create job definition
     job = {
         'stage': stage_name,
         'script': [eb_command],
-        'variables': {
-            'EB_MODULE_NAME': job_info['module'],
-        },
+        'variables': job_variables,
         'artifacts': {
             'when': 'always',
             'paths': artifact_paths,

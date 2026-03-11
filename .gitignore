@@ -5,3 +5,4 @@ legacy/
 venv-*/
 venv/
 easyconfigs_old/
+easyconfigs_old_*/

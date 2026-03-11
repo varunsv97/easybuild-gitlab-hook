@@ -4,27 +4,37 @@ workflow:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       variables:
-        EB_PATH: "/bigdata/rz/rosi_easybuild"
+        EB_PATH: "/data/rosi/shared/eb/easybuild"
         CUSTOM_CI_BUILDS_DIR: "/bigdata/rz/rosi_easybuild"
     # Please add paths where you want to store the generated modules and git clone respectively.
     - when: always
       variables: 
-        EB_PATH: "/bigdata/nanostructures/DFT/DI/clusterebtemp"
-        CUSTOM_CI_BUILDS_DIR: "/bigdata/nanostructures/DFT/DI/clusterebtemp/build"
+        EB_PATH: ""
+        CUSTOM_CI_BUILDS_DIR: ""
 
 variables:
+
+# Set the architecture and partition for the builds.
+# Set slurm parameters, take enough memory for the builds, otherwise they will fail.
   ARCH: 'hopper'
   PARTITION: 'gpu-h100'
+  NTASKS_PER_NODE: '8'
+  MEM: '500G'
 
-#Do not change the below variables
+# Set the CUDA compute capabilities for the builds. 
+# This should be set according to the GPU architecture you are targeting. 
+# For volta it is 7.0, for ampere it is 8.0, for hopper it is 9.0, for blackwell it is 10.0
+  CUDA_COMPUTE_CAPABILITIES: "9.0"
+
+# Do NOT change the below variables
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
-
 
 default:
   tags: ['rosi-slurm']
   before_script:
-    - ml python
+    - ml python/3.14
+    - ml ${ARCH}
     - source $EB_SOURCE/bin/activate
   id_tokens:
     CI_JOB_JWT:
@@ -34,6 +44,7 @@ test_gitlab_ci_hook:
   stage: test
   before_script: []
   script:
+    - ml python/3.14
     - python3 --version
     - python3 -m unittest discover -s tests -p "test_*.py" -v
   rules:
@@ -55,20 +66,11 @@ generate_pipeline:
          --installpath-modules=${EB_PATH}/${ARCH}/modules \
          --tmp-logdir=eblog --buildpath=ebbuild \
          --sourcepath=/data/rosi/shared/eb/easybuild_source \
-         --robot --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
-         --robot-paths=${CI_PROJECT_DIR}/easyconfigs \
+         --robot --robot-paths=${CI_PROJECT_DIR}/custom_easyconfigs: \
          --module-naming-scheme=CategorizedHMNS \
+         --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
-         --trace --max-parallel=8 --cuda-compute-capabilities=9.0 \
-         CUDA-12.1.1.eb \
-         CUDA-12.2.2.eb \
-         CUDA-12.3.2.eb \
-         CUDA-12.4.0.eb \
-         CUDA-12.5.0.eb \
-         CUDA-12.6.0.eb \
-         CUDA-12.8.0.eb \
-         CUDA-12.9.1.eb \
-         CUDA-13.0.2.eb \
+         --trace --max-parallel=${NTASKS_PER_NODE} --cuda-compute-capabilities=${CUDA_COMPUTE_CAPABILITIES} \
          CUDA-13.1.0.eb
 
     - echo "Pipeline generation completed"
@@ -89,4 +91,4 @@ execute_builds:
     strategy: depend
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=${PARTITION} --mem=500G -A rz --qos=qos_rz"
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=${NTASKS_PER_NODE} --partition=${PARTITION} --mem=${MEM}"

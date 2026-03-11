@@ -144,7 +144,10 @@ class GitLabCIHookTests(unittest.TestCase):
         artifact_paths = job["artifacts"]["paths"]
         self.assertEqual(artifact_paths[0], "eblog/*.log")
         self.assertEqual(artifact_paths[1], "ebbuild/**/*.log")
-        self.assertEqual(job["variables"], {"EB_MODULE_NAME": "Foo/1.2.3"})
+        self.assertEqual(job["variables"]["EB_MODULE_NAME"], "Foo/1.2.3")
+        # TMPDIR should be set under buildpath to avoid /tmp overflow
+        self.assertEqual(job["variables"]["TMPDIR"], "ebbuild/tmp")
+        self.assertEqual(job["variables"]["EASYBUILD_TMPDIR"], "ebbuild/tmp")
 
     def test_inject_configuration_merges_defaults_and_skips_self_reference(self):
         pipeline = {
