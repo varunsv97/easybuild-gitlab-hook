@@ -16,8 +16,8 @@ variables:
 
 # Set the architecture and partition for the builds.
 # Set slurm parameters, take enough memory for the builds, otherwise they will fail.
-  ARCH: 'hopper'
-  PARTITION: 'gpu-h100'
+  ARCH: 'turin'
+  PARTITION: 'cpu-turin'
   NTASKS_PER_NODE: '8'
   MEM: '500G'
 
@@ -34,7 +34,7 @@ default:
   tags: ['rosi-slurm']
   before_script:
     - ml python/3.14
-    - ml ${ARCH}
+#    - ml ${ARCH}
     - source $EB_SOURCE/bin/activate
   id_tokens:
     CI_JOB_JWT:
@@ -70,8 +70,8 @@ generate_pipeline:
          --module-naming-scheme=CategorizedHMNS \
          --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
-         --trace --max-parallel=${NTASKS_PER_NODE} --cuda-compute-capabilities=${CUDA_COMPUTE_CAPABILITIES} \
-         CUDA-13.1.0.eb
+         --trace --max-parallel=${NTASKS_PER_NODE} \
+         foss-2023a.eb
 
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
