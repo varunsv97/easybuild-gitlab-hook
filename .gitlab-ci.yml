@@ -4,7 +4,7 @@ workflow:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       variables:
-        EB_PATH: "/data/rosi/shared/eb/easybuild"
+        EB_PATH: "/bigdata/rz/rosi_easybuild"
         CUSTOM_CI_BUILDS_DIR: "/bigdata/rz/rosi_easybuild"
     # Please add paths where you want to store the generated modules and git clone respectively.
     - when: always
@@ -71,7 +71,8 @@ generate_pipeline:
          --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=${NTASKS_PER_NODE} \
-         foss-2023a.eb
+         foss-2024a.eb \
+         foss-2025a.eb
 
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
