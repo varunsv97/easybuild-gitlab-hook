@@ -24,7 +24,7 @@ variables:
 # Set the CUDA compute capabilities for the builds. 
 # This should be set according to the GPU architecture you are targeting. 
 # For volta it is 7.0, for ampere it is 8.0, for hopper it is 9.0, for blackwell it is 10.0
-  CUDA_COMPUTE_CAPABILITIES: "9.0"
+ # CUDA_COMPUTE_CAPABILITIES: "9.0"
 
 # Do NOT change the below variables
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb_env"
