@@ -34,13 +34,13 @@ builddependencies = [
 ]
 
 dependencies = [
-    ('zlib', '1.2.12'),
-    ('hwloc', '2.7.1'),
-    ('libevent', '2.1.12'),
+#    ('zlib', '1.2.12'),
+#    ('hwloc', '2.7.1'),
+#    ('libevent', '2.1.12'),
     ('UCX', '1.12.1'),
     ('UCX-CUDA', '1.12.1', '-CUDA-%(cudaver)s'),
     ('libfabric', '1.15.1'),
-    ('PMIx', '4.1.2'),
+#    ('PMIx', '4.1.2'),
     ('UCC', '1.0.0'),
     ('UCC-CUDA', '1.0.0', '-CUDA-%(cudaver)s'),
 ]
@@ -61,9 +61,17 @@ preconfigopts = ' && '.join([
 
 # CUDA related patches and custom configure option can be removed if CUDA support isn't wanted.
 configopts = '--with-cuda=internal '
-configopts += ' CC=pgcc CXX=pgc++ FC=pgfortran'
+configopts += ' CC=pgcc CXX=pgc++ FC=pgfortran '
 
 # disable MPI1 compatibility for now, see what breaks...
 # configopts += '--enable-mpi1-compatibility '
+
+# to enable SLURM integration (site-specific)
+configopts += ' --with-slurm --with-hwloc=/usr --with-hwloc-libdir=/usr/lib/x86_64-linux-gnu --with-pmix=/usr/local --with-libevent-libdir=/usr/lib/x86_64-linux-gnu --with-libevent=/usr '
+
+
+modextravars = {
+    'LD_LIBRARY_PATH': '/usr/local/lib:%(LD_LIBRARY_PATH)s',
+}
 
 moduleclass = 'mpi'

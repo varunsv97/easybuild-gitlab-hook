@@ -16,8 +16,8 @@ variables:
 
 # Set the architecture and partition for the builds.
 # Set slurm parameters, take enough memory for the builds, otherwise they will fail.
-  ARCH: 'skylake'
-  PARTITION: 'cpu-skylake'
+  ARCH: 'volta'
+  PARTITION: 'gpu-v100'
   NTASKS_PER_NODE: '8'
   MEM: '100G'
 
@@ -34,7 +34,7 @@ default:
   tags: ['rosi-slurm']
   before_script:
     - ml python/3.14
-#    - ml ${ARCH}
+    - ml use /data/rosi/shared/eb/easybuild/volta/modules/all/Core/
     - source $EB_SOURCE/bin/activate
   id_tokens:
     CI_JOB_JWT:
@@ -71,7 +71,7 @@ generate_pipeline:
          --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=${NTASKS_PER_NODE} \
-         foss-2022a.eb
+         OpenMPI-5.0.3-nvidia-compilers-25.3-CUDA-12.8.0.eb
 
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
