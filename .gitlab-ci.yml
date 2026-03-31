@@ -34,7 +34,6 @@ default:
   tags: ['rosi-slurm']
   before_script:
     - ml python/3.14
-    - ml hopper
     - source $EB_SOURCE/bin/activate
   id_tokens:
     CI_JOB_JWT:
@@ -66,12 +65,12 @@ generate_pipeline:
          --installpath-modules=${EB_PATH}/${ARCH}/modules \
          --tmp-logdir=eblog --buildpath=ebbuild \
          --sourcepath=/data/rosi/shared/eb/easybuild_source \
-         --robot --robot-paths=./custom_easyconfigs: \
+         --robot --robot-paths=${CI_PROJECT_DIR}/custom_easyconfigs: \
          --module-naming-scheme=CategorizedHMNS \
          --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=${NTASKS_PER_NODE} \
-         --cuda-compute-capabilities=7.0 --rebuild \
+         --cuda-compute-capabilities=7.0 --force \
          OpenMPI-5.0.3-nvidia-compilers-25.3-CUDA-12.8.0.eb
 
     - echo "Pipeline generation completed"
