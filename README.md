@@ -24,6 +24,8 @@ The hook intercepts EasyBuild execution and generates a GitLab CI pipeline:
 4. **Configuration Injection:** Reads `.gitlab-ci.yml` and injects `default:` and `variables:` sections
 5. **Clean Exit:** Exits before any builds start
 
+Dependency mapping is done in two passes. The hook first normalizes all collected easyconfigs and resolves their module names, then resolves dependency edges against that in-memory pipeline set. This avoids order-dependent dependency mapping and lets the hook recover from inherited toolchain dependencies where EasyBuild guesses a nonexistent easyconfig filename during module-name resolution.
+
 ### Pipeline Components
 
 **Main Pipeline (`.gitlab-ci.yml`):**
@@ -116,6 +118,14 @@ execute_builds:
 
 **Circular variable reference error:**
 Remove self-referencing variables like `EB_PATH: $EB_PATH` from `execute_builds.variables`
+
+**Inherited toolchain dependency resolution fails with a missing easyconfig file:**
+If EasyBuild reports an error like `Failed to find easyconfig file 'pkgconf-2.2.0-nvidia-compilers-25.3-CUDA-12.8.0.eb'` while processing a dependency of another easyconfig such as `OpenMPI`, the hook now falls back to the already collected pipeline easyconfigs instead of relying only on `ActiveMNS().det_full_module_name(dep)`. This covers dependencies marked with `toolchain_inherited=True`, where the dependency may really be provided by a different underlying toolchain easyconfig than the one EasyBuild first guesses.
+
+If this still fails, check:
+- the dependency easyconfig is included in the robot search path or the resolved pipeline set;
+- the dependency name, version, and versionsuffix match the easyconfig being built;
+- the generated debug logs contain `[GitLab CI Hook] ActiveMNS failed ... resolved via pipeline fallback ...`.
 
 **Artifacts not found:**
 Ensure `--tmp-logdir` and `--buildpath` are set in your eb command

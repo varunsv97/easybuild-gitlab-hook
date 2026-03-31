@@ -84,13 +84,14 @@ HOOK = importlib.import_module("gitlab_ci_hook")
 
 
 class _FakeEC:
-    def __init__(self, module_name, deps=None, name=None, version=None):
+    def __init__(self, module_name, deps=None, name=None, version=None, versionsuffix="", toolchain=None):
         self.module_name = module_name
         base_name, base_version = module_name.split("/", 1)
         self.name = name or base_name
         self.version = version or base_version
+        self.versionsuffix = versionsuffix
         self.path = f"/tmp/{self.name}-{self.version}.eb"
-        self.toolchain = {"name": "foss", "version": "2023a"}
+        self.toolchain = toolchain or {"name": "foss", "version": "2023a"}
         self.dependencies = []
         self.builddependencies = []
         self.all_dependencies = deps or []
@@ -200,6 +201,87 @@ class GitLabCIHookTests(unittest.TestCase):
         self.assertEqual(HOOK.JOB_DEPENDENCIES["A/1.0"], ["B/1.0"])
         self.assertEqual(HOOK.JOB_DEPENDENCIES["B/1.0"], [])
         self.assertEqual(HOOK.JOB_DEPENDENCIES["C/1.0"], [])
+
+    def test_process_easyconfigs_falls_back_when_dependency_module_lookup_fails(self):
+        dep_pkgconf = {
+            "name": "pkgconf",
+            "version": "2.2.0",
+            "versionsuffix": "",
+            "toolchain": {"name": "nvidia-compilers", "version": "25.3-CUDA-12.8.0"},
+            "toolchain_inherited": True,
+            "build_only": True,
+            "external_module": False,
+        }
+        ec_openmpi = _FakeEC(
+            "OpenMPI/5.0.3",
+            deps=[dep_pkgconf],
+            name="OpenMPI",
+            version="5.0.3",
+            toolchain={"name": "nvidia-compilers", "version": "25.3-CUDA-12.8.0"},
+        )
+        ec_pkgconf = _FakeEC(
+            "pkgconf/2.2.0",
+            deps=[],
+            name="pkgconf",
+            version="2.2.0",
+            toolchain={"name": "GCCcore", "version": "13.3.0"},
+        )
+
+        class _FallbackActiveMNS:
+            def det_full_module_name(self, item):
+                if isinstance(item, dict):
+                    raise RuntimeError("missing easyconfig for dependency")
+                return item.module_name
+
+        with mock.patch.object(HOOK, "ActiveMNS", _FallbackActiveMNS):
+            HOOK._process_easyconfigs_for_jobs([ec_openmpi, ec_pkgconf])
+
+        self.assertEqual(HOOK.JOB_DEPENDENCIES["OpenMPI/5.0.3"], ["pkgconf/2.2.0"])
+        self.assertEqual(HOOK.JOB_DEPENDENCIES["pkgconf/2.2.0"], [])
+
+    def test_process_easyconfigs_inherited_dep_resolves_among_multiple_matches(self):
+        """When multiple pipeline records match name+version, inherited deps should still resolve."""
+        dep_pkgconf = {
+            "name": "pkgconf",
+            "version": "2.2.0",
+            "versionsuffix": "",
+            "toolchain": {"name": "nvidia-compilers", "version": "25.3-CUDA-12.8.0"},
+            "toolchain_inherited": True,
+            "build_only": True,
+            "external_module": False,
+        }
+        ec_openmpi = _FakeEC(
+            "OpenMPI/5.0.3",
+            deps=[dep_pkgconf],
+            name="OpenMPI",
+            version="5.0.3",
+            toolchain={"name": "nvidia-compilers", "version": "25.3-CUDA-12.8.0"},
+        )
+        ec_pkgconf_gcc13 = _FakeEC(
+            "pkgconf-gcc13/2.2.0",
+            deps=[],
+            name="pkgconf",
+            version="2.2.0",
+            toolchain={"name": "GCCcore", "version": "13.3.0"},
+        )
+        ec_pkgconf_gcc14 = _FakeEC(
+            "pkgconf-gcc14/2.2.0",
+            deps=[],
+            name="pkgconf",
+            version="2.2.0",
+            toolchain={"name": "GCCcore", "version": "14.2.0"},
+        )
+
+        class _FallbackActiveMNS:
+            def det_full_module_name(self, item):
+                if isinstance(item, dict):
+                    raise RuntimeError("missing easyconfig for dependency")
+                return item.module_name
+
+        with mock.patch.object(HOOK, "ActiveMNS", _FallbackActiveMNS):
+            HOOK._process_easyconfigs_for_jobs([ec_openmpi, ec_pkgconf_gcc13, ec_pkgconf_gcc14])
+
+        self.assertEqual(HOOK.JOB_DEPENDENCIES["OpenMPI/5.0.3"], ["pkgconf-gcc13/2.2.0"])
 
     def test_generate_base_pipeline_handles_job_name_collisions(self):
         HOOK.PIPELINE_JOBS = {

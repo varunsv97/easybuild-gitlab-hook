@@ -24,7 +24,7 @@ checksums = [
 
 local_gccver = '14.2.0'
 dependencies = [
-    ('CUDA', '12.8.0'),
+    ('CUDA', '12.8.0', '', SYSTEM),
     ('GCCcore', local_gccver),
     ('binutils', '2.42', '', ('GCCcore', local_gccver)),
     # This is necessary to avoid cases where just libnuma.so.1 is present in the system and -lnuma fails

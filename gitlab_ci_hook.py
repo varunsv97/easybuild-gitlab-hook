@@ -43,6 +43,116 @@ GITLAB_CONFIG = {}
 JOB_NAME_MAP = {}
 
 
+def _extract_easyconfig_details(easyconfig, index):
+    """Normalize the different easyconfig payload shapes used by EasyBuild hooks."""
+    if isinstance(easyconfig, dict):
+        if 'ec' in easyconfig:
+            ec = easyconfig['ec']
+            spec = easyconfig.get('spec', 'unknown')
+            easyconfig_name = f"{ec.name}-{ec.version}.eb"
+        elif 'name' in easyconfig and 'version' in easyconfig:
+            ec = easyconfig.get('ec')
+            if ec is None:
+                log.warning("Skipping easyconfig %d: no 'ec' object found", index)
+                return None
+            easyconfig_name = f"{easyconfig['name']}-{easyconfig['version']}.eb"
+            spec = easyconfig.get('spec', easyconfig_name)
+        else:
+            ec = easyconfig.get('ec')
+            if ec is None:
+                log.warning("Skipping easyconfig %d: no 'ec' key found", index)
+                return None
+            easyconfig_name = f"{ec.name}-{ec.version}.eb"
+            spec = easyconfig.get('spec', easyconfig_name)
+    else:
+        ec = easyconfig
+        easyconfig_name = f"{ec.name}-{ec.version}.eb"
+        spec = getattr(ec, 'path', easyconfig_name)
+
+    return {
+        'ec': ec,
+        'spec': spec,
+        'easyconfig_name': easyconfig_name,
+        'name': getattr(ec, 'name', None),
+        'version': getattr(ec, 'version', None),
+        'versionsuffix': getattr(ec, 'versionsuffix', ''),
+        'toolchain': getattr(ec, 'toolchain', None),
+    }
+
+
+def _toolchain_tuple(toolchain):
+    """Return a comparable (name, version) tuple for a toolchain-like object."""
+    if isinstance(toolchain, dict):
+        return (toolchain.get('name'), toolchain.get('version'))
+    return (getattr(toolchain, 'name', None), getattr(toolchain, 'version', None))
+
+
+def _resolve_dependency_module_name(dep, easyconfig_records=None):
+    """Best-effort dependency module name lookup without requiring the dep easyconfig file."""
+    if not isinstance(dep, dict):
+        return None
+
+    for key in ('full_mod_name', 'module_name', 'short_mod_name'):
+        if dep.get(key):
+            return dep[key]
+
+    if not easyconfig_records:
+        return None
+
+    dep_name = dep.get('name')
+    dep_version = dep.get('version')
+    dep_versionsuffix = dep.get('versionsuffix', '')
+    if not dep_name or not dep_version:
+        return None
+
+    matches = [
+        record for record in easyconfig_records
+        if record.get('name') == dep_name
+        and record.get('version') == dep_version
+        and record.get('versionsuffix', '') == dep_versionsuffix
+        and record.get('module_name') is not None
+    ]
+    if len(matches) == 1:
+        return matches[0]['module_name']
+
+    dep_toolchain = _toolchain_tuple(dep.get('toolchain'))
+    toolchain_matches = [
+        record for record in matches
+        if _toolchain_tuple(record.get('toolchain')) == dep_toolchain
+    ]
+    if len(toolchain_matches) == 1:
+        return toolchain_matches[0]['module_name']
+
+    if len(matches) > 1 and dep.get('toolchain_inherited'):
+        log.debug(
+            "Dependency %s/%s inherited toolchain; falling back to first pipeline match %s",
+            dep_name,
+            dep_version,
+            matches[0]['module_name'],
+        )
+        return matches[0]['module_name']
+
+    return None
+
+
+def _det_full_module_name(item, easyconfig_records=None):
+    """Resolve a module name with a fallback for inherited/toolchain-shifted dependencies."""
+    try:
+        return ActiveMNS().det_full_module_name(item)
+    except Exception as err:
+        fallback_module_name = _resolve_dependency_module_name(item, easyconfig_records)
+        if fallback_module_name:
+            log.debug(
+                "ActiveMNS failed for %s with %s, resolved via pipeline fallback to %s",
+                item,
+                err,
+                fallback_module_name,
+            )
+            return fallback_module_name
+        log.debug("ActiveMNS and pipeline fallback both failed for %s after %s", item, err)
+        raise
+
+
 def start_hook(*args, **kwargs):
     """Initialize GitLab CI pipeline generation."""
     global PIPELINE_JOBS, JOB_DEPENDENCIES, GITLAB_CONFIG, JOB_NAME_MAP, PARSED_ECS, READY_ECS
@@ -175,43 +285,33 @@ def _process_easyconfigs_for_jobs(easyconfigs):
     
     # Collect all dependency module names first, then resolve to in-pipeline deps in a second pass.
     raw_dependencies = {}
+    easyconfig_records = []
     
     log.info("[GitLab CI Hook] Processing %d easyconfigs", len(easyconfigs))
     
-    # Process each easyconfig
+    # Normalize easyconfig payloads up front so dependency fallback matching can use the full pipeline set.
     for i, easyconfig in enumerate(easyconfigs):
+        details = _extract_easyconfig_details(easyconfig, i)
+        if details is not None:
+            easyconfig_records.append(details)
+
+    # Resolve module names for all jobs before dependency processing.
+    for record in easyconfig_records:
         try:
-            # Handle different easyconfig formats
-            if isinstance(easyconfig, dict):
-                if 'ec' in easyconfig:
-                    ec = easyconfig['ec']
-                    spec = easyconfig.get('spec', 'unknown')
-                    easyconfig_name = f"{ec.name}-{ec.version}.eb"
-                elif 'name' in easyconfig and 'version' in easyconfig:
-                    ec = easyconfig.get('ec')
-                    if ec is None:
-                        log.warning("Skipping easyconfig %d: no 'ec' object found", i)
-                        continue
-                    easyconfig_name = f"{easyconfig['name']}-{easyconfig['version']}.eb"
-                    spec = easyconfig.get('spec', easyconfig_name)
-                else:
-                    ec = easyconfig.get('ec')
-                    if ec is None:
-                        log.warning("Skipping easyconfig %d: no 'ec' key found", i)
-                        continue
-                    easyconfig_name = f"{ec.name}-{ec.version}.eb"
-                    spec = easyconfig.get('spec', easyconfig_name)
-            else:
-                # Direct easyconfig object
-                ec = easyconfig
-                easyconfig_name = f"{ec.name}-{ec.version}.eb"
-                spec = getattr(ec, 'path', easyconfig_name)
-            
-            # Get module name
-            try:
-                module_name = ActiveMNS().det_full_module_name(ec)
-            except Exception as err:
-                log.warning("Could not determine module name for %s: %s", spec, err)
+            record['module_name'] = _det_full_module_name(record['ec'], easyconfig_records)
+        except Exception as err:
+            log.warning("Could not determine module name for %s: %s", record['spec'], err)
+
+    easyconfig_records = [record for record in easyconfig_records if record.get('module_name')]
+
+    # Process each easyconfig
+    for i, record in enumerate(easyconfig_records):
+        try:
+            ec = record['ec']
+            spec = record['spec']
+            easyconfig_name = record['easyconfig_name']
+            module_name = record.get('module_name')
+            if not module_name:
                 continue
             
             # Get all dependencies, filter out external modules
@@ -223,7 +323,7 @@ def _process_easyconfigs_for_jobs(easyconfigs):
             # Process all dependencies
             for dep in all_deps:
                 try:
-                    dep_mod_name = ActiveMNS().det_full_module_name(dep)
+                    dep_mod_name = _det_full_module_name(dep, easyconfig_records)
                     dep_mod_names.append(dep_mod_name)
                 except Exception as err:
                     log.warning("Could not determine module name for dependency %s: %s", dep, err)
@@ -246,10 +346,7 @@ def _process_easyconfigs_for_jobs(easyconfigs):
                      module_name, easyconfig_name, len(dep_mod_names))
         
         except Exception as err:
-            log.error("[GitLab CI Hook] Error processing easyconfig %d: %s", i, err)
-            log.error("[GitLab CI Hook] Easyconfig type: %s", type(easyconfig))
-            if isinstance(easyconfig, dict):
-                log.error("[GitLab CI Hook] Easyconfig keys: %s", list(easyconfig.keys()))
+            log.error("[GitLab CI Hook] Error processing easyconfig %d (%s): %s", i, record.get('easyconfig_name'), err)
             continue
 
     # Resolve dependency edges against the final set of jobs so input order does not matter.
