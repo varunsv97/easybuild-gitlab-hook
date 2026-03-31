@@ -25,7 +25,7 @@ checksums = [
 ]
 
 builddependencies = [
-    ('GCCcore, 14.2.0'),
+    ('GCCcore', '14.2.0'),
     ('pkgconf', '2.2.0'),
     ('Perl', '5.38.2'),
     ('Autotools', '20231222'),
