@@ -71,7 +71,7 @@ generate_pipeline:
          --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=${NTASKS_PER_NODE} \
-         --cuda-compute-capabilities=7.0 --rebuild\
+         --cuda-compute-capabilities=7.0 --rebuild \
          OpenMPI-5.0.3-nvidia-compilers-25.3-CUDA-12.8.0.eb
 
     - echo "Pipeline generation completed"
