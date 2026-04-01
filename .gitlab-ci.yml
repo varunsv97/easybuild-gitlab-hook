@@ -71,14 +71,9 @@ generate_pipeline:
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=${NTASKS_PER_NODE} \
          --cuda-compute-capabilities=7.0 --force --rebuild \
-         PMIx-5.0.2-GCCcore-13.3.0.eb \
-         PMIx-5.0.2-GCCcore-14.2.0.eb \
-         PMIx-5.0.6-GCCcore-13.3.0.eb \
-         PMIx-5.0.6-GCCcore-14.2.0.eb \
-         PRRTE-3.0.5-GCCcore-13.3.0.eb \
-         PRRTE-3.0.5-GCCcore-14.2.0.eb \
-         PRRTE-3.0.8-GCCcore-13.3.0.eb \
-         PRRTE-3.0.8-GCCcore-14.2.0.eb 
+         nvidia-compilers-25.3-CUDA-12.8.0.eb \
+         nvidia-compilers-25.1-CUDA-12.6.0.eb
+
     
     - echo "Pipeline generation completed"
     - cat easybuild-child-pipeline.yml
