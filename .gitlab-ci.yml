@@ -16,10 +16,10 @@ variables:
 
 # Set the architecture and partition for the builds.
 # Set slurm parameters, take enough memory for the builds, otherwise they will fail.
-  ARCH: 'volta'
-  PARTITION: 'gpu-v100'
+  ARCH: 'ampere'
+  PARTITION: 'gpu-a100'
   NTASKS_PER_NODE: '8'
-  MEM: '100G'
+  MEM: '200G'
 
 # Set the CUDA compute capabilities for the builds. 
 # This should be set according to the GPU architecture you are targeting. 
@@ -70,8 +70,10 @@ generate_pipeline:
          --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=${NTASKS_PER_NODE} \
-         --cuda-compute-capabilities=7.0 \
-         OpenMPI-5.0.3-nvidia-compilers-25.1-CUDA-12.6.0.eb
+         --cuda-compute-capabilities=8.0 \
+         OpenMPI-5.0.3-nvidia-compilers-25.1-CUDA-12.6.0.eb \
+         OpenMPI-4.1.4-NVHPC-22.7-CUDA-11.7.0.eb \
+         OpenMPI-5.0.3-nvidia-compilers-25.3-CUDA-12.8.0.eb
 
     
     - echo "Pipeline generation completed"
