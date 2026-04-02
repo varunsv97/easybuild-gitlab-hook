@@ -22,6 +22,7 @@ Author: Varun Sudharshnam, HZDR
 """
 
 import os
+import posixpath
 import sys
 import yaml
 from pathlib import Path
@@ -638,22 +639,39 @@ def _create_gitlab_job(job_info, stage_name):
         artifact_paths.insert(0, f'{tmp_logdir}/*.log')
     if buildpath:
         artifact_paths.insert(1 if tmp_logdir else 0, f'{buildpath}/**/*.log')
+
+    # Resolve scratch to a stable absolute path for the job. EasyBuild changes
+    # into package-specific build directories, so a relative TMPDIR can point
+    # somewhere unintended by the time the CUDA installer runs.
+    tempdir = None
+    if buildpath:
+        if buildpath.startswith('$') or buildpath.startswith('${') or os.path.isabs(buildpath):
+            buildpath_root = buildpath
+        else:
+            buildpath_root = posixpath.join('${CI_PROJECT_DIR}', buildpath)
+        tempdir = posixpath.normpath(posixpath.join(buildpath_root, 'tmp'))
     
     # Build per-job variables
     job_variables = {
         'EB_MODULE_NAME': job_info['module'],
     }
 
-    # Point TMPDIR at the buildpath so large CUDA .run extractions don't
-    # overflow a small /tmp tmpfs and SIGSEGV the installer.
-    if buildpath:
-        job_variables['TMPDIR'] = f'{buildpath}/tmp'
-        job_variables['EASYBUILD_TMPDIR'] = f'{buildpath}/tmp'
+    # Point TMPDIR at a stable absolute path under the buildpath so large CUDA
+    # .run extractions don't overflow /tmp or resolve relative to the package
+    # build directory that EasyBuild has chdir'ed into.
+    if tempdir:
+        job_variables['TMPDIR'] = tempdir
+        job_variables['EASYBUILD_TMPDIR'] = tempdir
+
+    script = []
+    if tempdir:
+        script.append('mkdir -p "$TMPDIR"')
+    script.append(eb_command)
 
     # Create job definition
     job = {
         'stage': stage_name,
-        'script': [eb_command],
+        'script': script,
         'variables': job_variables,
         'artifacts': {
             'when': 'always',

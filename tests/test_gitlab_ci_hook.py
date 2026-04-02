@@ -136,7 +136,8 @@ class GitLabCIHookTests(unittest.TestCase):
             with mock.patch.dict(os.environ, {"DRYRUN": "true"}, clear=False):
                 job = HOOK._create_gitlab_job(job_info, "build")
 
-        command = job["script"][0]
+        self.assertEqual(job["script"][0], 'mkdir -p "$TMPDIR"')
+        command = job["script"][1]
         self.assertIn("--dry-run", command)
         self.assertIn("Foo-1.2.3-foss-2023a.eb", command)
         self.assertNotIn("--hooks", command)
@@ -146,9 +147,29 @@ class GitLabCIHookTests(unittest.TestCase):
         self.assertEqual(artifact_paths[0], "eblog/*.log")
         self.assertEqual(artifact_paths[1], "ebbuild/**/*.log")
         self.assertEqual(job["variables"]["EB_MODULE_NAME"], "Foo/1.2.3")
-        # TMPDIR should be set under buildpath to avoid /tmp overflow
-        self.assertEqual(job["variables"]["TMPDIR"], "ebbuild/tmp")
-        self.assertEqual(job["variables"]["EASYBUILD_TMPDIR"], "ebbuild/tmp")
+        # TMPDIR should be made job-stable so it doesn't become relative to
+        # EasyBuild's package-specific build directory.
+        self.assertEqual(job["variables"]["TMPDIR"], "${CI_PROJECT_DIR}/ebbuild/tmp")
+        self.assertEqual(job["variables"]["EASYBUILD_TMPDIR"], "${CI_PROJECT_DIR}/ebbuild/tmp")
+
+    def test_create_gitlab_job_keeps_absolute_buildpath_for_tmpdir(self):
+        job_info = {
+            "module": "Foo/1.2.3",
+            "easyconfig_path": "/tmp/Foo-1.2.3-foss-2023a.eb",
+        }
+        argv = [
+            "eb",
+            "--buildpath=/scratch/ebbuild",
+            "--robot",
+        ]
+
+        with mock.patch.object(sys, "argv", argv):
+            job = HOOK._create_gitlab_job(job_info, "build")
+
+        self.assertEqual(job["script"][0], 'mkdir -p "$TMPDIR"')
+        self.assertEqual(job["script"][1], "eb --buildpath=/scratch/ebbuild --robot Foo-1.2.3-foss-2023a.eb")
+        self.assertEqual(job["variables"]["TMPDIR"], "/scratch/ebbuild/tmp")
+        self.assertEqual(job["variables"]["EASYBUILD_TMPDIR"], "/scratch/ebbuild/tmp")
 
     def test_inject_configuration_merges_defaults_and_skips_self_reference(self):
         pipeline = {
