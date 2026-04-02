@@ -32,9 +32,15 @@ from easybuild.tools.filetools import write_file, mkdir
 from easybuild.framework.easyconfig.easyconfig import ActiveMNS
 
 
-# Print a message when the hook module is loaded
-print("*** GITLAB CI HOOK LOADED ***")
 log = fancylogger.getLogger('gitlab_ci_hook', fname=False)
+
+
+def _status_msg(message):
+    """Emit a concise user-facing status line through EasyBuild output handling."""
+    print_msg(message, log=log)
+
+
+_status_msg("*** GITLAB CI HOOK LOADED ***")
 log.info("GitLab CI Hook module loaded successfully")
 
 # Global variables to track pipeline state
@@ -158,10 +164,7 @@ def start_hook(*args, **kwargs):
     """Initialize GitLab CI pipeline generation."""
     global PIPELINE_JOBS, JOB_DEPENDENCIES, GITLAB_CONFIG, JOB_NAME_MAP, PARSED_ECS, READY_ECS
     
-    log = fancylogger.getLogger('gitlab_ci_hook', fname=False)
-    
-    print("*** START_HOOK CALLED ***")
-    log.info("*** START_HOOK CALLED ***")
+    _status_msg("*** START_HOOK CALLED ***")
     log.info("[GitLab CI Hook] Initializing GitLab CI pipeline generation")
     
     # Reset global state
@@ -235,29 +238,27 @@ def post_ready_hook(ec, *args, **kwargs):
 
 def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
     """Hook called before starting the build and install loop with all easyconfigs."""
-    log = fancylogger.getLogger('gitlab_ci_hook', fname=False)
-    
-    print("*** PRE_BUILD_AND_INSTALL_LOOP_HOOK CALLED ***")
-    print(f"*** Received {len(ecs)} easyconfigs ***")
+    _status_msg("*** PRE_BUILD_AND_INSTALL_LOOP_HOOK CALLED ***")
+    _status_msg(f"*** Received {len(ecs)} easyconfigs ***")
     log.info("[GitLab CI Hook] Processing %d easyconfigs for GitLab CI pipeline generation", len(ecs))
     
     try:
         # Use the ready easyconfigs if available, otherwise use the provided ones
         global READY_ECS
         if 'READY_ECS' in globals() and READY_ECS:
-            print(f"*** Using {len(READY_ECS)} ready easyconfigs ***")
+            _status_msg(f"*** Using {len(READY_ECS)} ready easyconfigs ***")
             log.info("[GitLab CI Hook] Using %d ready easyconfigs from post_ready_hook", len(READY_ECS))
             _process_easyconfigs_for_jobs(READY_ECS)
         else:
-            print(f"*** Using {len(ecs)} provided easyconfigs ***")
+            _status_msg(f"*** Using {len(ecs)} provided easyconfigs ***")
             log.info("[GitLab CI Hook] Using %d easyconfigs from pre_build_and_install_loop_hook", len(ecs))
             _process_easyconfigs_for_jobs(ecs)
         
-        print("*** Processing complete - generating pipeline ***")
+        _status_msg("*** Processing complete - generating pipeline ***")
         # Generate and inject defaults into pipeline YAML
         _generate_and_inject_pipeline()
         
-        print("*** Pipeline generated - exiting ***")
+        _status_msg("*** Pipeline generated - exiting ***")
         # Stop EasyBuild execution after pipeline generation
         log.info("[GitLab CI Hook] GitLab CI pipeline generated. Stopping EasyBuild execution.")
         raise SystemExit(0)
@@ -266,10 +267,8 @@ def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
         # Re-raise SystemExit
         raise
     except Exception as e:
-        print(f"*** ERROR in hook: {e} ***")
-        log.error("[GitLab CI Hook] Error in pre_build_and_install_loop_hook: %s", e)
-        import traceback
-        traceback.print_exc()
+        _status_msg(f"*** ERROR in hook: {e} ***")
+        log.exception("[GitLab CI Hook] Error in pre_build_and_install_loop_hook: %s", e)
         raise
 
 
@@ -366,7 +365,7 @@ def _process_easyconfigs_for_jobs(easyconfigs):
         PIPELINE_JOBS[module_name]['job_dependencies'] = pipeline_deps
         log.info("[GitLab CI Hook] Resolved pipeline deps for '%s': %s", module_name, pipeline_deps)
     
-    print(f"*** Finished processing - created {len(PIPELINE_JOBS)} jobs ***")
+    _status_msg(f"*** Finished processing - created {len(PIPELINE_JOBS)} jobs ***")
     log.info("[GitLab CI Hook] Processed %d easyconfigs for GitLab CI jobs", len(PIPELINE_JOBS))
 
 
