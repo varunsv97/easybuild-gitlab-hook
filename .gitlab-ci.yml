@@ -71,7 +71,7 @@ generate_pipeline:
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=${NTASKS_PER_NODE} \
          --cuda-compute-capabilities=7.0 \
-         nvidia-compilers-25.1-CUDA-12.6.0.eb
+         OpenMPI-5.0.3-nvidia-compilers-25.1-CUDA-12.6.0.eb
 
     
     - echo "Pipeline generation completed"
