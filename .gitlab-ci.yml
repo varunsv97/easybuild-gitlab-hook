@@ -65,6 +65,7 @@ test_gitlab_ci_hook:
          --trace --max-parallel=${NTASKS_PER_NODE} \
          ${CUDA_COMPUTE_OPTION} \
          libidn2-2.3.7-GCCcore-14.2.0.eb \
+         libpsl-0.21.5-GCCcore-14.2.0.eb \
          JupyterLab-4.4.4-GCCcore-14.2.0.eb
     - mv easybuild-child-pipeline.yml easybuild-child-pipeline-${ARCH}.yml
     - cat easybuild-child-pipeline-${ARCH}.yml
