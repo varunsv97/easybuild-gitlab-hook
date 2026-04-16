@@ -26,6 +26,7 @@ default:
   tags: ['rosi-slurm']
   before_script:
     - ml python/3.14
+    - ml $ARCH
     - source $EB_SOURCE/bin/activate
   id_tokens:
     CI_JOB_JWT:
