@@ -569,6 +569,39 @@ def _inject_configuration(pipeline, default_config, child_variables):
     return ordered_pipeline
 
 
+def _build_eb_arg_template_map():
+    """Map concrete generation-time arguments back to runtime variables for matrix fan-out."""
+    template_map = {}
+
+    eb_path = os.environ.get('EB_PATH')
+    arch = os.environ.get('ARCH')
+    if eb_path and arch:
+        install_root = posixpath.join(eb_path.rstrip('/'), arch)
+        template_map[f'--installpath={install_root}'] = '--installpath=${EB_PATH}/${ARCH}'
+        template_map[f'--installpath-modules={install_root}/modules'] = '--installpath-modules=${EB_PATH}/${ARCH}/modules'
+
+    source_path = os.environ.get('SOURCE_PATH')
+    if source_path:
+        template_map[f'--sourcepath={source_path}'] = '--sourcepath=${SOURCE_PATH}'
+
+    ntasks_per_node = os.environ.get('NTASKS_PER_NODE')
+    if ntasks_per_node:
+        template_map[f'--max-parallel={ntasks_per_node}'] = '--max-parallel=${NTASKS_PER_NODE}'
+
+    # Prefer a prebuilt CUDA arg variable so CPU rows can leave it empty.
+    cuda_option = os.environ.get('CUDA_COMPUTE_OPTION')
+    if cuda_option:
+        template_map[cuda_option] = '${CUDA_COMPUTE_OPTION}'
+    else:
+        cuda_cc = os.environ.get('EASYBUILD_CUDA_COMPUTE_CAPABILITIES', os.environ.get('CUDA_COMPUTE_CAPABILITIES'))
+        if cuda_cc:
+            template_map[f'--cuda-compute-capabilities={cuda_cc}'] = (
+                '--cuda-compute-capabilities=${EASYBUILD_CUDA_COMPUTE_CAPABILITIES}'
+            )
+
+    return template_map
+
+
 def _create_gitlab_job(job_info, stage_name):
     """Create a GitLab CI job definition."""
     
@@ -578,6 +611,7 @@ def _create_gitlab_job(job_info, stage_name):
     # Filter out options we don't want to pass to child jobs
     skip_options = ['--hooks', '--job']
     eb_args = []
+    arg_template_map = _build_eb_arg_template_map()
     
     # Extract tmp-logdir and buildpath for artifact paths
     tmp_logdir = None
@@ -618,7 +652,7 @@ def _create_gitlab_job(job_info, stage_name):
         
         # Skip .eb files (we'll add the specific one for this job)
         if not skip_this and not arg.endswith('.eb'):
-            eb_args.append(arg)
+            eb_args.append(arg_template_map.get(arg, arg))
         
         i += 1
     

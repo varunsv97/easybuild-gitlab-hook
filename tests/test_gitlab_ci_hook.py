@@ -137,7 +137,7 @@ class GitLabCIHookTests(unittest.TestCase):
                 job = HOOK._create_gitlab_job(job_info, "build")
 
         self.assertEqual(job["script"][0], 'mkdir -p "$TMPDIR"')
-        command = job["script"][1]
+        command = job["script"][-1]
         self.assertIn("--dry-run", command)
         self.assertIn("Foo-1.2.3-foss-2023a.eb", command)
         self.assertNotIn("--hooks", command)
@@ -170,6 +170,39 @@ class GitLabCIHookTests(unittest.TestCase):
         self.assertEqual(job["script"][1], "eb --buildpath=/scratch/ebbuild --robot Foo-1.2.3-foss-2023a.eb")
         self.assertEqual(job["variables"]["TMPDIR"], "/scratch/ebbuild/tmp")
         self.assertEqual(job["variables"]["EASYBUILD_TMPDIR"], "/scratch/ebbuild/tmp")
+
+    def test_create_gitlab_job_templates_generation_args_for_matrix_jobs(self):
+        job_info = {
+            "module": "Foo/1.2.3",
+            "easyconfig_path": "/tmp/Foo-1.2.3-foss-2023a.eb",
+        }
+        argv = [
+            "eb",
+            "--installpath=/opt/easybuild/hopper",
+            "--installpath-modules=/opt/easybuild/hopper/modules",
+            "--sourcepath=/srv/sources",
+            "--max-parallel=8",
+            "--cuda-compute-capabilities=9.0",
+            "--robot",
+        ]
+        env = {
+            "EB_PATH": "/opt/easybuild",
+            "ARCH": "hopper",
+            "SOURCE_PATH": "/srv/sources",
+            "NTASKS_PER_NODE": "8",
+            "CUDA_COMPUTE_OPTION": "--cuda-compute-capabilities=9.0",
+        }
+
+        with mock.patch.object(sys, "argv", argv):
+            with mock.patch.dict(os.environ, env, clear=True):
+                job = HOOK._create_gitlab_job(job_info, "build")
+
+        command = job["script"][-1]
+        self.assertIn("--installpath=${EB_PATH}/${ARCH}", command)
+        self.assertIn("--installpath-modules=${EB_PATH}/${ARCH}/modules", command)
+        self.assertIn("--sourcepath=${SOURCE_PATH}", command)
+        self.assertIn("--max-parallel=${NTASKS_PER_NODE}", command)
+        self.assertIn("${CUDA_COMPUTE_OPTION}", command)
 
     def test_inject_configuration_merges_defaults_and_skips_self_reference(self):
         pipeline = {
