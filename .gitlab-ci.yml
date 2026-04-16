@@ -185,7 +185,7 @@ execute_builds_genoa:
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-genoa --mem=200G"
   rules:
     - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)genoa(,|$)/'
-      when: manual
+      when: always
     - when: never
 
 execute_builds_skylake:
@@ -210,7 +210,7 @@ execute_builds_skylake:
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-skylake --mem=200G"
   rules:
     - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)skylake(,|$)/'
-      when: manual
+      when: always
     - when: never
 
 execute_builds_milan:
@@ -235,7 +235,7 @@ execute_builds_milan:
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-milan --mem=200G"
   rules:
     - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)milan(,|$)/'
-      when: manual
+      when: always
     - when: never
 
 execute_builds_turin:
@@ -260,7 +260,7 @@ execute_builds_turin:
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-turin --mem=200G"
   rules:
     - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)turin(,|$)/'
-      when: manual
+      when: always
     - when: never
 
 execute_builds_volta:
@@ -285,7 +285,7 @@ execute_builds_volta:
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-v100 --gres=gpu:1 --mem=200G"
   rules:
     - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)volta(,|$)/'
-      when: manual
+      when: always
     - when: never
 
 execute_builds_ampere:
@@ -310,7 +310,7 @@ execute_builds_ampere:
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-a100 --gres=gpu:1 --mem=200G"
   rules:
     - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)ampere(,|$)/'
-      when: manual
+      when: always
     - when: never
 
 execute_builds_hopper:
@@ -335,7 +335,7 @@ execute_builds_hopper:
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-h100 --gres=gpu:1 --mem=200G"
   rules:
     - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)hopper(,|$)/'
-      when: manual
+      when: always
     - when: never
 
 execute_builds_blackwell:
@@ -360,5 +360,5 @@ execute_builds_blackwell:
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-b200 --gres=gpu:1 --mem=200G"
   rules:
     - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)blackwell(,|$)/'
-      when: manual
+      when: always
     - when: never
