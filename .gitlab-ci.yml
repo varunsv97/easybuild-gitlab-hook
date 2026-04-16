@@ -14,6 +14,7 @@ workflow:
 
 variables:
   # Select build targets from "Run pipeline": use "all" or comma-separated ARCH names.
+  # Valid values must match the `generate_pipeline_<arch>` / `execute_builds_<arch>` jobs below.
   # Example: genoa,ampere,hopper
   SELECT_ARCHITECTURES: "skylake"
 
@@ -80,6 +81,18 @@ generate_pipeline_genoa:
     CUDA_COMPUTE_OPTION: ""
   rules:
     - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)genoa(,|$)/'
+    - when: never
+
+generate_pipeline_skylake:
+  <<: *generate_pipeline_template
+  variables:
+    ARCH: "skylake"
+    # Adjust `PARTITION`/resources to match your cluster naming for Skylake nodes.
+    PARTITION: "cpu-skylake"
+    NTASKS_PER_NODE: "8"
+    CUDA_COMPUTE_OPTION: ""
+  rules:
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)skylake(,|$)/'
     - when: never
 
 generate_pipeline_milan:
@@ -170,6 +183,31 @@ execute_builds_genoa:
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-genoa --mem=200G"
   rules:
     - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)genoa(,|$)/'
+      when: manual
+    - when: never
+
+execute_builds_skylake:
+  stage: build
+  needs:
+    - job: generate_pipeline_skylake
+      artifacts: true
+  trigger:
+    include:
+      - artifact: easybuild-child-pipeline-skylake.yml
+        job: generate_pipeline_skylake
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+  variables:
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
+    ARCH: "skylake"
+    PARTITION: "cpu-skylake"
+    NTASKS_PER_NODE: "8"
+    CUDA_COMPUTE_OPTION: ""
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-skylake --mem=200G"
+  rules:
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)skylake(,|$)/'
       when: manual
     - when: never
 

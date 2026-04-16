@@ -116,6 +116,9 @@ execute_builds:
 
 ## Troubleshooting
 
+**Pipeline only ran `test` stage:**
+Check `SELECT_ARCHITECTURES` in `.gitlab-ci.yml`. It must match one or more of the defined architecture jobs (e.g. `genoa`, `skylake`, `milan`, `turin`, `volta`, `ampere`, `hopper`, `blackwell`) or be set to `all`. If it doesn’t match any, GitLab will skip all `generate_pipeline_*` and `execute_builds_*` jobs.
+
 **Circular variable reference error:**
 Remove self-referencing variables like `EB_PATH: $EB_PATH` from `execute_builds.variables`
 
