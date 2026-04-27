@@ -16,7 +16,7 @@ variables:
   # Select build targets from "Run pipeline": use "all" or comma-separated ARCH names.
   # Valid values must match the `generate_pipeline_<arch>` / `execute_builds_<arch>` jobs below.
   # Example: genoa,ampere,hopper
-  SELECT_ARCHITECTURES: "skylake"
+  SELECT_ARCHITECTURES: "skylake, genoa, milan, turin"
 
   # Do NOT change the below variables
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb_env"
@@ -64,9 +64,7 @@ test_gitlab_ci_hook:
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=${NTASKS_PER_NODE} \
          ${CUDA_COMPUTE_OPTION} \
-         libidn2-2.3.7-GCCcore-14.2.0.eb \
-         libpsl-0.21.5-GCCcore-14.2.0.eb \
-         JupyterLab-4.4.4-GCCcore-14.2.0.eb
+         texlive-20230313-GCC-13.2.0.eb
     - mv easybuild-child-pipeline.yml easybuild-child-pipeline-${ARCH}.yml
     - cat easybuild-child-pipeline-${ARCH}.yml
   artifacts:
