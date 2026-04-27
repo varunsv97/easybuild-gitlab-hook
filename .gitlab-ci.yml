@@ -16,7 +16,7 @@ variables:
   # Select build targets from "Run pipeline": use "all" or comma-separated ARCH names.
   # Valid values must match the `generate_pipeline_<arch>` / `execute_builds_<arch>` jobs below.
   # Example: genoa,ampere,hopper
-  SELECT_ARCHITECTURES: "skylake, genoa, milan, turin"
+  SELECT_ARCHITECTURES: "genoa, milan, turin"
 
   # Do NOT change the below variables
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb_env"
@@ -81,7 +81,7 @@ generate_pipeline_genoa:
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: ""
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)genoa(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)genoa(\s*,|$)/'
     - when: never
 
 generate_pipeline_skylake:
@@ -93,7 +93,7 @@ generate_pipeline_skylake:
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: ""
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)skylake(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)skylake(\s*,|$)/'
     - when: never
 
 generate_pipeline_milan:
@@ -104,7 +104,7 @@ generate_pipeline_milan:
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: ""
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)milan(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)milan(\s*,|$)/'
     - when: never
 
 generate_pipeline_turin:
@@ -115,7 +115,7 @@ generate_pipeline_turin:
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: ""
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)turin(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)turin(\s*,|$)/'
     - when: never
 
 generate_pipeline_volta:
@@ -126,7 +126,7 @@ generate_pipeline_volta:
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=7.0"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)volta(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)volta(\s*,|$)/'
     - when: never
 
 generate_pipeline_ampere:
@@ -137,7 +137,7 @@ generate_pipeline_ampere:
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=8.0"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)ampere(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)ampere(\s*,|$)/'
     - when: never
 
 generate_pipeline_hopper:
@@ -148,7 +148,7 @@ generate_pipeline_hopper:
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=9.0"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)hopper(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)hopper(\s*,|$)/'
     - when: never
 
 generate_pipeline_blackwell:
@@ -159,7 +159,7 @@ generate_pipeline_blackwell:
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=10.0"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)blackwell(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)blackwell(\s*,|$)/'
     - when: never
 
 execute_builds_genoa:
@@ -183,7 +183,7 @@ execute_builds_genoa:
     CUDA_COMPUTE_OPTION: ""
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-genoa --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)genoa(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)genoa(\s*,|$)/'
       when: always
     - when: never
 
@@ -208,7 +208,7 @@ execute_builds_skylake:
     CUDA_COMPUTE_OPTION: ""
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-skylake --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)skylake(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)skylake(\s*,|$)/'
       when: always
     - when: never
 
@@ -233,7 +233,7 @@ execute_builds_milan:
     CUDA_COMPUTE_OPTION: ""
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-milan --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)milan(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)milan(\s*,|$)/'
       when: always
     - when: never
 
@@ -258,7 +258,7 @@ execute_builds_turin:
     CUDA_COMPUTE_OPTION: ""
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-turin --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)turin(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)turin(\s*,|$)/'
       when: always
     - when: never
 
@@ -283,7 +283,7 @@ execute_builds_volta:
     CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=7.0"
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-v100 --gres=gpu:1 --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)volta(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)volta(\s*,|$)/'
       when: always
     - when: never
 
@@ -308,7 +308,7 @@ execute_builds_ampere:
     CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=8.0"
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-a100 --gres=gpu:1 --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)ampere(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)ampere(\s*,|$)/'
       when: always
     - when: never
 
@@ -333,7 +333,7 @@ execute_builds_hopper:
     CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=9.0"
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-h100 --gres=gpu:1 --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)hopper(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)hopper(\s*,|$)/'
       when: always
     - when: never
 
@@ -358,6 +358,6 @@ execute_builds_blackwell:
     CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=10.0"
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-b200 --gres=gpu:1 --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,)blackwell(,|$)/'
+    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)blackwell(\s*,|$)/'
       when: always
     - when: never
