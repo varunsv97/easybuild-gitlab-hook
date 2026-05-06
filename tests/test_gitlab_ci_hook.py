@@ -204,6 +204,47 @@ class GitLabCIHookTests(unittest.TestCase):
         self.assertIn("--max-parallel=${NTASKS_PER_NODE}", command)
         self.assertIn("${CUDA_COMPUTE_OPTION}", command)
 
+    def test_create_gitlab_job_preserves_options_that_share_control_prefix(self):
+        job_info = {
+            "module": "Foo/1.2.3",
+            "easyconfig_path": "/tmp/Foo-1.2.3.eb",
+        }
+        argv = [
+            "eb",
+            "--hooks",
+            "gitlab_ci_hook.py",
+            "--job-cores=4",
+            "--job",
+            "--robot",
+            "/tmp/Other-0.1.eb",
+        ]
+
+        with mock.patch.object(sys, "argv", argv):
+            job = HOOK._create_gitlab_job(job_info, "build")
+
+        self.assertEqual(job["script"][-1], "eb --job-cores=4 --robot Foo-1.2.3.eb")
+
+    def test_create_gitlab_job_strips_easystack_from_child_command(self):
+        job_info = {
+            "module": "Foo/1.2.3",
+            "easyconfig_path": "/tmp/Foo-1.2.3.eb",
+        }
+        argv = [
+            "eb",
+            "--easystack=easybuild-easystack.yml",
+            "--robot",
+            "--tmp-logdir=eblog",
+        ]
+
+        with mock.patch.object(sys, "argv", argv):
+            job = HOOK._create_gitlab_job(job_info, "build")
+
+        command = job["script"][-1]
+        self.assertIn("--robot", command)
+        self.assertIn("--tmp-logdir=eblog", command)
+        self.assertTrue(command.endswith("Foo-1.2.3.eb"))
+        self.assertNotIn("--easystack", command)
+
     def test_inject_configuration_merges_defaults_and_skips_self_reference(self):
         pipeline = {
             "stages": ["build"],
@@ -255,6 +296,26 @@ class GitLabCIHookTests(unittest.TestCase):
         self.assertEqual(HOOK.JOB_DEPENDENCIES["A/1.0"], ["B/1.0"])
         self.assertEqual(HOOK.JOB_DEPENDENCIES["B/1.0"], [])
         self.assertEqual(HOOK.JOB_DEPENDENCIES["C/1.0"], [])
+
+    def test_process_easyconfigs_reuses_active_mns_instance(self):
+        ec_a = _FakeEC("A/1.0", deps=[{"module_name": "B/1.0"}])
+        ec_b = _FakeEC("B/1.0", deps=[])
+        instances = []
+
+        class _CountingActiveMNS:
+            def __init__(self):
+                instances.append(self)
+
+            def det_full_module_name(self, item):
+                if isinstance(item, dict):
+                    return item["module_name"]
+                return item.module_name
+
+        with mock.patch.object(HOOK, "ActiveMNS", _CountingActiveMNS):
+            HOOK._process_easyconfigs_for_jobs([ec_a, ec_b])
+
+        self.assertEqual(len(instances), 1)
+        self.assertEqual(HOOK.JOB_DEPENDENCIES["A/1.0"], ["B/1.0"])
 
     def test_process_easyconfigs_falls_back_when_dependency_module_lookup_fails(self):
         dep_pkgconf = {

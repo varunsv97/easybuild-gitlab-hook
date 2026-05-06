@@ -18,7 +18,7 @@ Jacamar CI enables GitLab Runner to submit jobs to HPC schedulers, allowing GitL
 
 The hook intercepts EasyBuild execution and generates a GitLab CI pipeline:
 
-1. **Dependency Resolution:** EasyBuild resolves all dependencies with `--robot`
+1. **Dependency Resolution:** EasyBuild resolves all dependencies from one or more easyconfigs, including via `--easystack`, with `--robot`
 2. **Hook Capture:** Captures easyconfig objects and dependency information
 3. **Pipeline Generation:** Creates `easybuild-child-pipeline.yml` with proper job dependencies
 4. **Configuration Injection:** Reads `.gitlab-ci.yml` and injects `default:` and `variables:` sections
@@ -67,11 +67,11 @@ Push to GitLab and the pipeline will:
 source /path/to/easybuild/venv/bin/activate
 
 eb --hooks=gitlab_ci_hook.py \
+   --easystack=easybuild-easystack.yml \
    --installpath=/path/to/software \
    --tmp-logdir=eblog \
    --buildpath=ebbuild \
-   --robot \
-   YourPackage.eb
+   --robot
 
 cat easybuild-child-pipeline.yml
 ```
@@ -82,6 +82,7 @@ cat easybuild-child-pipeline.yml
 ✅ **Configuration inheritance** - Reads everything from `.gitlab-ci.yml`  
 ✅ **Dynamic artifact paths** - Uses `--tmp-logdir` and `--buildpath` from your command  
 ✅ **Command preservation** - All eb options automatically passed to child jobs  
+✅ **Easystack entrypoint** - Supports `eb --easystack ...` for stack-level pipeline generation
 ✅ **HPC integration** - Works with Jacamar CI for SLURM/PBS/LSF job submission  
 
 ## Configuration

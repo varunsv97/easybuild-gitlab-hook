@@ -16,11 +16,13 @@ variables:
   # Select build targets from "Run pipeline": use "all" or comma-separated ARCH names.
   # Valid values must match the `generate_pipeline_<arch>` / `execute_builds_<arch>` jobs below.
   # Example: genoa,ampere,hopper
-  SELECT_ARCHITECTURES: "genoa"
+  # Default to all supported partitions except blackwell.
+  SELECT_ARCHITECTURES: "genoa,skylake,milan,turin,volta,ampere,hopper"
 
   # Do NOT change the below variables
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb_env"
   SOURCE_PATH: "/data/rosi/shared/eb/easybuild_source"
+  TARGET_EASYSTACK: "easybuild-easystack.yml"
 
 default:
   tags: ['rosi-slurm']
@@ -54,6 +56,7 @@ test_gitlab_ci_hook:
     - ls -la gitlab_ci_hook.py || echo "Hook file NOT FOUND"
     - |
       eb --hooks=gitlab_ci_hook.py \
+         --easystack=${TARGET_EASYSTACK} \
          --installpath=${EB_PATH}/${ARCH} \
          --installpath-modules=${EB_PATH}/${ARCH}/modules \
          --tmp-logdir=eblog --buildpath=ebbuild \
@@ -63,8 +66,7 @@ test_gitlab_ci_hook:
          --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
          --accept-eula-for=Intel-oneAPI,CUDA,NVHPC,cuDNN \
          --trace --max-parallel=${NTASKS_PER_NODE} \
-         ${CUDA_COMPUTE_OPTION} \
-         texlive-20230313-GCC-13.2.0.eb
+         ${CUDA_COMPUTE_OPTION}
     - mv easybuild-child-pipeline.yml easybuild-child-pipeline-${ARCH}.yml
     - cat easybuild-child-pipeline-${ARCH}.yml
   artifacts:
@@ -75,91 +77,91 @@ test_gitlab_ci_hook:
 # Generate child pipeline per architecture so dependency/install paths are arch-specific.
 generate_pipeline_genoa:
   <<: *generate_pipeline_template
-  variables:
+  variables: &genoa_variables
     ARCH: "genoa"
     PARTITION: "cpu-genoa"
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: ""
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)genoa(\s*,|$)/'
+    - if: &select_genoa '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)genoa(\s*,|$)/'
     - when: never
 
 generate_pipeline_skylake:
   <<: *generate_pipeline_template
-  variables:
+  variables: &skylake_variables
     ARCH: "skylake"
     # Adjust `PARTITION`/resources to match your cluster naming for Skylake nodes.
     PARTITION: "cpu-skylake"
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: ""
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)skylake(\s*,|$)/'
+    - if: &select_skylake '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)skylake(\s*,|$)/'
     - when: never
 
 generate_pipeline_milan:
   <<: *generate_pipeline_template
-  variables:
+  variables: &milan_variables
     ARCH: "milan"
     PARTITION: "cpu-milan"
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: ""
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)milan(\s*,|$)/'
+    - if: &select_milan '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)milan(\s*,|$)/'
     - when: never
 
 generate_pipeline_turin:
   <<: *generate_pipeline_template
-  variables:
+  variables: &turin_variables
     ARCH: "turin"
     PARTITION: "cpu-turin"
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: ""
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)turin(\s*,|$)/'
+    - if: &select_turin '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)turin(\s*,|$)/'
     - when: never
 
 generate_pipeline_volta:
   <<: *generate_pipeline_template
-  variables:
+  variables: &volta_variables
     ARCH: "volta"
     PARTITION: "gpu-v100"
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=7.0"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)volta(\s*,|$)/'
+    - if: &select_volta '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)volta(\s*,|$)/'
     - when: never
 
 generate_pipeline_ampere:
   <<: *generate_pipeline_template
-  variables:
+  variables: &ampere_variables
     ARCH: "ampere"
     PARTITION: "gpu-a100"
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=8.0"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)ampere(\s*,|$)/'
+    - if: &select_ampere '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)ampere(\s*,|$)/'
     - when: never
 
 generate_pipeline_hopper:
   <<: *generate_pipeline_template
-  variables:
+  variables: &hopper_variables
     ARCH: "hopper"
     PARTITION: "gpu-h100"
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=9.0"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)hopper(\s*,|$)/'
+    - if: &select_hopper '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)hopper(\s*,|$)/'
     - when: never
 
 generate_pipeline_blackwell:
   <<: *generate_pipeline_template
-  variables:
+  variables: &blackwell_variables
     ARCH: "blackwell"
     PARTITION: "gpu-b200"
     NTASKS_PER_NODE: "8"
     CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=10.0"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)blackwell(\s*,|$)/'
+    - if: &select_blackwell '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)blackwell(\s*,|$)/'
     - when: never
 
 execute_builds_genoa:
@@ -168,22 +170,20 @@ execute_builds_genoa:
     - job: generate_pipeline_genoa
       artifacts: true
   trigger:
+    <<: &child_trigger_defaults
+      strategy: depend
+      forward:
+        yaml_variables: true
+        pipeline_variables: true
     include:
       - artifact: easybuild-child-pipeline-genoa.yml
         job: generate_pipeline_genoa
-    strategy: depend
-    forward:
-      yaml_variables: true
-      pipeline_variables: true
   variables:
+    <<: *genoa_variables
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    ARCH: "genoa"
-    PARTITION: "cpu-genoa"
-    NTASKS_PER_NODE: "8"
-    CUDA_COMPUTE_OPTION: ""
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-genoa --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)genoa(\s*,|$)/'
+    - if: *select_genoa
       when: always
     - when: never
 
@@ -193,22 +193,16 @@ execute_builds_skylake:
     - job: generate_pipeline_skylake
       artifacts: true
   trigger:
+    <<: *child_trigger_defaults
     include:
       - artifact: easybuild-child-pipeline-skylake.yml
         job: generate_pipeline_skylake
-    strategy: depend
-    forward:
-      yaml_variables: true
-      pipeline_variables: true
   variables:
+    <<: *skylake_variables
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    ARCH: "skylake"
-    PARTITION: "cpu-skylake"
-    NTASKS_PER_NODE: "8"
-    CUDA_COMPUTE_OPTION: ""
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-skylake --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)skylake(\s*,|$)/'
+    - if: *select_skylake
       when: always
     - when: never
 
@@ -218,22 +212,16 @@ execute_builds_milan:
     - job: generate_pipeline_milan
       artifacts: true
   trigger:
+    <<: *child_trigger_defaults
     include:
       - artifact: easybuild-child-pipeline-milan.yml
         job: generate_pipeline_milan
-    strategy: depend
-    forward:
-      yaml_variables: true
-      pipeline_variables: true
   variables:
+    <<: *milan_variables
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    ARCH: "milan"
-    PARTITION: "cpu-milan"
-    NTASKS_PER_NODE: "8"
-    CUDA_COMPUTE_OPTION: ""
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-milan --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)milan(\s*,|$)/'
+    - if: *select_milan
       when: always
     - when: never
 
@@ -243,22 +231,16 @@ execute_builds_turin:
     - job: generate_pipeline_turin
       artifacts: true
   trigger:
+    <<: *child_trigger_defaults
     include:
       - artifact: easybuild-child-pipeline-turin.yml
         job: generate_pipeline_turin
-    strategy: depend
-    forward:
-      yaml_variables: true
-      pipeline_variables: true
   variables:
+    <<: *turin_variables
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    ARCH: "turin"
-    PARTITION: "cpu-turin"
-    NTASKS_PER_NODE: "8"
-    CUDA_COMPUTE_OPTION: ""
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=cpu-turin --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)turin(\s*,|$)/'
+    - if: *select_turin
       when: always
     - when: never
 
@@ -268,22 +250,16 @@ execute_builds_volta:
     - job: generate_pipeline_volta
       artifacts: true
   trigger:
+    <<: *child_trigger_defaults
     include:
       - artifact: easybuild-child-pipeline-volta.yml
         job: generate_pipeline_volta
-    strategy: depend
-    forward:
-      yaml_variables: true
-      pipeline_variables: true
   variables:
+    <<: *volta_variables
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    ARCH: "volta"
-    PARTITION: "gpu-v100"
-    NTASKS_PER_NODE: "8"
-    CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=7.0"
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-v100 --gres=gpu:1 --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)volta(\s*,|$)/'
+    - if: *select_volta
       when: always
     - when: never
 
@@ -293,22 +269,16 @@ execute_builds_ampere:
     - job: generate_pipeline_ampere
       artifacts: true
   trigger:
+    <<: *child_trigger_defaults
     include:
       - artifact: easybuild-child-pipeline-ampere.yml
         job: generate_pipeline_ampere
-    strategy: depend
-    forward:
-      yaml_variables: true
-      pipeline_variables: true
   variables:
+    <<: *ampere_variables
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    ARCH: "ampere"
-    PARTITION: "gpu-a100"
-    NTASKS_PER_NODE: "8"
-    CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=8.0"
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-a100 --gres=gpu:1 --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)ampere(\s*,|$)/'
+    - if: *select_ampere
       when: always
     - when: never
 
@@ -318,22 +288,16 @@ execute_builds_hopper:
     - job: generate_pipeline_hopper
       artifacts: true
   trigger:
+    <<: *child_trigger_defaults
     include:
       - artifact: easybuild-child-pipeline-hopper.yml
         job: generate_pipeline_hopper
-    strategy: depend
-    forward:
-      yaml_variables: true
-      pipeline_variables: true
   variables:
+    <<: *hopper_variables
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    ARCH: "hopper"
-    PARTITION: "gpu-h100"
-    NTASKS_PER_NODE: "8"
-    CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=9.0"
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-h100 --gres=gpu:1 --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)hopper(\s*,|$)/'
+    - if: *select_hopper
       when: always
     - when: never
 
@@ -343,21 +307,15 @@ execute_builds_blackwell:
     - job: generate_pipeline_blackwell
       artifacts: true
   trigger:
+    <<: *child_trigger_defaults
     include:
       - artifact: easybuild-child-pipeline-blackwell.yml
         job: generate_pipeline_blackwell
-    strategy: depend
-    forward:
-      yaml_variables: true
-      pipeline_variables: true
   variables:
+    <<: *blackwell_variables
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    ARCH: "blackwell"
-    PARTITION: "gpu-b200"
-    NTASKS_PER_NODE: "8"
-    CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=10.0"
     SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --partition=gpu-b200 --gres=gpu:1 --mem=200G"
   rules:
-    - if: '$SELECT_ARCHITECTURES == "all" || $SELECT_ARCHITECTURES =~ /(^|,\s*)blackwell(\s*,|$)/'
+    - if: *select_blackwell
       when: always
     - when: never

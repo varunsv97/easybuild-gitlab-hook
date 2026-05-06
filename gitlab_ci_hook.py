@@ -21,6 +21,7 @@ Configuration is read from .gitlab-ci.yml in the current directory, specifically
 Author: Varun Sudharshnam, HZDR
 """
 
+import copy
 import os
 import posixpath
 import sys
@@ -48,6 +49,18 @@ PIPELINE_JOBS = {}
 JOB_DEPENDENCIES = {}
 GITLAB_CONFIG = {}
 JOB_NAME_MAP = {}
+PARSED_ECS = []
+READY_ECS = []
+
+PIPELINE_FILE_NAME = 'easybuild-child-pipeline.yml'
+PASSTHROUGH_ENV_KEYS = ('SCHEDULER_PARAMETERS', 'patheb', 'DRYRUN')
+HOOK_CONTROL_OPTIONS = ('--hooks', '--job', '--easystack')
+TRUTHY_VALUES = ('1', 'true', 'yes')
+DEFAULT_RETRY = {
+    'max': 2,
+    'when': ['runner_system_failure', 'stuck_or_timeout_failure', 'job_execution_timeout'],
+}
+DEFAULT_CONFIG_KEYS = ('before_script', 'after_script', 'tags', 'id_tokens', 'timeout', 'image')
 
 
 def _extract_easyconfig_details(easyconfig, index):
@@ -94,7 +107,26 @@ def _toolchain_tuple(toolchain):
     return (getattr(toolchain, 'name', None), getattr(toolchain, 'version', None))
 
 
-def _resolve_dependency_module_name(dep, easyconfig_records=None):
+def _record_identity(item):
+    """Return the lookup key used to match dependencies to collected easyconfigs."""
+    if isinstance(item, dict):
+        return (item.get('name'), item.get('version'), item.get('versionsuffix', ''))
+    return (getattr(item, 'name', None), getattr(item, 'version', None), getattr(item, 'versionsuffix', ''))
+
+
+def _build_easyconfig_record_index(easyconfig_records):
+    """Index collected easyconfigs by name/version/versionsuffix for fast dependency fallback lookup."""
+    record_index = {}
+    for record in easyconfig_records:
+        if not record.get('module_name'):
+            continue
+        key = _record_identity(record)
+        if key[0] and key[1]:
+            record_index.setdefault(key, []).append(record)
+    return record_index
+
+
+def _resolve_dependency_module_name(dep, easyconfig_records=None, record_index=None):
     """Best-effort dependency module name lookup without requiring the dep easyconfig file."""
     if not isinstance(dep, dict):
         return None
@@ -112,13 +144,18 @@ def _resolve_dependency_module_name(dep, easyconfig_records=None):
     if not dep_name or not dep_version:
         return None
 
-    matches = [
-        record for record in easyconfig_records
-        if record.get('name') == dep_name
-        and record.get('version') == dep_version
-        and record.get('versionsuffix', '') == dep_versionsuffix
-        and record.get('module_name') is not None
-    ]
+    lookup_key = (dep_name, dep_version, dep_versionsuffix)
+    if record_index is not None:
+        matches = record_index.get(lookup_key, [])
+    else:
+        matches = [
+            record for record in easyconfig_records
+            if record.get('name') == dep_name
+            and record.get('version') == dep_version
+            and record.get('versionsuffix', '') == dep_versionsuffix
+            and record.get('module_name') is not None
+        ]
+
     if len(matches) == 1:
         return matches[0]['module_name']
 
@@ -142,12 +179,15 @@ def _resolve_dependency_module_name(dep, easyconfig_records=None):
     return None
 
 
-def _det_full_module_name(item, easyconfig_records=None):
+def _det_full_module_name(item, easyconfig_records=None, record_index=None, mns=None):
     """Resolve a module name with a fallback for inherited/toolchain-shifted dependencies."""
+    if mns is None:
+        mns = ActiveMNS()
+
     try:
-        return ActiveMNS().det_full_module_name(item)
+        return mns.det_full_module_name(item)
     except Exception as err:
-        fallback_module_name = _resolve_dependency_module_name(item, easyconfig_records)
+        fallback_module_name = _resolve_dependency_module_name(item, easyconfig_records, record_index)
         if fallback_module_name:
             log.debug(
                 "ActiveMNS failed for %s with %s, resolved via pipeline fallback to %s",
@@ -295,14 +335,18 @@ def _process_easyconfigs_for_jobs(easyconfigs):
         if details is not None:
             easyconfig_records.append(details)
 
+    # ActiveMNS setup may inspect EasyBuild state; reuse one resolver across the pipeline.
+    mns = ActiveMNS()
+
     # Resolve module names for all jobs before dependency processing.
     for record in easyconfig_records:
         try:
-            record['module_name'] = _det_full_module_name(record['ec'], easyconfig_records)
+            record['module_name'] = _det_full_module_name(record['ec'], easyconfig_records, mns=mns)
         except Exception as err:
             log.warning("Could not determine module name for %s: %s", record['spec'], err)
 
     easyconfig_records = [record for record in easyconfig_records if record.get('module_name')]
+    record_index = _build_easyconfig_record_index(easyconfig_records)
 
     # Process each easyconfig
     for i, record in enumerate(easyconfig_records):
@@ -314,8 +358,15 @@ def _process_easyconfigs_for_jobs(easyconfigs):
             if not module_name:
                 continue
             
-            # Get all dependencies, filter out external modules
-            all_deps = [d for d in ec.all_dependencies if not d.get('external_module', False)]
+            # Get all dependencies, filter out external modules.
+            all_dependencies = getattr(ec, 'all_dependencies', None)
+            if all_dependencies is None:
+                all_dependencies = list(getattr(ec, 'dependencies', []) or [])
+                all_dependencies.extend(getattr(ec, 'builddependencies', []) or [])
+            all_deps = [
+                dep for dep in all_dependencies
+                if not (isinstance(dep, dict) and dep.get('external_module', False))
+            ]
             
             # Map dependency module names
             dep_mod_names = []
@@ -323,7 +374,7 @@ def _process_easyconfigs_for_jobs(easyconfigs):
             # Process all dependencies
             for dep in all_deps:
                 try:
-                    dep_mod_name = _det_full_module_name(dep, easyconfig_records)
+                    dep_mod_name = _det_full_module_name(dep, easyconfig_records, record_index, mns)
                     dep_mod_names.append(dep_mod_name)
                 except Exception as err:
                     log.warning("Could not determine module name for dependency %s: %s", dep, err)
@@ -393,7 +444,7 @@ def _generate_and_inject_pipeline():
     output_dir = os.getcwd()
     mkdir(output_dir, parents=True)
     
-    pipeline_file = os.path.join(output_dir, 'easybuild-child-pipeline.yml')
+    pipeline_file = os.path.join(output_dir, PIPELINE_FILE_NAME)
     pipeline_yaml = yaml.dump(pipeline, default_flow_style=False, width=120, sort_keys=False)
     write_file(pipeline_file, pipeline_yaml)
     
@@ -414,7 +465,7 @@ def _generate_base_pipeline():
     pipeline_variables = {
         'EASYBUILD_MODULES_TOOL': 'Lmod',
     }
-    for key in ['SCHEDULER_PARAMETERS', 'patheb', 'DRYRUN']:
+    for key in PASSTHROUGH_ENV_KEYS:
         value = os.environ.get(key)
         if value:
             pipeline_variables[key] = value
@@ -448,10 +499,12 @@ def _generate_base_pipeline():
         used_job_names.add(job_name)
         JOB_NAME_MAP[module_name] = job_name
     
+    command_context = _create_eb_command_context()
+
     # Add jobs
     for module_name, job_info in PIPELINE_JOBS.items():
         sanitized_name = JOB_NAME_MAP[module_name]
-        job_yaml = _create_gitlab_job(job_info, 'build')
+        job_yaml = _create_gitlab_job(job_info, 'build', command_context)
         job_yaml['stage'] = 'build'
         pipeline[sanitized_name] = job_yaml
 
@@ -478,16 +531,22 @@ def _load_gitlab_ci_config(config_file):
     log = fancylogger.getLogger('gitlab_ci_hook', fname=False)
     
     try:
-        with open(config_file, 'r') as f:
-            config_data = yaml.safe_load(f)
+        with open(config_file, 'r', encoding='utf-8') as f:
+            config_data = yaml.safe_load(f) or {}
+        if not isinstance(config_data, dict):
+            log.warning("[GitLab CI Hook] Ignoring non-mapping .gitlab-ci.yml content")
+            return {}, {}
         
         # Extract the 'default' section from .gitlab-ci.yml
-        default_config = config_data.get('default', {})
+        default_config = config_data.get('default') or {}
+        if not isinstance(default_config, dict):
+            log.warning("[GitLab CI Hook] Ignoring non-mapping default section in .gitlab-ci.yml")
+            default_config = {}
         
         # Extract variables from execute_builds job for child pipeline
         child_variables = {}
-        execute_builds = config_data.get('execute_builds', {})
-        if 'variables' in execute_builds:
+        execute_builds = config_data.get('execute_builds') or {}
+        if isinstance(execute_builds, dict) and isinstance(execute_builds.get('variables'), dict):
             child_variables = execute_builds['variables']
         
         log.info("[GitLab CI Hook] Loaded configuration from .gitlab-ci.yml")
@@ -500,40 +559,25 @@ def _load_gitlab_ci_config(config_file):
 def _inject_configuration(pipeline, default_config, child_variables):
     """Inject configuration from .gitlab-ci.yml into the pipeline."""
     log = fancylogger.getLogger('gitlab_ci_hook', fname=False)
+    default_config = default_config if isinstance(default_config, dict) else {}
+    child_variables = child_variables if isinstance(child_variables, dict) else {}
     
     # Build default section
     default = {}
     
-    if 'before_script' in default_config:
-        default['before_script'] = default_config['before_script'].copy()
-    
-    if 'after_script' in default_config:
-        default['after_script'] = default_config['after_script'].copy()
-    
-    if 'tags' in default_config:
-        default['tags'] = default_config['tags'].copy()
-    
-    if 'id_tokens' in default_config:
-        default['id_tokens'] = default_config['id_tokens'].copy()
+    for key in DEFAULT_CONFIG_KEYS:
+        if key in default_config:
+            default[key] = copy.deepcopy(default_config[key])
     
     if 'retry' in default_config:
         retry_value = default_config['retry']
         if isinstance(retry_value, dict):
-            default['retry'] = retry_value.copy()
+            default['retry'] = copy.deepcopy(retry_value)
         else:
             # GitLab also allows scalar retry values (for example: retry: 2).
             default['retry'] = retry_value
     else:
-        default['retry'] = {
-            'max': 2,
-            'when': ['runner_system_failure', 'stuck_or_timeout_failure', 'job_execution_timeout']
-        }
-    
-    if 'timeout' in default_config:
-        default['timeout'] = default_config['timeout']
-    
-    if 'image' in default_config:
-        default['image'] = default_config['image']
+        default['retry'] = copy.deepcopy(DEFAULT_RETRY)
     
     # Merge child pipeline variables
     if child_variables:
@@ -602,87 +646,122 @@ def _build_eb_arg_template_map():
     return template_map
 
 
-def _create_gitlab_job(job_info, stage_name):
-    """Create a GitLab CI job definition."""
-    
-    # Reconstruct eb command from sys.argv
-    argv = sys.argv if hasattr(sys, 'argv') else []
-    
-    # Filter out options we don't want to pass to child jobs
-    skip_options = ['--hooks', '--job']
+def _matches_long_option(arg, option):
+    """Return whether an argv token is exactly an option or its --option=value form."""
+    return arg == option or arg.startswith(f'{option}=')
+
+
+def _long_option_value(argv, index, option):
+    """Extract a long option value from --option=value or --option value argv forms."""
+    arg = argv[index]
+    prefix = f'{option}='
+    if arg.startswith(prefix):
+        return arg.split('=', 1)[1]
+    if arg == option and index + 1 < len(argv):
+        return argv[index + 1]
+    return None
+
+
+def _skip_hook_control_option(argv, index):
+    """Return the last argv index to skip for hook-only EasyBuild control options."""
+    arg = argv[index]
+    for option in HOOK_CONTROL_OPTIONS:
+        if not _matches_long_option(arg, option):
+            continue
+        if arg == option and index + 1 < len(argv) and not argv[index + 1].startswith('-'):
+            return index + 1
+        return index
+    return None
+
+
+def _create_eb_command_context(argv=None):
+    """Parse EasyBuild argv once for all generated GitLab jobs."""
+    if argv is None:
+        argv = sys.argv if hasattr(sys, 'argv') else []
+
     eb_args = []
     arg_template_map = _build_eb_arg_template_map()
-    
-    # Extract tmp-logdir and buildpath for artifact paths
     tmp_logdir = None
     buildpath = None
-    
-    i = 0
+
+    i = 1 if argv else 0
     while i < len(argv):
         arg = argv[i]
-        # Skip the program name (eb)
-        if i == 0:
-            i += 1
+
+        option_value = _long_option_value(argv, i, '--tmp-logdir')
+        if option_value is not None:
+            tmp_logdir = option_value
+
+        option_value = _long_option_value(argv, i, '--buildpath')
+        if option_value is not None:
+            buildpath = option_value
+
+        skip_until = _skip_hook_control_option(argv, i)
+        if skip_until is not None:
+            i = skip_until + 1
             continue
-        
-        # Extract tmp-logdir
-        if arg.startswith('--tmp-logdir='):
-            tmp_logdir = arg.split('=', 1)[1]
-        elif arg == '--tmp-logdir' and i + 1 < len(argv):
-            tmp_logdir = argv[i + 1]
-        
-        # Extract buildpath
-        if arg.startswith('--buildpath='):
-            buildpath = arg.split('=', 1)[1]
-        elif arg == '--buildpath' and i + 1 < len(argv):
-            buildpath = argv[i + 1]
-        
-        # Skip hook-related options and their values
-        skip_this = False
-        for skip_opt in skip_options:
-            if arg.startswith(skip_opt):
-                skip_this = True
-                # If it's --option=value format, we're done
-                if '=' in arg:
-                    break
-                # If it's --option value format, skip the next arg too
-                if i + 1 < len(argv) and not argv[i + 1].startswith('-'):
-                    i += 1
-                break
-        
+
         # Skip .eb files (we'll add the specific one for this job)
-        if not skip_this and not arg.endswith('.eb'):
+        if not arg.endswith('.eb'):
             eb_args.append(arg_template_map.get(arg, arg))
-        
+
         i += 1
-    
-    # Build the command
-    eb_command = 'eb ' + ' '.join(eb_args)
+
+    return {
+        'eb_args': eb_args,
+        'tmp_logdir': tmp_logdir,
+        'buildpath': buildpath,
+    }
+
+
+def _build_eb_command(eb_args, easyconfig_path):
+    """Build the EasyBuild command string for a generated child pipeline job."""
+    command_parts = ['eb']
+    command_parts.extend(eb_args)
     
     # Add dry-run option only if DRYRUN variable is set to true
-    if os.environ.get('DRYRUN', '').lower() in ['1', 'true', 'yes']:
-        eb_command += ' --dry-run'
+    if os.environ.get('DRYRUN', '').lower() in TRUTHY_VALUES:
+        command_parts.append('--dry-run')
     
     # Add the specific easyconfig for this job
-    eb_command += ' ' + os.path.basename(job_info['easyconfig_path'])
-    
-    # Build artifact paths dynamically
-    artifact_paths = ['*.log', '*.out', '*.err']
+    command_parts.append(os.path.basename(easyconfig_path))
+    return ' '.join(command_parts)
+
+
+def _build_artifact_paths(tmp_logdir, buildpath):
+    """Build artifact paths dynamically from the EasyBuild command context."""
+    artifact_paths = []
     if tmp_logdir:
-        artifact_paths.insert(0, f'{tmp_logdir}/*.log')
+        artifact_paths.append(f'{tmp_logdir}/*.log')
     if buildpath:
-        artifact_paths.insert(1 if tmp_logdir else 0, f'{buildpath}/**/*.log')
+        artifact_paths.append(f'{buildpath}/**/*.log')
+    artifact_paths.extend(['*.log', '*.out', '*.err'])
+    return artifact_paths
+
+
+def _stable_tmpdir(buildpath):
+    """Resolve EasyBuild TMPDIR to a stable path under buildpath when available."""
+    if not buildpath:
+        return None
 
     # Resolve scratch to a stable absolute path for the job. EasyBuild changes
     # into package-specific build directories, so a relative TMPDIR can point
     # somewhere unintended by the time the CUDA installer runs.
-    tempdir = None
-    if buildpath:
-        if buildpath.startswith('$') or buildpath.startswith('${') or os.path.isabs(buildpath):
-            buildpath_root = buildpath
-        else:
-            buildpath_root = posixpath.join('${CI_PROJECT_DIR}', buildpath)
-        tempdir = posixpath.normpath(posixpath.join(buildpath_root, 'tmp'))
+    if buildpath.startswith('$') or os.path.isabs(buildpath):
+        buildpath_root = buildpath
+    else:
+        buildpath_root = posixpath.join('${CI_PROJECT_DIR}', buildpath)
+    return posixpath.normpath(posixpath.join(buildpath_root, 'tmp'))
+
+
+def _create_gitlab_job(job_info, stage_name, command_context=None):
+    """Create a GitLab CI job definition."""
+    if command_context is None:
+        command_context = _create_eb_command_context()
+
+    eb_command = _build_eb_command(command_context['eb_args'], job_info['easyconfig_path'])
+    artifact_paths = _build_artifact_paths(command_context['tmp_logdir'], command_context['buildpath'])
+    tempdir = _stable_tmpdir(command_context['buildpath'])
     
     # Build per-job variables
     job_variables = {
