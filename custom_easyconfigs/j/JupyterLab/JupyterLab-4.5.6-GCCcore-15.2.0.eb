@@ -17,7 +17,7 @@ builddependencies = [
 ]
 dependencies = [
     ('Python', '3.14.2'),
-    ('IPython', '9.4.0'),
+    ('IPython', '9.13.0'),
     ('jupyter-server', '2.17.0'),
 ]
 

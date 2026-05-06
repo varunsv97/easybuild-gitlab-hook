@@ -1,0 +1,21 @@
+easyblock = 'PythonPackage'
+
+name = 'IPython'
+version = '9.13.0'
+
+homepage = 'https://ipython.org/'
+description = """IPython provides a rich architecture for interactive computing with powerful interactive shells."""
+
+toolchain = {'name': 'GCCcore', 'version': '15.2.0'}
+
+source_urls = ['https://pypi.io/packages/source/i/ipython']
+sources = [SOURCE_TAR_GZ]
+checksums = ['7e834b6afc99f020e3f05966ced34792f40267d64cb1ea9043886dab0dde5967']
+
+dependencies = [
+    ('Python', '3.14.2'),
+]
+
+sanity_check_commands = ['ipython --version']
+
+moduleclass = 'tools'
