@@ -17,7 +17,7 @@ variables:
   # Valid values must match the `generate_pipeline_<arch>` / `execute_builds_<arch>` jobs below.
   # Example: genoa,ampere,hopper
   # Default to all supported partitions except blackwell.
-  SELECT_ARCHITECTURES: "genoa,skylake,milan,turin,volta,ampere,hopper"
+  SELECT_ARCHITECTURES: "rome"
 
   # Do NOT change the below variables
   EB_SOURCE: "/bigdata/rz/sudhar46/easybuild_manual_test/codebase/eb_env"
