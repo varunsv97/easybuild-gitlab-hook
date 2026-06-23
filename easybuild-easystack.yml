@@ -1,2 +1,2 @@
 easyconfigs:
-  - HDF5-1.14.5-nvidia-compilers-25.1-CUDA-12.6.0.eb
+  - ADIOS2-2.10.2-NVHPC-25.3-CUDA-12.8.0.eb
