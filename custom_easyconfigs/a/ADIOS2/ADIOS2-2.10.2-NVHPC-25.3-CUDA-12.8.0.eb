@@ -25,7 +25,7 @@ checksums = [
 
 builddependencies = [
     # ADIOS2 2.10.x is not ready for CMake 4.
-    ('CMake', '3.29.3', '', ('GCCcore', local_gccver)),
+    ('CMake', '3.31.3', '', ('GCCcore', local_gccver)),
     ('pkgconf', '2.3.0', '', ('GCCcore', local_gccver)),
 ]
 
