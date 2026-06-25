@@ -15,7 +15,6 @@ sources = ['hdf5_%(version)s.tar.gz']
 patches = ['HDF5-1.14.5_m4-aclocal-fix.patch']
 checksums = [
     {'hdf5_1.14.5.tar.gz': 'c83996dc79080a34e7b5244a1d5ea076abfd642ec12d7c25388e2fdd81d26350'},
-    {'HDF5-1.14.5_m4-aclocal-fix.patch': 'ac6a634385528daf249aaa7183980d21f847f75697de4cf7098430e6b00af021'},
 ]
 
 dependencies = [
