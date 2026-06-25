@@ -57,7 +57,6 @@ configopts += ' --without-xpmem'
 # Set NVHPC compiler drivers manually, as autodetection is unreliable here.
 configopts += ' CC=nvc CXX=nvc++ FC=nvfortran'
 
-configopts += ' --with-hwloc=/usr --with-libevent=/usr'
 
 # site specific options
 # configopts += ' --without-psm2 '
@@ -68,3 +67,4 @@ modextravars = {
     'LD_LIBRARY_PATH': '/usr/local/lib:%(LD_LIBRARY_PATH)s',
 }
 moduleclass = 'mpi'
+
