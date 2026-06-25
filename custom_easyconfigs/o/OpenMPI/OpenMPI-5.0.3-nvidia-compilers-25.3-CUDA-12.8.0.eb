@@ -5,7 +5,7 @@ homepage = 'https://www.open-mpi.org/'
 description = """The Open MPI Project is an open source MPI-3 implementation."""
 
 toolchain = {'name': 'nvidia-compilers', 'version': '25.3-CUDA-12.8.0'}
-local_gccver = '12.2.0'
+local_gccver = '14.2.0'
 
 source_urls = ['https://www.open-mpi.org/software/ompi/v%(version_major_minor)s/downloads']
 sources = [SOURCELOWER_TAR_BZ2]
@@ -32,6 +32,9 @@ builddependencies = [
 ]
 
 dependencies = [
+    ('zlib', '1.3.1', '', ('GCCcore', local_gccver)),
+    ('hwloc', '2.11.2', '', ('GCCcore', local_gccver)),
+    ('libevent', '2.1.12', '', ('GCCcore', local_gccver)),
     ('UCX', '1.18.0', '', ('GCCcore', local_gccver)),
     ('UCX-CUDA', '1.18.0', '-CUDA-%(cudaver)s', ('GCCcore', local_gccver)),
     ('libfabric', '2.0.0', '', ('GCCcore', local_gccver)),

@@ -7,8 +7,8 @@ description = """HDF5 is a data model, library, and file format for storing and 
  It supports an unlimited variety of datatypes, and is designed for flexible
  and efficient I/O and for high volume and complex data."""
 
-toolchain = {'name': 'NVHPC', 'version': '25.3-CUDA-12.8.0'}
-toolchainopts = {'pic': True, 'usempi': True}
+toolchain = {'name': 'nvidia-compilers', 'version': '25.3-CUDA-12.8.0'}
+toolchainopts = {'pic': True}
 
 source_urls = ['https://github.com/HDFGroup/hdf5/archive']
 sources = ['hdf5_%(version)s.tar.gz']
@@ -19,11 +19,14 @@ checksums = [
 ]
 
 dependencies = [
+    ('OpenMPI', '5.0.3'),
     ('zlib', '1.3.1'),
     ('Szip', '2.1.1'),
 ]
 
-configopts = '--disable-nonstandard-feature-float16'
+preconfigopts = 'CC=mpicc CXX=mpicxx FC=mpif90 '
+
+configopts = '--enable-parallel --disable-nonstandard-feature-float16'
 
 postinstallcmds = [
     'sed -i -r "s, -I[^[:space:]]+H5FDsubfiling , -I%(installdir)s/include ,g" %(installdir)s/bin/h5c++',
