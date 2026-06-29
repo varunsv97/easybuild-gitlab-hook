@@ -13,9 +13,9 @@ media types (such as files, wide-area-networks, and remote direct memory access)
 common application programming interface for all transport modes. ADIOS2 can be used on
 supercomputers, cloud systems, and personal computers."""
 
-toolchain = {'name': 'nvidia-compilers', 'version': '25.3-CUDA-12.8.0'}
+toolchain = {'name': 'nvidia-compilers', 'version': '25.1-CUDA-12.6.0'}
 toolchainopts = {'pic': True}
-local_gccver = '14.2.0'
+local_gccver = '13.3.0'
 
 source_urls = ['https://github.com/ornladios/ADIOS2/archive/refs/tags/']
 sources = ['v%(version)s.tar.gz']

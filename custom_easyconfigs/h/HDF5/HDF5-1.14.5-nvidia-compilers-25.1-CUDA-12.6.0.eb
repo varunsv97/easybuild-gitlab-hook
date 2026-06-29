@@ -7,7 +7,7 @@ description = """HDF5 is a data model, library, and file format for storing and 
  It supports an unlimited variety of datatypes, and is designed for flexible
  and efficient I/O and for high volume and complex data."""
 
-toolchain = {'name': 'nvidia-compilers', 'version': '25.3-CUDA-12.8.0'}
+toolchain = {'name': 'nvidia-compilers', 'version': '25.1-CUDA-12.6.0'}
 toolchainopts = {'pic': True}
 
 source_urls = ['https://github.com/HDFGroup/hdf5/archive']
