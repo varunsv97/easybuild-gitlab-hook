@@ -58,6 +58,7 @@ configopts += ' --without-xpmem'
 configopts += ' CC=nvc CXX=nvc++ FC=nvfortran'
 configopts += ' --with-ofi=$EBROOTLIBFABRICS'
 configopts += ' --enable-mca-no-build=mtl-ofi'
+configopts += ' --disable-mpi-fortran-sizeof'
 
 
 
