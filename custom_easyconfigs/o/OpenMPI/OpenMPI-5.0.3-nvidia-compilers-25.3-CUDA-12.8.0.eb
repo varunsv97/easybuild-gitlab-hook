@@ -45,7 +45,7 @@ dependencies = [
 ]
 
 # CUDA related patches and custom configure option can be removed if CUDA support isn't wanted.
-preconfigopts = 'nvc -Iopal/mca/cuda/include -shared opal/mca/cuda/lib/cuda.c -o opal/mca/cuda/lib/libcuda.so && '
+preconfigopts = 'gcc -Iopal/mca/cuda/include -shared opal/mca/cuda/lib/cuda.c -o opal/mca/cuda/lib/libcuda.so && '
 # Update configure to include changes from the "disable_opal_path_nfs_test" patch
 preconfigopts += './autogen.pl --force && '
 
@@ -58,6 +58,7 @@ configopts += ' --without-xpmem'
 configopts += ' CC=nvc CXX=nvc++ FC=nvfortran'
 
 
+
 # site specific options
 # configopts += ' --without-psm2 '
 # configopts += ' --disable-oshmem '
@@ -67,4 +68,3 @@ modextravars = {
     'LD_LIBRARY_PATH': '/usr/local/lib:%(LD_LIBRARY_PATH)s',
 }
 moduleclass = 'mpi'
-
