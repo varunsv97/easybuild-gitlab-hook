@@ -54,8 +54,6 @@ configopts = '--with-cuda=%(start_dir)s/opal/mca/cuda '
 configopts += ' --enable-alt-short-float=no'
 # Do not pick up the system library automatically
 configopts += ' --without-xpmem'
-# NVHPC 25.3 trips over OpenMPI's OFI/libfabric MTL code; UCX/UCC remain enabled.
-configopts += ' --without-ofi'
 # Set NVHPC compiler drivers manually, as autodetection is unreliable here.
 configopts += ' CC=nvc CXX=nvc++ FC=nvfortran'
 
