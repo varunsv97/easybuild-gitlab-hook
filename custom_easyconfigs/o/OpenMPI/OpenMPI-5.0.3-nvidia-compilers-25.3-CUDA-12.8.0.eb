@@ -37,7 +37,7 @@ dependencies = [
     ('libevent', '2.1.12', '', ('GCCcore', local_gccver)),
     ('UCX', '1.18.0', '', ('GCCcore', local_gccver)),
     ('UCX-CUDA', '1.18.0', '-CUDA-%(cudaver)s', ('GCCcore', local_gccver)),
-    ('libfabric', '2.0.0', '', ('GCCcore', local_gccver)),
+    ('libfabric', '2.0.0', ('GCCcore', local_gccver)),
     ('PMIx', '5.0.6', '', ('GCCcore', local_gccver)),
     ('PRRTE', '3.0.8', '', ('GCCcore', local_gccver)),
     ('UCC', '1.3.0', '', ('GCCcore', local_gccver)),
@@ -54,6 +54,8 @@ configopts = '--with-cuda=%(start_dir)s/opal/mca/cuda '
 configopts += ' --enable-alt-short-float=no'
 # Do not pick up the system library automatically
 configopts += ' --without-xpmem'
+# NVHPC 25.3 trips over OpenMPI's OFI/libfabric MTL code; UCX/UCC remain enabled.
+configopts += ' --without-ofi'
 # Set NVHPC compiler drivers manually, as autodetection is unreliable here.
 configopts += ' CC=nvc CXX=nvc++ FC=nvfortran'
 
