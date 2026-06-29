@@ -56,7 +56,7 @@ configopts += ' --enable-alt-short-float=no'
 configopts += ' --without-xpmem'
 # Set NVHPC compiler drivers manually, as autodetection is unreliable here.
 configopts += ' CC=nvc CXX=nvc++ FC=nvfortran'
-configopts += ' --with-ofi=%(EBROOTLIBFABRIC)s'
+configopts += ' --with-ofi=$EBROOTLIBFABRICS'
 configopts += ' --enable-mca-no-build=mtl-ofi'
 
 
