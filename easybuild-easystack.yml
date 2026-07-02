@@ -1,2 +1,2 @@
 easyconfigs:
-  - HDF5-1.14.5-nvidia-compilers-25.1-CUDA-12.6.0.eb
+  - LAMMPS-22Jul2025-foss-2024a-kokkos-CUDA-12.6.0.eb
