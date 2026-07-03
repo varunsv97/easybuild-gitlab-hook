@@ -1,2 +1,2 @@
 easyconfigs:
-  - NVHPC-25.1-CUDA-12.6.0.eb
+  - HDF5-1.14.5-NVHPC-25.1-CUDA-12.6.0.eb
