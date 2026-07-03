@@ -58,8 +58,8 @@ configopts += ' CC=nvc CXX=nvc++ FC=nvfortran'
 configopts += ' --with-libfabric=$EBROOTLIBFABRICS'
 configopts += ' --enable-mca-no-build=mtl-ofi'
 configopts += ' --disable-mpi-fortran-sizeof'
-configopts += ' --with-gpfs=/usr/lpp/mmfs 
-configopts += ' --with-slurm 
+configopts += ' --with-gpfs=/usr/lpp/mmfs '
+configopts += ' --with-slurm '
 
 # site specific options
 # configopts += ' --without-psm2 '
