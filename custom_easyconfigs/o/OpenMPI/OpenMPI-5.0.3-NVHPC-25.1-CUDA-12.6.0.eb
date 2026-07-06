@@ -56,6 +56,7 @@ configopts += ' --without-xpmem'
 configopts += ' CC=nvc CXX=nvc++ FC=nvfortran'
 configopts += ' --with-libfabric=$EBROOTLIBFABRICS'
 configopts += ' --enable-mca-no-build=mtl-ofi'
+configopts += ' --disable-wrapper-rpath --disable-wrapper-runpath'
 configopts += ' --with-gpfs=/usr/lpp/mmfs '
 configopts += ' --with-slurm '
 
