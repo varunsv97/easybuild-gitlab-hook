@@ -45,7 +45,16 @@ dependencies = [
 
 
 # Update configure to include changes from the "disable_opal_path_nfs_test" patch
-preconfigopts = "./autogen.pl --force && sed -i 's/ --enable-new-dtags/ -Wl,--enable-new-dtags/g' configure && "
+preconfigopts = (
+    "./autogen.pl --force && "
+    "sed -i 's/ --enable-new-dtags/ -Wl,--enable-new-dtags/g' configure && "
+)
+
+prebuildopts = (
+    'sed -i \'/BEGIN LIBTOOL TAG CONFIG: FC/,/END LIBTOOL TAG CONFIG: FC/s/^wl=.*/wl="-Wl,"/\' libtool && '
+    'sed -i \'/BEGIN LIBTOOL TAG CONFIG: F77/,/END LIBTOOL TAG CONFIG: F77/s/^wl=.*/wl="-Wl,"/\' libtool && '
+)
+
 
 configopts = '--with-cuda=%(start_dir)s/opal/mca/cuda '
 # Required to prevent internal compiler error in opal.
@@ -54,7 +63,7 @@ configopts += ' --enable-alt-short-float=no'
 configopts += ' --without-xpmem'
 # Set NVHPC compiler drivers manually, as autodetection is unreliable here.
 configopts += ' CC=nvc CXX=nvc++ FC=nvfortran'
-configopts += ' --with-libfabric=$EBROOTLIBFABRICS'
+configopts += ' --with-libfabric=$EBROOTLIBFABRIC'
 configopts += ' --enable-mca-no-build=mtl-ofi'
 configopts += ' --disable-wrapper-rpath --disable-wrapper-runpath'
 
