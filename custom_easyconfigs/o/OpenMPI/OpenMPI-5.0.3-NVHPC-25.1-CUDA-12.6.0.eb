@@ -54,7 +54,7 @@ configopts += ' --enable-alt-short-float=no'
 # Do not pick up the system library automatically
 configopts += ' --without-xpmem'
 # Set NVHPC compiler drivers manually, as autodetection is unreliable here.
-configopts += ' CC=nvc CXX=nvc++ FC=nvfortran'
+configopts += ' CC=pgcc CXX=pgc++ FC=pgfortran'
 configopts += ' --with-libfabric=$EBROOTLIBFABRICS'
 configopts += ' --enable-mca-no-build=mtl-ofi'
 configopts += ' --with-gpfs=/usr/lpp/mmfs '
