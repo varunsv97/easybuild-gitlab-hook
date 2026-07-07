@@ -41,8 +41,6 @@ dependencies = [
     ('UCC-CUDA', '1.3.0', '-CUDA-12.6.0', ('GCCcore', local_gccver)),
 ]
 
-configopts += ' --with-libfabric=$EBROOTLIBFABRIC'
-configopts += ' --enable-mca-no-build=mtl-ofi'
 
 # CUDA related patches and custom configure option can be removed if CUDA support isn't wanted.
 preconfigopts = 'gcc -Iopal/mca/cuda/include -shared opal/mca/cuda/lib/cuda.c -o opal/mca/cuda/lib/libcuda.so && '
@@ -51,5 +49,7 @@ preconfigopts += './autogen.pl --force && '
 configopts = '--with-cuda=%(start_dir)s/opal/mca/cuda --with-show-load-errors=no'
 # Do not pick up the system library automatically
 configopts += ' --without-xpmem'
+configopts += ' --with-libfabric=$EBROOTLIBFABRIC'
+configopts += ' --enable-mca-no-build=mtl-ofi'
 
 moduleclass = 'mpi'
