@@ -53,6 +53,8 @@ preconfigopts = (
 prebuildopts = (
     'sed -i \'/BEGIN LIBTOOL TAG CONFIG: FC/,/END LIBTOOL TAG CONFIG: FC/s/^wl=.*/wl="-Wl,"/\' libtool && '
     'sed -i \'/BEGIN LIBTOOL TAG CONFIG: F77/,/END LIBTOOL TAG CONFIG: F77/s/^wl=.*/wl="-Wl,"/\' libtool && '
+    'sed -i \'/BEGIN LIBTOOL TAG CONFIG: FC/,/END LIBTOOL TAG CONFIG: FC/s/^pic_flag=.*/pic_flag="-fPIC"/\' libtool && '
+    'sed -i \'/BEGIN LIBTOOL TAG CONFIG: F77/,/END LIBTOOL TAG CONFIG: F77/s/^pic_flag=.*/pic_flag="-fPIC"/\' libtool && '
 )
 
 
@@ -65,6 +67,7 @@ configopts += ' --without-xpmem'
 configopts += ' CC=nvc CXX=nvc++ FC=nvfortran'
 configopts += ' --with-libfabric=$EBROOTLIBFABRIC'
 configopts += ' --enable-mca-no-build=mtl-ofi'
+configopts += ' CFLAGS="-fPIC" CXXFLAGS="-fPIC" FCFLAGS="-fPIC" FFLAGS="-fPIC"'
 configopts += ' --disable-wrapper-rpath --disable-wrapper-runpath'
 
 
