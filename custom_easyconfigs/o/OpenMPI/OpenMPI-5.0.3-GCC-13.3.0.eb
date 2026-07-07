@@ -5,7 +5,7 @@ homepage = 'https://www.open-mpi.org/'
 description = """The Open MPI Project is an open source MPI-3 implementation."""
 
 toolchain = {'name': 'GCC', 'version': '13.3.0'}
-
+local_gccver = '13.3.0'
 source_urls = ['https://www.open-mpi.org/software/ompi/v%(version_major_minor)s/downloads']
 sources = [SOURCELOWER_TAR_BZ2]
 patches = [
