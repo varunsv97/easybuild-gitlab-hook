@@ -68,7 +68,12 @@ configopts += ' CC=nvc CXX=nvc++ FC=nvfortran'
 configopts += ' --with-libfabric=$EBROOTLIBFABRIC'
 configopts += ' --enable-mca-no-build=mtl-ofi'
 configopts += ' CFLAGS="-fPIC" CXXFLAGS="-fPIC" FCFLAGS="-fPIC" FFLAGS="-fPIC"'
-configopts += ' --disable-wrapper-rpath --disable-wrapper-runpath'
+
+modextrapaths = {
+    'CPATH': 'include',
+    'LD_LIBRARY_PATH': 'lib',
+    'LIBRARY_PATH': 'lib',
+}
 
 
 # site specific options
