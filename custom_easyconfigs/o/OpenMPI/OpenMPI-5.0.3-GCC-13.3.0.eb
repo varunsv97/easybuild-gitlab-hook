@@ -41,6 +41,9 @@ dependencies = [
     ('UCC-CUDA', '1.3.0', '-CUDA-12.6.0', ('GCCcore', local_gccver)),
 ]
 
+configopts += ' --with-libfabric=$EBROOTLIBFABRIC'
+configopts += ' --enable-mca-no-build=mtl-ofi'
+
 # CUDA related patches and custom configure option can be removed if CUDA support isn't wanted.
 preconfigopts = 'gcc -Iopal/mca/cuda/include -shared opal/mca/cuda/lib/cuda.c -o opal/mca/cuda/lib/libcuda.so && '
 # Update configure to include changes from the "disable_opal_path_nfs_test" patch
