@@ -1,2 +1,2 @@
 easyconfigs:
-  - OpenMPI-5.0.3-NVHPC-25.1-CUDA-12.6.0.eb
+  - OpenMPI-5.0.3-GCC-13.3.0.eb
