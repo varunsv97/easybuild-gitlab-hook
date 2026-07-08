@@ -1,2 +1,2 @@
 easyconfigs:
-  - PRRTE-3.0.8-GCCcore-14.2.0.eb
+  - OpenMPI-5.0.7-GCC-14.2.0.eb
