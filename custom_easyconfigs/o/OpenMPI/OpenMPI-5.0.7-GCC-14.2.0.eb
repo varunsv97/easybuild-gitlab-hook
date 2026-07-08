@@ -33,13 +33,13 @@ builddependencies = [
 
 dependencies = [
     ('zlib', '1.3.1'),
-    ('hwloc', '2.11.2'),
+    ('hwloc-CUDA', '2.11.2', '-CUDA-12.8.0', ('GCCcore', local_gccver)),
     ('libevent', '2.1.12'),
-    ('UCX', '1.18.0'),
+    ('UCX-CUDA', '1.18.0', '-CUDA-12.8.0', ('GCCcore', local_gccver)),
     ('libfabric', '2.0.0'),
     ('PMIx', '5.0.6'),
     ('PRRTE', '3.0.8'),
-    ('UCC', '1.3.0'),
+    ('UCC-CUDA', '1.3.0', '-CUDA-12.8.0', ('GCCcore', local_gccver)),
 ]
 
 # CUDA related patches and custom configure option can be removed if CUDA support isn't wanted.

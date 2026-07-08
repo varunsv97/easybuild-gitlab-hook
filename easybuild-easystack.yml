@@ -1,2 +1,2 @@
 easyconfigs:
-  - OpenMPI-5.0.3-GCC-13.3.0.eb
+  - PMIx-5.0.6-GCCcore-14.2.0.eb
