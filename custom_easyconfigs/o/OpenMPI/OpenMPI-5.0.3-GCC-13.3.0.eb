@@ -34,10 +34,12 @@ dependencies = [
     ('zlib', '1.3.1'),
     ('hwloc', '2.10.0'),
     ('libevent', '2.1.12'),
+    ('UCX', '1.16.0'),
     ('UCX-CUDA', '1.16.0', '-CUDA-12.6.0', ('GCCcore', local_gccver)),
     ('libfabric', '1.21.0'),
     ('PMIx', '5.0.2'),
     ('PRRTE', '3.0.5'),
+    ('UCC', '1.3.0'),
     ('UCC-CUDA', '1.3.0', '-CUDA-12.6.0', ('GCCcore', local_gccver)),
 ]
 
@@ -47,7 +49,7 @@ preconfigopts = 'gcc -Iopal/mca/cuda/include -shared opal/mca/cuda/lib/cuda.c -o
 # Update configure to include changes from the "disable_opal_path_nfs_test" patch
 preconfigopts += './autogen.pl --force && '
 configopts = '--with-cuda=%(start_dir)s/opal/mca/cuda --with-show-load-errors=no'
-configopts += ' --with-ucx=$EBROOTUCXMINCUDA --with-ucc=$EBROOTUCCMINCUDA'
+configopts += ' --with-ucx=$EBROOTUCX --with-ucc=$EBROOTUCC'
 configopts += ' --disable-dlopen'
 # Do not pick up the system library automatically
 configopts += ' --without-xpmem'

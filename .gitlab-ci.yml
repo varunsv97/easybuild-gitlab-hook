@@ -60,7 +60,7 @@ test_gitlab_ci_hook:
          --installpath=${EB_PATH}/${ARCH} \
          --installpath-modules=${EB_PATH}/${ARCH}/modules \
          --tmp-logdir=eblog --buildpath=ebbuild \
-         --sourcepath=${SOURCE_PATH} \
+         --sourcepath=${SOURCE_PATH} --force --rebuild \
          --robot --robot-paths=${CI_PROJECT_DIR}/custom_easyconfigs: \
          --module-naming-scheme=CategorizedHMNS \
          --insecure-download --disable-mpi-tests --skip-test-step --skip-test-cases \
