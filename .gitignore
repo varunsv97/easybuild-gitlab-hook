@@ -6,3 +6,5 @@ venv-*/
 venv/
 easyconfigs_old/
 easyconfigs_old_*/
+.vscode/
+.codex  

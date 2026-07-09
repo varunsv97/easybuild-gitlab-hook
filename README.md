@@ -7,6 +7,10 @@ The intended deployment target is an HPC GitLab Runner setup, typically using Ja
 ## Contents
 
 - [Prerequisites](#prerequisites)
+- [Use This In Your Own Repository](#use-this-in-your-own-repository)
+- [Repository Layout](#repository-layout)
+- [Minimal GitLab CI Example](#minimal-gitlab-ci-example)
+- [Configuration Reference](#configuration-reference)
 - [High-Level Flow](#high-level-flow)
 - [Main GitLab Pipeline](#main-gitlab-pipeline)
 - [Hook Lifecycle](#hook-lifecycle)
@@ -31,19 +35,227 @@ This hook requires:
 
 Jacamar CI is not required by the Python hook itself. It matters because the generated jobs are actual build jobs and normally need scheduler allocation, module setup, shared installation paths, and shared source/build storage.
 
+## Use This In Your Own Repository
+
+This project is meant to be copied into, forked, or used as a template for a site-specific EasyBuild software stack repository. You can host the code on GitHub, GitLab, or another Git server, but the CI implementation in this repository targets GitLab CI child pipelines.
+
+The minimum files you need are:
+
+- `gitlab_ci_hook.py`
+- `.gitlab-ci.yml`
+- `easybuild-easystack.yml`
+- optional `custom_easyconfigs/`
+- optional `tests/`
+
+Typical setup:
+
+1. Copy `gitlab_ci_hook.py` into your EasyBuild stack repository.
+2. Add one or more target easyconfigs to `easybuild-easystack.yml`.
+3. Put local overrides or site-specific easyconfigs under `custom_easyconfigs/<first-letter>/<software>/`.
+4. Adapt `.gitlab-ci.yml` for your runner tags, module environment, scheduler parameters, install paths, and architecture matrix.
+5. Run the unit tests locally or in CI.
+6. Push to GitLab and run a pipeline.
+
+The hook does not require the generated software stack to be the same as the examples in this repository. Replace the example target names with your own cluster partitions, CPU/GPU generations, compiler targets, or a single generic build target.
+
+### Quick Start
+
+Create an EasyStack:
+
+```yaml
+easyconfigs:
+  - zlib-1.3.1-GCCcore-13.3.0.eb
+  - HDF5-1.14.5-foss-2024a.eb
+```
+
+Run the hook manually first:
+
+```bash
+source /path/to/easybuild-env/bin/activate
+
+eb --hooks=gitlab_ci_hook.py \
+   --easystack=easybuild-easystack.yml \
+   --installpath=/shared/easybuild/software \
+   --installpath-modules=/shared/easybuild/modules \
+   --sourcepath=/shared/easybuild/sources \
+   --buildpath=ebbuild \
+   --tmp-logdir=eblog \
+   --robot --robot-paths=${PWD}/custom_easyconfigs: \
+   --trace
+```
+
+Expected result:
+
+- EasyBuild parses the EasyStack.
+- The hook writes `easybuild-child-pipeline.yml`.
+- EasyBuild exits before building.
+- The generated YAML contains one GitLab job per resolved easyconfig.
+
+### EasyStack With Per-Package Options
+
+EasyStack options are supported and are appended after global EasyBuild options for the matching generated job:
+
+```yaml
+easyconfigs:
+  - Foo-1.0-GCCcore-13.3.0.eb:
+      options:
+        debug: true
+        from-pr: 12345
+  - Bar-2.0-foss-2024a.eb:
+      options:
+        skip-test-step: true
+```
+
+The generated command for `Foo` has this shape:
+
+```bash
+eb <global options> Foo-1.0-GCCcore-13.3.0.eb --debug --from-pr 12345
+```
+
+## Repository Layout
+
+Recommended layout:
+
+```text
+.
+├── .gitlab-ci.yml
+├── easybuild-easystack.yml
+├── gitlab_ci_hook.py
+├── custom_easyconfigs/
+│   └── z/
+│       └── zlib/
+│           └── zlib-1.3.1-GCCcore-13.3.0.eb
+└── tests/
+    └── test_gitlab_ci_hook.py
+```
+
+`custom_easyconfigs/` should follow EasyBuild's normal robot search layout. The first directory level is usually the first letter of the software name.
+
+When you pass:
+
+```bash
+--robot-paths=${CI_PROJECT_DIR}/custom_easyconfigs:
+```
+
+EasyBuild searches your repository overrides first and then falls back to the default EasyBuild easyconfig search path because of the trailing `:`.
+
+## Minimal GitLab CI Example
+
+This is a compact single-target version. Use it as a starting point if you do not need an architecture matrix.
+
+```yaml
+stages:
+  - test
+  - generate
+  - build
+
+variables:
+  EB_ROOT: "/shared/easybuild"
+  EB_SOURCE: "/shared/easybuild/venv"
+  SOURCE_PATH: "/shared/easybuild/sources"
+  TARGET_EASYSTACK: "easybuild-easystack.yml"
+
+default:
+  tags:
+    - hpc-runner
+  before_script:
+    - module load Python/3.12
+    - source ${EB_SOURCE}/bin/activate
+
+test_hook:
+  stage: test
+  before_script: []
+  script:
+    - python3 -m unittest discover -s tests -p "test_*.py" -v
+
+generate_pipeline:
+  stage: generate
+  script:
+    - |
+      eb --hooks=gitlab_ci_hook.py \
+         --easystack=${TARGET_EASYSTACK} \
+         --installpath=${EB_ROOT}/software \
+         --installpath-modules=${EB_ROOT}/modules \
+         --sourcepath=${SOURCE_PATH} \
+         --buildpath=ebbuild \
+         --tmp-logdir=eblog \
+         --robot --robot-paths=${CI_PROJECT_DIR}/custom_easyconfigs: \
+         --trace
+  artifacts:
+    paths:
+      - easybuild-child-pipeline.yml
+    expire_in: 1 week
+
+execute_builds:
+  stage: build
+  needs:
+    - job: generate_pipeline
+      artifacts: true
+  trigger:
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+    include:
+      - artifact: easybuild-child-pipeline.yml
+        job: generate_pipeline
+  variables:
+    SCHEDULER_PARAMETERS: "--nodes=1 --ntasks-per-node=8 --mem=32G"
+```
+
+For GPU or multi-partition clusters, duplicate the `generate_pipeline` and `execute_builds` jobs per target, or use the architecture matrix pattern in this repository's `.gitlab-ci.yml`.
+
+## Configuration Reference
+
+### Required CI Values
+
+| Variable | Purpose | Example |
+| --- | --- | --- |
+| `EB_SOURCE` | Shell environment or virtualenv containing EasyBuild | `/shared/easybuild/venv` |
+| `SOURCE_PATH` | EasyBuild source tarball cache | `/shared/easybuild/sources` |
+| `TARGET_EASYSTACK` | EasyStack file to generate from | `easybuild-easystack.yml` |
+| `EB_ROOT` or `EB_PATH` | Shared EasyBuild install root | `/shared/easybuild` |
+| `SCHEDULER_PARAMETERS` | Scheduler options consumed by your runner/executor | `--nodes=1 --ntasks-per-node=8` |
+
+### Common EasyBuild Options
+
+| Option | Why it matters |
+| --- | --- |
+| `--hooks=gitlab_ci_hook.py` | Loads this hook. |
+| `--easystack=...` | Lets the hook generate from a stack file. |
+| `--robot` | Resolves dependencies into the generated pipeline. |
+| `--robot-paths=${CI_PROJECT_DIR}/custom_easyconfigs:` | Finds repository easyconfig overrides before upstream easyconfigs. |
+| `--installpath` | Software installation prefix. |
+| `--installpath-modules` | Module file installation prefix. |
+| `--sourcepath` | Source cache path. |
+| `--buildpath` | Build workspace path. |
+| `--tmp-logdir` | EasyBuild log output path. |
+| `--module-naming-scheme` | Controls generated module names; job names still use easyconfig filenames. |
+
+### Optional GPU Values
+
+For GPU builds, pass CUDA architecture options through a variable so CPU targets can leave it empty:
+
+```yaml
+variables:
+  CUDA_COMPUTE_OPTION: "--cuda-compute-capabilities=8.0"
+```
+
+The hook preserves `${CUDA_COMPUTE_OPTION}` in the generated child commands.
+
 ## High-Level Flow
 
 ```mermaid
 flowchart TD
     A[Developer pushes GitLab commit] --> B[GitLab parent pipeline starts]
     B --> C[test_gitlab_ci_hook]
-    B --> D[generate_pipeline_ARCH]
+    B --> D[generate_pipeline_TARGET]
     D --> E[Run eb with gitlab_ci_hook.py]
     E --> F[EasyBuild parses easyconfigs and dependencies]
     F --> G[Hook intercepts before build loop]
     G --> H[Hook writes easybuild-child-pipeline.yml]
     H --> I[Generation job stores child YAML artifact]
-    I --> J[execute_builds_ARCH trigger job]
+    I --> J[execute_builds_TARGET trigger job]
     J --> K[GitLab child pipeline starts]
     K --> L[One job per easyconfig/module]
     L --> M[Jacamar submits scheduler jobs]
@@ -66,9 +278,9 @@ flowchart LR
 
 Runs the Python unit tests for the hook. This catches command reconstruction, job naming, dependency mapping, EasyStack option conversion, and child-pipeline generation regressions before the generated build jobs are triggered.
 
-### `generate_pipeline_<arch>`
+### `generate_pipeline_<target>`
 
-Runs EasyBuild with the hook enabled. The current template passes architecture-specific variables such as:
+Runs EasyBuild with the hook enabled. In a matrix setup, each target job passes target-specific variables such as:
 
 - `ARCH`
 - `PARTITION`
@@ -78,7 +290,7 @@ Runs EasyBuild with the hook enabled. The current template passes architecture-s
 - `SOURCE_PATH`
 - `TARGET_EASYSTACK`
 
-The generation command has this shape:
+The command usually has this shape:
 
 ```bash
 eb --hooks=gitlab_ci_hook.py \
@@ -95,9 +307,9 @@ eb --hooks=gitlab_ci_hook.py \
    ${CUDA_COMPUTE_OPTION}
 ```
 
-The hook writes `easybuild-child-pipeline.yml`. The generation job renames it to `easybuild-child-pipeline-${ARCH}.yml` and stores it as a GitLab artifact.
+The hook writes `easybuild-child-pipeline.yml`. In a matrix setup, the generation job can rename it to `easybuild-child-pipeline-${ARCH}.yml` and store it as a GitLab artifact.
 
-### `execute_builds_<arch>`
+### `execute_builds_<target>`
 
 Triggers the generated artifact as a child pipeline:
 
@@ -321,7 +533,7 @@ Each child job receives the specific easyconfig basename for that job.
 
 ### Variable Templating
 
-The generation job sees expanded values such as `/data/rosi/shared/eb/easybuild/ampere`, but the child pipeline should remain reusable for the architecture variables forwarded into it. The hook maps known values back to GitLab variables:
+The generation job sees shell-expanded values such as `/shared/easybuild/gpu`, but the child pipeline should remain reusable for the target variables forwarded into it. The hook maps known values back to GitLab variables:
 
 | Generation-time value | Child pipeline command |
 | --- | --- |
@@ -364,11 +576,10 @@ variables:
 
 default:
   tags:
-    - rosi-slurm
+    - hpc-runner
   before_script:
-    - ml python/3.14
-    - ml $ARCH
-    - source $EB_SOURCE/bin/activate
+    - module load Python/3.12
+    - source ${EB_SOURCE}/bin/activate
   retry:
     max: 2
     when:
@@ -453,7 +664,7 @@ retry:
 
 ### Variables copied into the child pipeline
 
-The hook reads variables from an `execute_builds` job when present. In this repository, the real jobs are architecture-specific (`execute_builds_ampere`, `execute_builds_hopper`, etc.) and GitLab forwards their variables to the child pipeline through `trigger.forward`. The hook also passes selected environment variables directly:
+The hook reads variables from an `execute_builds` job when present. In a matrix pipeline, the real jobs may be target-specific (`execute_builds_cpu`, `execute_builds_gpu`, etc.) and GitLab can forward their variables to the child pipeline through `trigger.forward`. The hook also passes selected environment variables directly:
 
 - `SCHEDULER_PARAMETERS`
 - `patheb`
@@ -552,7 +763,7 @@ Expected result:
 
 ### Pipeline only ran the test stage
 
-Check `SELECT_ARCHITECTURES` in `.gitlab-ci.yml`. It must match one or more architecture jobs such as `genoa`, `skylake`, `milan`, `turin`, `volta`, `ampere`, `hopper`, or `blackwell`, or be set to `all`.
+If you use a target selector such as `SELECT_ARCHITECTURES`, check that it matches one or more generation/build trigger jobs. For example, if your jobs are named `generate_pipeline_cpu` and `generate_pipeline_gpu`, the selector must use `cpu`, `gpu`, or whatever values your `rules:` expressions expect.
 
 ### Child pipeline artifact is missing
 
