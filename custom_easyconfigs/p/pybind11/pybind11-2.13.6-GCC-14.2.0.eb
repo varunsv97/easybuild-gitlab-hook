@@ -1,0 +1,33 @@
+easyblock = 'CMakeMake'
+
+name = 'pybind11'
+version = '2.13.6'
+
+homepage = 'https://github.com/pybind/pybind11'
+description = """pybind11 is a lightweight header-only library that exposes C++ types in Python
+and vice versa, mainly to create Python bindings of existing C++ code."""
+
+toolchain = {'name': 'GCC', 'version': '14.2.0'}
+
+source_urls = ['https://github.com/pybind/pybind11/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['e08cb87f4773da97fa7b5f035de8763abc656d87d5773e62f6da0587d1f0ec20']
+
+builddependencies = [
+    ('CMake', '3.31.3'),
+]
+
+# pybind11 is header-only for EasyBuild consumers like ADIOS2. Avoid CMake's
+# Python Development.Module detection during pybind11's own install; ADIOS2
+# still depends on Python directly for its Python bindings.
+configopts = '-DPYBIND11_TEST=OFF -DPYBIND11_NOPYTHON=ON'
+
+sanity_check_paths = {
+    'files': [
+        'include/pybind11/pybind11.h',
+        'share/cmake/pybind11/pybind11Config.cmake',
+    ],
+    'dirs': ['include/pybind11'],
+}
+
+moduleclass = 'devel'
