@@ -41,10 +41,20 @@ def _install_test_stubs():
     filetools_mod = types.ModuleType("easybuild.tools.filetools")
     filetools_mod.write_file = lambda path, content: Path(path).write_text(content)
     filetools_mod.mkdir = lambda path, parents=False: Path(path).mkdir(parents=parents, exist_ok=True)
+    modules_mod = types.ModuleType("easybuild.tools.modules")
+    modules_mod.modules_tool = lambda testing=False: object()
+    robot_mod = types.ModuleType("easybuild.tools.robot")
+    robot_mod.resolve_dependencies = lambda easyconfigs, _modtool: easyconfigs
 
     framework_mod = types.ModuleType("easybuild.framework")
     framework_easyconfig_mod = types.ModuleType("easybuild.framework.easyconfig")
     easyconfig_mod = types.ModuleType("easybuild.framework.easyconfig.easyconfig")
+    easyconfig_tools_mod = types.ModuleType("easybuild.framework.easyconfig.tools")
+    easyconfig_tools_mod.det_easyconfig_paths = lambda easyconfigs: easyconfigs
+    easyconfig_tools_mod.parse_easyconfigs = lambda paths: (
+        [{"spec": path, "ec": _FakeEC(Path(path).stem.replace("-", "/", 1))} for path, _generated in paths],
+        [],
+    )
 
     class _DefaultActiveMNS:
         def det_full_module_name(self, item):
@@ -61,7 +71,10 @@ def _install_test_stubs():
     base_mod.fancylogger = fancylogger_mod
     tools_mod.build_log = build_log_mod
     tools_mod.filetools = filetools_mod
+    tools_mod.modules = modules_mod
+    tools_mod.robot = robot_mod
     framework_easyconfig_mod.easyconfig = easyconfig_mod
+    framework_easyconfig_mod.tools = easyconfig_tools_mod
     framework_mod.easyconfig = framework_easyconfig_mod
 
     easybuild_mod.base = base_mod
@@ -74,9 +87,12 @@ def _install_test_stubs():
     sys.modules["easybuild.tools"] = tools_mod
     sys.modules["easybuild.tools.build_log"] = build_log_mod
     sys.modules["easybuild.tools.filetools"] = filetools_mod
+    sys.modules["easybuild.tools.modules"] = modules_mod
+    sys.modules["easybuild.tools.robot"] = robot_mod
     sys.modules["easybuild.framework"] = framework_mod
     sys.modules["easybuild.framework.easyconfig"] = framework_easyconfig_mod
     sys.modules["easybuild.framework.easyconfig.easyconfig"] = easyconfig_mod
+    sys.modules["easybuild.framework.easyconfig.tools"] = easyconfig_tools_mod
 
 
 _install_test_stubs()
@@ -181,6 +197,7 @@ class GitLabCIHookTests(unittest.TestCase):
             "--installpath=/opt/easybuild/hopper",
             "--installpath-modules=/opt/easybuild/hopper/modules",
             "--sourcepath=/srv/sources",
+            "--robot-paths=/builds/group/project/custom_easyconfigs:",
             "--max-parallel=8",
             "--cuda-compute-capabilities=9.0",
             "--robot",
@@ -191,6 +208,7 @@ class GitLabCIHookTests(unittest.TestCase):
             "SOURCE_PATH": "/srv/sources",
             "NTASKS_PER_NODE": "8",
             "CUDA_COMPUTE_OPTION": "--cuda-compute-capabilities=9.0",
+            "CI_PROJECT_DIR": "/builds/group/project",
         }
 
         with mock.patch.object(sys, "argv", argv):
@@ -201,8 +219,49 @@ class GitLabCIHookTests(unittest.TestCase):
         self.assertIn("--installpath=${EB_PATH}/${ARCH}", command)
         self.assertIn("--installpath-modules=${EB_PATH}/${ARCH}/modules", command)
         self.assertIn("--sourcepath=${SOURCE_PATH}", command)
+        self.assertIn("--robot-paths=${CI_PROJECT_DIR}/custom_easyconfigs:", command)
         self.assertIn("--max-parallel=${NTASKS_PER_NODE}", command)
         self.assertIn("${CUDA_COMPUTE_OPTION}", command)
+
+    def test_create_gitlab_job_appends_easystack_entry_options(self):
+        job_info = {
+            "module": "Foo/1.2.3",
+            "easyconfig_path": "/tmp/Foo-1.2.3.eb",
+        }
+        config_data = {
+            "easyconfigs": [
+                {
+                    "Foo-1.2.3.eb": {
+                        "options": {
+                            "from-pr": 15924,
+                            "debug": True,
+                            "try-amend": ["license_server=host", "key=abc"],
+                        },
+                    },
+                },
+            ],
+        }
+
+        config_path = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmp_file:
+                tmp_file.write("dummy: true\n")
+                config_path = Path(tmp_file.name)
+
+            argv = ["eb", "--easystack", str(config_path), "--robot", "--disable-debug"]
+            with mock.patch.object(sys, "argv", argv):
+                with mock.patch.object(HOOK.yaml, "safe_load", return_value=config_data):
+                    job = HOOK._create_gitlab_job(job_info, "build")
+
+            command = job["script"][-1]
+            self.assertEqual(
+                command,
+                "eb --robot --disable-debug Foo-1.2.3.eb --from-pr 15924 --debug "
+                "--try-amend license_server=host --try-amend key=abc",
+            )
+        finally:
+            if config_path and config_path.exists():
+                config_path.unlink()
 
     def test_create_gitlab_job_preserves_options_that_share_control_prefix(self):
         job_info = {
@@ -355,7 +414,7 @@ class GitLabCIHookTests(unittest.TestCase):
         self.assertEqual(HOOK.JOB_DEPENDENCIES["pkgconf/2.2.0"], [])
 
     def test_process_easyconfigs_inherited_dep_resolves_among_multiple_matches(self):
-        """When multiple pipeline records match name+version, inherited deps should still resolve."""
+        """Ambiguous inherited deps should not pick an arbitrary pipeline match."""
         dep_pkgconf = {
             "name": "pkgconf",
             "version": "2.2.0",
@@ -396,7 +455,7 @@ class GitLabCIHookTests(unittest.TestCase):
         with mock.patch.object(HOOK, "ActiveMNS", _FallbackActiveMNS):
             HOOK._process_easyconfigs_for_jobs([ec_openmpi, ec_pkgconf_gcc13, ec_pkgconf_gcc14])
 
-        self.assertEqual(HOOK.JOB_DEPENDENCIES["OpenMPI/5.0.3"], ["pkgconf-gcc13/2.2.0"])
+        self.assertEqual(HOOK.JOB_DEPENDENCIES["OpenMPI/5.0.3"], [])
 
     def test_generate_base_pipeline_handles_job_name_collisions(self):
         HOOK.PIPELINE_JOBS = {
@@ -417,9 +476,64 @@ class GitLabCIHookTests(unittest.TestCase):
         with mock.patch.object(sys, "argv", ["eb", "--robot"]):
             pipeline = HOOK._generate_base_pipeline()
 
-        self.assertIn("pkg-1.0pluscuda", pipeline)
-        self.assertIn("pkg-1.0pluscuda-2", pipeline)
-        self.assertEqual(pipeline["pkg-1.0pluscuda-2"]["needs"], ["pkg-1.0pluscuda"])
+        self.assertIn("pkgA", pipeline)
+        self.assertIn("pkgB", pipeline)
+        self.assertEqual(pipeline["pkgB"]["needs"], ["pkgA"])
+
+    def test_generate_base_pipeline_uses_easyconfig_basename_for_hierarchical_modules(self):
+        HOOK.PIPELINE_JOBS = {
+            "Compiler/GCCcore/13.3.0/zlib/1.3.1": {
+                "module": "Compiler/GCCcore/13.3.0/zlib/1.3.1",
+                "easyconfig_path": "/tmp/zlib-1.3.1-GCCcore-13.3.0.eb",
+            },
+        }
+        HOOK.JOB_DEPENDENCIES = {"Compiler/GCCcore/13.3.0/zlib/1.3.1": []}
+
+        with mock.patch.object(sys, "argv", ["eb", "--robot"]):
+            pipeline = HOOK._generate_base_pipeline()
+
+        self.assertIn("zlib-1.3.1-GCCcore-13.3.0", pipeline)
+        self.assertNotIn("Compiler-GCCcore-13.3.0-zlib-1.3.1", pipeline)
+
+    def test_pre_build_expands_multi_entry_easystack(self):
+        ec_a = _FakeEC("A/1.0", deps=[])
+        ec_b = _FakeEC("B/1.0", deps=[{"module_name": "A/1.0"}])
+        command_context = {
+            "eb_args": ["--robot"],
+            "easystack_args_by_easyconfig": {},
+            "easystack_entries": [("A-1.0.eb", {}), ("B-1.0.eb", {})],
+            "easystack_entry_count": 2,
+            "robot_enabled": True,
+            "tmp_logdir": None,
+            "buildpath": None,
+        }
+
+        with mock.patch.object(HOOK, "_create_eb_command_context", return_value=command_context):
+            with mock.patch.object(HOOK, "_expand_easystack_easyconfigs", return_value=[ec_a, ec_b]):
+                with mock.patch.object(HOOK, "_generate_and_inject_pipeline") as generate:
+                    with self.assertRaises(SystemExit) as exit_ctx:
+                        HOOK.pre_build_and_install_loop_hook([])
+                    self.assertEqual(exit_ctx.exception.code, 0)
+                    generate.assert_called_once_with(command_context)
+
+        self.assertEqual(set(HOOK.PIPELINE_JOBS.keys()), {"A/1.0", "B/1.0"})
+        self.assertEqual(HOOK.JOB_DEPENDENCIES["B/1.0"], ["A/1.0"])
+
+    def test_expand_easystack_easyconfigs_uses_easybuild_resolver(self):
+        ec_a = _FakeEC("A/1.0", deps=[])
+        ec_b = _FakeEC("B/1.0", deps=[])
+        command_context = {
+            "easystack_entries": [("A-1.0.eb", {}), ("B-1.0.eb", {})],
+            "robot_enabled": True,
+        }
+
+        with mock.patch("easybuild.framework.easyconfig.tools.det_easyconfig_paths", side_effect=lambda names: names):
+            with mock.patch("easybuild.framework.easyconfig.tools.parse_easyconfigs", return_value=([ec_a, ec_b], [])):
+                with mock.patch("easybuild.tools.robot.resolve_dependencies", return_value=[ec_b, ec_a]) as resolve:
+                    result = HOOK._expand_easystack_easyconfigs(command_context)
+
+        self.assertEqual(result, [ec_b, ec_a])
+        resolve.assert_called_once()
 
     def test_generate_base_pipeline_omits_optional_variables_without_env(self):
         HOOK.PIPELINE_JOBS = {

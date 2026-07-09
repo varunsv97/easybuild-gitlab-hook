@@ -168,13 +168,13 @@ def _resolve_dependency_module_name(dep, easyconfig_records=None, record_index=N
         return toolchain_matches[0]['module_name']
 
     if len(matches) > 1 and dep.get('toolchain_inherited'):
-        log.debug(
-            "Dependency %s/%s inherited toolchain; falling back to first pipeline match %s",
+        match_names = [record['module_name'] for record in matches]
+        log.warning(
+            "Ambiguous inherited dependency %s/%s matches multiple pipeline jobs: %s",
             dep_name,
             dep_version,
-            matches[0]['module_name'],
+            ', '.join(match_names),
         )
-        return matches[0]['module_name']
 
     return None
 
@@ -283,9 +283,16 @@ def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
     log.info("[GitLab CI Hook] Processing %d easyconfigs for GitLab CI pipeline generation", len(ecs))
     
     try:
+        command_context = _create_eb_command_context()
+
         # Use the ready easyconfigs if available, otherwise use the provided ones
         global READY_ECS
-        if 'READY_ECS' in globals() and READY_ECS:
+        if command_context.get('easystack_entries'):
+            expanded_easyconfigs = _expand_easystack_easyconfigs(command_context)
+            _status_msg(f"*** Using {len(expanded_easyconfigs)} EasyStack-expanded easyconfigs ***")
+            log.info("[GitLab CI Hook] Using %d easyconfigs expanded from EasyStack", len(expanded_easyconfigs))
+            _process_easyconfigs_for_jobs(expanded_easyconfigs)
+        elif 'READY_ECS' in globals() and READY_ECS:
             _status_msg(f"*** Using {len(READY_ECS)} ready easyconfigs ***")
             log.info("[GitLab CI Hook] Using %d ready easyconfigs from post_ready_hook", len(READY_ECS))
             _process_easyconfigs_for_jobs(READY_ECS)
@@ -296,7 +303,7 @@ def pre_build_and_install_loop_hook(ecs, *args, **kwargs):
         
         _status_msg("*** Processing complete - generating pipeline ***")
         # Generate and inject defaults into pipeline YAML
-        _generate_and_inject_pipeline()
+        _generate_and_inject_pipeline(command_context)
         
         _status_msg("*** Pipeline generated - exiting ***")
         # Stop EasyBuild execution after pipeline generation
@@ -420,7 +427,7 @@ def _process_easyconfigs_for_jobs(easyconfigs):
     log.info("[GitLab CI Hook] Processed %d easyconfigs for GitLab CI jobs", len(PIPELINE_JOBS))
 
 
-def _generate_and_inject_pipeline():
+def _generate_and_inject_pipeline(command_context=None):
     """Generate the GitLab CI pipeline YAML and inject configuration from .gitlab-ci.yml."""
     log = fancylogger.getLogger('gitlab_ci_hook', fname=False)
     
@@ -429,7 +436,7 @@ def _generate_and_inject_pipeline():
         return
     
     # Generate base pipeline
-    pipeline = _generate_base_pipeline()
+    pipeline = _generate_base_pipeline(command_context)
     
     # Load configuration from .gitlab-ci.yml and inject
     config_file = Path('.gitlab-ci.yml')
@@ -456,7 +463,7 @@ def _generate_and_inject_pipeline():
     _generate_pipeline_summary(pipeline_file)
 
 
-def _generate_base_pipeline():
+def _generate_base_pipeline(command_context=None):
     """Generate the base GitLab CI pipeline structure."""
     log = fancylogger.getLogger('gitlab_ci_hook', fname=False)
     global JOB_NAME_MAP
@@ -487,8 +494,8 @@ def _generate_base_pipeline():
     # Build unique GitLab job names to avoid collisions after sanitization.
     used_job_names = set()
     JOB_NAME_MAP = {}
-    for module_name in PIPELINE_JOBS:
-        base_name = _sanitize_job_name(module_name)
+    for module_name, job_info in PIPELINE_JOBS.items():
+        base_name = _sanitize_job_name(_job_name_from_easyconfig(job_info))
         job_name = base_name
         suffix = 2
         while job_name in used_job_names:
@@ -499,7 +506,8 @@ def _generate_base_pipeline():
         used_job_names.add(job_name)
         JOB_NAME_MAP[module_name] = job_name
     
-    command_context = _create_eb_command_context()
+    if command_context is None:
+        command_context = _create_eb_command_context()
 
     # Add jobs
     for module_name, job_info in PIPELINE_JOBS.items():
@@ -646,6 +654,21 @@ def _build_eb_arg_template_map():
     return template_map
 
 
+def _template_eb_arg(arg, template_map=None):
+    """Template generation-job-specific paths back to child-pipeline variables."""
+    if template_map is None:
+        template_map = _build_eb_arg_template_map()
+
+    if arg in template_map:
+        return template_map[arg]
+
+    ci_project_dir = os.environ.get('CI_PROJECT_DIR')
+    if ci_project_dir:
+        return arg.replace(ci_project_dir.rstrip('/'), '${CI_PROJECT_DIR}')
+
+    return arg
+
+
 def _matches_long_option(arg, option):
     """Return whether an argv token is exactly an option or its --option=value form."""
     return arg == option or arg.startswith(f'{option}=')
@@ -662,6 +685,15 @@ def _long_option_value(argv, index, option):
     return None
 
 
+def _find_easystack_path(argv):
+    """Return the path supplied through --easystack, if any."""
+    for i, arg in enumerate(argv):
+        option_value = _long_option_value(argv, i, '--easystack')
+        if option_value is not None:
+            return option_value
+    return None
+
+
 def _skip_hook_control_option(argv, index):
     """Return the last argv index to skip for hook-only EasyBuild control options."""
     arg = argv[index]
@@ -674,6 +706,104 @@ def _skip_hook_control_option(argv, index):
     return None
 
 
+def _normalise_easystack_entries(easystack_data):
+    """Return EasyStack entries as (easyconfig filename, options dict) tuples."""
+    if not isinstance(easystack_data, dict):
+        return []
+
+    easyconfigs = easystack_data.get('easyconfigs') or []
+    entries = []
+    for entry in easyconfigs:
+        if isinstance(entry, str):
+            entries.append((entry, {}))
+        elif isinstance(entry, dict):
+            for easyconfig_name, entry_config in entry.items():
+                options = {}
+                if isinstance(entry_config, dict) and isinstance(entry_config.get('options'), dict):
+                    options = entry_config['options']
+                entries.append((easyconfig_name, options))
+        else:
+            log.warning("[GitLab CI Hook] Ignoring unsupported EasyStack entry: %s", entry)
+
+    return entries
+
+
+def _load_easystack_entries(easystack_path):
+    """Load EasyStack entries for command reconstruction."""
+    if not easystack_path:
+        return []
+
+    try:
+        with open(easystack_path, 'r', encoding='utf-8') as easystack_file:
+            easystack_data = yaml.safe_load(easystack_file) or {}
+        return _normalise_easystack_entries(easystack_data)
+    except Exception as err:
+        raise RuntimeError(f"Could not load EasyStack file {easystack_path}: {err}")
+
+
+def _easystack_option_args(options, template_map=None):
+    """Convert EasyStack per-entry options to eb command arguments."""
+    if not isinstance(options, dict):
+        return []
+
+    args = []
+    for option, value in options.items():
+        option_name = str(option)
+        prefix = '-' if len(option_name) == 1 else '--'
+        cli_option = f"{prefix}{option_name}"
+
+        values = value if isinstance(value, list) else [value]
+        for item in values:
+            if item is None:
+                continue
+            if isinstance(item, bool):
+                args.append(cli_option if item else f"--disable-{option_name}")
+            else:
+                args.append(cli_option)
+                args.append(_template_eb_arg(str(item), template_map))
+
+    return args
+
+
+def _build_easystack_context(easystack_path, template_map=None):
+    """Map EasyStack filenames to their per-entry eb arguments."""
+    entries = _load_easystack_entries(easystack_path)
+    args_by_easyconfig = {}
+    for easyconfig_name, options in entries:
+        args_by_easyconfig[os.path.basename(easyconfig_name)] = _easystack_option_args(options, template_map)
+    return args_by_easyconfig, entries
+
+
+def _expand_easystack_easyconfigs(command_context):
+    """Resolve all EasyStack entries through EasyBuild's parser and robot dependency resolver."""
+    entries = command_context.get('easystack_entries') or []
+    if not entries:
+        return []
+
+    try:
+        from easybuild.framework.easyconfig.tools import det_easyconfig_paths, parse_easyconfigs
+        from easybuild.tools.modules import modules_tool
+        from easybuild.tools.robot import resolve_dependencies
+    except Exception as err:
+        raise RuntimeError(f"Can not import EasyBuild APIs needed for multi-entry EasyStack expansion: {err}")
+
+    paths = []
+    for easyconfig_name, _options in entries:
+        determined_paths = det_easyconfig_paths([easyconfig_name])
+        if not determined_paths:
+            raise RuntimeError(f"Could not resolve EasyStack easyconfig path: {easyconfig_name}")
+        paths.extend((path, False) for path in determined_paths)
+
+    try:
+        easyconfigs, _generated_ecs = parse_easyconfigs(paths)
+        if command_context.get('robot_enabled'):
+            modtool = modules_tool(testing=False)
+            return resolve_dependencies(easyconfigs, modtool)
+        return easyconfigs
+    except Exception as err:
+        raise RuntimeError(f"Could not expand EasyStack easyconfigs for GitLab CI pipeline generation: {err}")
+
+
 def _create_eb_command_context(argv=None):
     """Parse EasyBuild argv once for all generated GitLab jobs."""
     if argv is None:
@@ -681,12 +811,21 @@ def _create_eb_command_context(argv=None):
 
     eb_args = []
     arg_template_map = _build_eb_arg_template_map()
+    easystack_path = _find_easystack_path(argv)
+    easystack_args_by_easyconfig, easystack_entries = _build_easystack_context(
+        easystack_path,
+        arg_template_map,
+    )
     tmp_logdir = None
     buildpath = None
+    robot_enabled = False
 
     i = 1 if argv else 0
     while i < len(argv):
         arg = argv[i]
+
+        if _matches_long_option(arg, '--robot') or arg == '-r':
+            robot_enabled = True
 
         option_value = _long_option_value(argv, i, '--tmp-logdir')
         if option_value is not None:
@@ -703,18 +842,22 @@ def _create_eb_command_context(argv=None):
 
         # Skip .eb files (we'll add the specific one for this job)
         if not arg.endswith('.eb'):
-            eb_args.append(arg_template_map.get(arg, arg))
+            eb_args.append(_template_eb_arg(arg, arg_template_map))
 
         i += 1
 
     return {
         'eb_args': eb_args,
+        'easystack_args_by_easyconfig': easystack_args_by_easyconfig,
+        'easystack_entries': easystack_entries,
+        'easystack_entry_count': len(easystack_entries),
+        'robot_enabled': robot_enabled,
         'tmp_logdir': tmp_logdir,
         'buildpath': buildpath,
     }
 
 
-def _build_eb_command(eb_args, easyconfig_path):
+def _build_eb_command(eb_args, easyconfig_path, per_easyconfig_args=None):
     """Build the EasyBuild command string for a generated child pipeline job."""
     command_parts = ['eb']
     command_parts.extend(eb_args)
@@ -725,6 +868,8 @@ def _build_eb_command(eb_args, easyconfig_path):
     
     # Add the specific easyconfig for this job
     command_parts.append(os.path.basename(easyconfig_path))
+    if per_easyconfig_args:
+        command_parts.extend(per_easyconfig_args)
     return ' '.join(command_parts)
 
 
@@ -759,7 +904,9 @@ def _create_gitlab_job(job_info, stage_name, command_context=None):
     if command_context is None:
         command_context = _create_eb_command_context()
 
-    eb_command = _build_eb_command(command_context['eb_args'], job_info['easyconfig_path'])
+    easyconfig_basename = os.path.basename(job_info['easyconfig_path'])
+    per_easyconfig_args = command_context.get('easystack_args_by_easyconfig', {}).get(easyconfig_basename, [])
+    eb_command = _build_eb_command(command_context['eb_args'], job_info['easyconfig_path'], per_easyconfig_args)
     artifact_paths = _build_artifact_paths(command_context['tmp_logdir'], command_context['buildpath'])
     tempdir = _stable_tmpdir(command_context['buildpath'])
     
@@ -802,6 +949,15 @@ def _sanitize_job_name(name):
     if sanitized and not (sanitized[0].isalpha() or sanitized[0] == '_'):
         sanitized = 'job-' + sanitized
     return sanitized or 'unknown-job'
+
+
+def _job_name_from_easyconfig(job_info):
+    """Return the desired GitLab job name base: easyconfig basename without .eb."""
+    easyconfig_path = job_info.get('easyconfig_path') or job_info.get('name') or job_info.get('module') or ''
+    basename = os.path.basename(easyconfig_path)
+    if basename.endswith('.eb'):
+        basename = basename[:-3]
+    return basename
 
 
 def _generate_pipeline_summary(pipeline_file):
