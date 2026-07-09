@@ -1,2 +1,2 @@
 easyconfigs:
-  - OpenMPI-5.0.7-GCC-14.2.0.eb
+  - HDF5-1.14.6-gompi-2025a.eb
